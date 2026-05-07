@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:class-and-attendance-management-app/core/theme/app_theme.dart';
+import 'package:app/core/routing/theme/app_theme.dart';
 
 class RegisterScreen extends StatelessWidget {
   final String role; // Receives 'Instructor' or 'Student'

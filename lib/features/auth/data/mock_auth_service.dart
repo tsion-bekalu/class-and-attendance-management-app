@@ -1,9 +1,9 @@
-import 'package:class-and-attendance-management-app/core/models/user.dart';
+import 'package:app/core/routing/theme/models/user.dart';
 
 class MockAuthService {
   static final List<User> mockUsers = [
     User(id: '1', name: 'Dr. Instructor', email: 'instructor@uni.com', role: UserRole.instructor),
-    User(id: '2', name: 'Student Jane', email: 'student@uni.com', role: UserRole.student),
+    User(id: '2', name: 'Student  John', email: 'student@uni.com', role: UserRole.student),
   ];
 
   static User? login(String email) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:class-and-attendance-management-app/features/auth/data/mock_auth_service.dart';
+import 'package:app/features/auth/data/mock_auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   final String role;

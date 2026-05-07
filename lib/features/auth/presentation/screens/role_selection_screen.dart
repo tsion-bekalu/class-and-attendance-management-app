@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:class-and-attendance-management-app/core/theme/app_theme.dart';
-import 'package:class-and-attendance-management-app/features/auth/domain/models/auth_role.dart';
+import 'package:app/core/routing/theme/app_theme.dart';
+import 'package:app/features/auth/domain/models/auth_role.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
   const RoleSelectionScreen({super.key});
@@ -31,7 +31,7 @@ class RoleSelectionScreen extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: mockRoles.length,
                   itemBuilder: (context, index) {
-                    final role = mockRoles[index];
+                    final role =mockRoles[index];
                     return Card(
                       elevation: 0,
                       shape: RoundedRectangleBorder(
