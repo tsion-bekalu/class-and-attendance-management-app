@@ -1,3 +1,4 @@
+import 'package:app/features/class_management/presentation/screens/class_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app/features/class_management/presentation/screens/splash_screen.dart';
@@ -5,11 +6,8 @@ import 'package:app/features/class_management/presentation/screens/dashboard_scr
 import 'package:app/features/class_management/presentation/screens/create_class_screen.dart';
 
 
-class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key});
-  @override
-  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Splash')));
-}
+
+
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
   @override
@@ -92,6 +90,9 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: '/', name: 'splash', builder: (_, _) => const ClassManagementSplashScreen()),
     GoRoute(path: '/instructor/dashboard', name: 'instructor-dashboard', builder: (_,_) => const InstructorDashboardScreen()),
     GoRoute(path: '/instructor/create-class', name: 'create-class', builder: (_,_) => const CreateClassScreen()),
+    GoRoute(path: '/instructor/class-details/:classId', name: 'class-details', builder: (_,state){
+      final id = state.pathParameters['classId']!; 
+      return ClassDetailsScreen(classId: id);} ),
     GoRoute(path: '/login', name: 'login', builder: (_, _) => const LoginScreen()),
     GoRoute(path: '/register', name: 'register', builder: (_, _) => const RegisterScreen()),
     // Instructor
