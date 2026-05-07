@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app/features/class_management/presentation/screens/splash_screen.dart';
 import 'package:app/features/class_management/presentation/screens/dashboard_screen.dart';
+import 'package:app/features/class_management/presentation/screens/create_class_screen.dart';
 
 
 class SplashScreen extends StatelessWidget {
@@ -23,11 +24,6 @@ class ClassListScreen extends StatelessWidget {
   const ClassListScreen({super.key});
   @override
   Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Classes')));
-}
-class CreateClassScreen extends StatelessWidget {
-  const CreateClassScreen({super.key});
-  @override
-  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Create Class')));
 }
 class EditClassScreen extends StatelessWidget {
   final String classId;
@@ -95,11 +91,11 @@ final GoRouter appRouter = GoRouter(
   routes: [
     GoRoute(path: '/', name: 'splash', builder: (_, _) => const ClassManagementSplashScreen()),
     GoRoute(path: '/instructor/dashboard', name: 'instructor-dashboard', builder: (_,_) => const InstructorDashboardScreen()),
+    GoRoute(path: '/instructor/create-class', name: 'create-class', builder: (_,_) => const CreateClassScreen()),
     GoRoute(path: '/login', name: 'login', builder: (_, _) => const LoginScreen()),
     GoRoute(path: '/register', name: 'register', builder: (_, _) => const RegisterScreen()),
     // Instructor
     GoRoute(path: '/instructor/classes', name: 'instructor-classes', builder: (_, _) => const ClassListScreen()),
-    GoRoute(path: '/instructor/create-class', name: 'instructor-create-class', builder: (_, _) => const CreateClassScreen()),
     GoRoute(path: '/instructor/edit-class/:classId', name: 'instructor-edit-class', builder: (_, state) => EditClassScreen(classId: state.pathParameters['classId']!)),
     GoRoute(path: '/instructor/join-requests/:classId', name: 'instructor-join-requests', builder: (_, state) => JoinRequestsScreen(classId: state.pathParameters['classId']!)),
     GoRoute(path: '/instructor/announcements/:classId', name: 'instructor-announcements', builder: (_, state) => AnnouncementsScreen(classId: state.pathParameters['classId']!)),

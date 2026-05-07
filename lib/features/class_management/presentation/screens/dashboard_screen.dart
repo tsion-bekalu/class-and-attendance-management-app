@@ -191,7 +191,6 @@ class InstructorDashboardScreen extends StatelessWidget {
     );
   }
 
-  // ------------------ COMPONENTS ------------------
 
   Widget statCard({
     required IconData icon,
