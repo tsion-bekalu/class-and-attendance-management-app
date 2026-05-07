@@ -1,5 +1,6 @@
-import 'package:app/features/auth/presentation/screens/first.dart';
 import 'package:flutter/material.dart';
+import 'package:app/core/routing/app_router.dart';
+import 'package:app/core/theme/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -8,13 +9,21 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const FirstPage(),
+    return MaterialApp.router(
+      title: 'Class Attendance System',
+      theme: AppTheme.lightTheme,
+      themeMode: ThemeMode.system,
+      routerConfig: appRouter,
     );
   }
 }
+
+
+
+
+
+
+
 
