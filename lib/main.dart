@@ -1,19 +1,21 @@
-import 'package:app/features/auth/presentation/screens/first.dart';
+//import 'package:app/features/auth/presentation/screens/first.dart';
+import 'package:app/core/routing/app_%20router.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/routing/theme/app_theme.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+
+
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
+      routerConfig: appRouter, // This connects your GoRouter file to the app
       debugShowCheckedModeBanner: false,
-      home: const FirstPage(),
+      theme: AppTheme.lightTheme,
     );
   }
 }
