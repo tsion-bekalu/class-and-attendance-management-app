@@ -255,7 +255,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                             "pending": 3,
                           });
 
-                          context.go('/instructor/class-details/$id');
+                          context.push('/instructor/class-details/$id');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1E5EFF),

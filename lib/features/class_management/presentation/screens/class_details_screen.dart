@@ -5,7 +5,10 @@ import '../../../class_management/data/class_local_storage.dart';
 class ClassDetailsScreen extends StatelessWidget {
   final String classId;
 
-  const ClassDetailsScreen({super.key, required this.classId});
+  const ClassDetailsScreen({
+    super.key,
+    required this.classId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,405 +16,458 @@ class ClassDetailsScreen extends StatelessWidget {
 
     if (classData == null) {
       return const Scaffold(
-        body: Center(child: Text("Class not found")),
+        body: Center(
+          child: Text("Class not found"),
+        ),
       );
     }
 
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // ⭐ HEADER (exact inspo)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(22, 24, 22, 40),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF1E5EFF),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(35),
-                    bottomRight: Radius.circular(35),
-                  ),
-                ),
-                child: Column(
+      backgroundColor: const Color(0xFFF5F5F5),
+      body: Column(
+        children: [
+          // 🔵 HEADER
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(
+              top: 55,
+              left: 20,
+              right: 20,
+              bottom: 28,
+            ),
+            decoration: const BoxDecoration(
+              color: Color(0xFF1E5BFF),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () => context.pop(),
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: .18),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.arrow_back,
-                                color: Colors.white),
-                          ),
+                    Container(
+                      height: 42,
+                      width: 42,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.18),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        onPressed: () => context.pop(),
+                        icon: const Icon(
+                          Icons.arrow_back_ios_new,
+                          color: Colors.white,
+                          size: 18,
                         ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                classData['name'],
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                "Code: ${classData['id']}",
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
 
-                    const SizedBox(height: 26),
+                    const SizedBox(width: 14),
 
-                    Row(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: statCard(
-                            title: "Students",
-                            value: classData['students'].toString(),
+                        Text(
+                          classData["name"],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: statCard(
-                            title: "Status",
-                            value: classData['status'],
+
+                        const SizedBox(height: 4),
+
+                        Text(
+                          "Code: ${classData["id"]}",
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
                           ),
                         ),
                       ],
                     ),
                   ],
                 ),
-              ),
 
-              // ⭐ BODY CONTENT
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
+                const SizedBox(height: 24),
+
+                Row(
                   children: [
-                    // ⭐ SCHEDULE CARD
-                    buildCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Schedule",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF1E293B),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.calendar_today_outlined,
-                                color: Color(0xFF1E5EFF),
-                                size: 22,
-                              ),
-                              const SizedBox(width: 14),
-                              Text(
-                                "${classData['days'].join(', ')}   ${classData['startTime']} - ${classData['endTime']}",
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Color(0xFF5B6475),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                    Expanded(
+                      child: _topInfoCard(
+                        title: "Students",
+                        value: classData["students"].toString(),
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(width: 14),
 
-                    // ⭐ PENDING APPROVAL BOX
+                    Expanded(
+                      child: _topInfoCard(
+                        title: "Status",
+                        value: classData["status"],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // BODY
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                children: [
+                  // 📅 SCHEDULE
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(18),
+                    decoration: _cardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Schedule",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF303443),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_today_outlined,
+                              color: Color(0xFF2D6BFF),
+                              size: 18,
+                            ),
+
+                            const SizedBox(width: 12),
+
+                            Text(
+                              "${classData["days"].join(", ")}  ${classData["startTime"]} - ${classData["endTime"]}",
+                              style: const TextStyle(
+                                fontSize: 15,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // ⚠️ PENDING BANNER
+                  if (classData["pending"] > 0)
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 16,
-                      ),
+                      padding: const EdgeInsets.all(36),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF7F0),
-                        borderRadius: BorderRadius.circular(18),
+                        color: const Color(0xFFFFF6EE),
+                        borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: const Color(0xFFFFB16A),
+                          color: const Color(0xFFFFC58F),
                         ),
                       ),
                       child: Row(
                         children: [
                           const Icon(
                             Icons.error_outline,
-                            color: Color(0xFFFF5C00),
+                            color: Color(0xFFFF6B00),
                           ),
+
                           const SizedBox(width: 12),
+
                           Expanded(
                             child: Text(
-                              "${classData['pending']} students waiting for approval",
+                              "${classData["pending"]} students waiting for approval",
                               style: const TextStyle(
-                                color: Color(0xFFE85B00),
-                                fontSize: 15,
+                                color: Color(0xFFD56A1B),
                                 fontWeight: FontWeight.w500,
+                                fontSize: 14,
                               ),
                             ),
                           ),
+
                           const Icon(
                             Icons.arrow_forward,
-                            color: Color(0xFFFF5C00),
+                            color: Color(0xFFFF6B00),
                           ),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-                    // ⭐ ACTION GRID (exact inspo)
-                    GridView.count(
-                      crossAxisCount: 2,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 1,
+                  // 🔲 MENU GRID (ORDER FIXED)
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 18,
+                    childAspectRatio: 0.95,
+                    children: [
+                      // 1️⃣ START ATTENDANCE
+                      _menuCard(
+                        icon: Icons.qr_code_scanner,
+                        iconColor: Colors.blue,
+                        iconBg: const Color(0xFFDDE7FF),
+                        title: 'Start Attendance',
+                      ),
+
+                      // 2️⃣ JOIN REQUESTS (with badge)
+                      SizedBox.expand(
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: _menuCard(
+                                icon: Icons.groups_2_outlined,
+                                iconColor: Colors.purple,
+                                iconBg: const Color(0xFFF1E3FF),
+                                title: 'Join Requests',
+                              ),
+                            ),
+
+                            if (classData["pending"] > 0)
+                              Positioned(
+                                top: 10,
+                                right: 10,
+                                child: Container(
+                                  height: 24,
+                                  width: 24,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFFF6B00),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    classData["pending"].toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+
+                      // 3️⃣ ATTENDANCE RECORDS
+                      _menuCard(
+                        icon: Icons.bar_chart,
+                        iconColor: Colors.green,
+                        iconBg: Colors.green.withValues(alpha: 0.12),
+                        title: 'Attendance\nRecords',
+                      ),
+
+                      // 4️⃣ ANNOUNCEMENTS
+                      _menuCard(
+                        icon: Icons.notifications_none,
+                        iconColor: Colors.deepOrange,
+                        iconBg: Colors.orange.withValues(alpha: 0.12),
+                        title: 'Announcements',
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  // ❌ DELETE CLASS (WORKING)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(18),
+                    decoration: _cardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        actionCard(
-                          icon: Icons.qr_code_scanner,
-                          iconBg: const Color(0xFFE7F0FF),
-                          iconColor: const Color(0xFF1E5EFF),
-                          title: "Start Attendance",
-                          onTap: () {},
+                        const Text(
+                          "Class Management",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF303443),
+                          ),
                         ),
-                        actionCard(
-                          icon: Icons.people_outline,
-                          iconBg: const Color(0xFFF2E9FF),
-                          iconColor: const Color(0xFF9B27FF),
-                          title: "Join Requests",
-                          badge: classData['pending'].toString(),
-                          onTap: () {},
-                        ),
-                        actionCard(
-                          icon: Icons.bar_chart,
-                          iconBg: const Color(0xFFE7F9EE),
-                          iconColor: const Color(0xFF22B45B),
-                          title: "Attendance\nRecords",
-                          onTap: () {},
-                        ),
-                        actionCard(
-                          icon: Icons.notifications_none,
-                          iconBg: const Color(0xFFFFF1E3),
-                          iconColor: const Color(0xFFFF7A00),
-                          title: "Announcements",
-                          onTap: () {},
+
+                        const SizedBox(height: 20),
+
+                        GestureDetector(
+                          onTap: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (ctx) {
+                                return AlertDialog(
+                                  title: const Text("Delete Class"),
+                                  content: const Text(
+                                      "Are you sure you want to delete this class?"),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(ctx).pop(false),
+                                      child: const Text("Cancel"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(ctx).pop(true),
+                                      child: const Text(
+                                        "Delete",
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+
+                            if (confirm == true) {
+                              ClassLocalStorage.deleteClass(classId);
+
+                              if (!context.mounted) return;
+
+                              context.pop(); // go back after delete
+                            }
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFEFEF),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.red,
+                                ),
+
+                                SizedBox(width: 8),
+
+                                Text(
+                                  "Delete Class",
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ],
                     ),
-
-                    const SizedBox(height: 24),
-
-                    // ⭐ DELETE CLASS SECTION
-                    buildCard(
-                      child: GestureDetector(
-                        onTap: () async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (ctx) {
-                              return AlertDialog(
-                                title: const Text("Delete Class"),
-                                content: const Text(
-                                  "Are you sure you want to delete this class?",
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.of(ctx).pop(false),
-                                    child: const Text("Cancel"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.of(ctx).pop(true),
-                                    child: const Text(
-                                      "Delete",
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-
-                          if (confirm == true) {
-                            if (!context.mounted) return;
-                            ClassLocalStorage.deleteClass(classId);
-                            context.pop();
-                          }
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF0F0),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.delete_outline, color: Colors.red),
-                              SizedBox(width: 8),
-                              Text(
-                                "Delete Class",
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  // ⭐ SMALL COMPONENTS (exact inspo styling)
-
-  Widget statCard({required String title, required String value}) {
+  // 🔵 TOP INFO CARD
+  static Widget _topInfoCard({
+    required String title,
+    required String value,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: .16),
+        color: Colors.white.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: const TextStyle(color: Colors.white70, fontSize: 15)),
-          const SizedBox(height: 8),
-          Text(value,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
-  }
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 14,
+            ),
+          ),
 
-  Widget buildCard({required Widget child}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: .08),
-            blurRadius: 14,
-            offset: const Offset(0, 5),
+          const SizedBox(height: 10),
+
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
-      child: child,
     );
   }
 
-  Widget actionCard({
+  // 🔲 MENU CARD
+  static Widget _menuCard({
     required IconData icon,
-    required Color iconBg,
     required Color iconColor,
+    required Color iconBg,
     required String title,
-    required VoidCallback onTap,
-    String? badge,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Stack(
+    return Container(
+      decoration: _cardDecoration(),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(22),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              color: iconBg,
+              shape: BoxShape.circle,
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(34),
-                  decoration: BoxDecoration(
-                    color: iconBg,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: iconColor, size: 28),
-                ),
-                const SizedBox(height: 18),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF1F2937),
-                  ),
-                ),
-              ],
+            child: Icon(
+              icon,
+              color: iconColor,
+              size: 26,
             ),
           ),
 
-          if (badge != null)
-            Positioned(
-              top: 10,
-              right: 10,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFF6A00),
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  badge,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+          const SizedBox(height: 16),
+
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF303443),
             ),
+          ),
         ],
       ),
+    );
+  }
+
+  // 🎨 CARD STYLE
+  static BoxDecoration _cardDecoration() {
+    return BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.08),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
+        ),
+      ],
     );
   }
 }

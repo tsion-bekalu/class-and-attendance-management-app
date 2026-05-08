@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:app/features/class_management/data/class_local_storage.dart';
 
-class InstructorDashboardScreen extends StatelessWidget {
+class InstructorDashboardScreen extends StatefulWidget {
   const InstructorDashboardScreen({super.key});
 
   @override
+  State<InstructorDashboardScreen> createState() => _InstructorDashboardScreenState();}
+class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
+  @override
   Widget build(BuildContext context) {
+    final classes = ClassLocalStorage.getAllClasses();
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // TOP BLUE HEADER
+            // 🔵 TOP BLUE HEADER
             Container(
               width: double.infinity,
               padding: const EdgeInsets.only(
@@ -71,7 +77,7 @@ class InstructorDashboardScreen extends StatelessWidget {
                         child: statCard(
                           icon: Icons.menu_book_outlined,
                           title: "Total Classes",
-                          value: "2",
+                          value: classes.length.toString(),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -79,7 +85,10 @@ class InstructorDashboardScreen extends StatelessWidget {
                         child: statCard(
                           icon: Icons.groups_2_outlined,
                           title: "Students",
-                          value: "77",
+                          value: classes.fold<int>(
+                            0,
+                            (sum, c) => sum + (c["students"] as int),
+                          ).toString(),
                         ),
                       ),
                     ],
@@ -129,7 +138,9 @@ class InstructorDashboardScreen extends StatelessWidget {
                                 iconColor: const Color(0xFF1E5EFF),
                                 icon: Icons.add,
                                 title: "New Class",
-                                onTap: () => context.go('/instructor/create-class'),
+                                onTap: () async {await context.push('/instructor/create-class'); 
+                                setState(() {})
+                                ;},
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -139,7 +150,7 @@ class InstructorDashboardScreen extends StatelessWidget {
                                 iconColor: const Color(0xFF9C27FF),
                                 icon: Icons.calendar_month_outlined,
                                 title: "Timetable",
-                                onTap: () => context.go('/student/timetable'),
+                                onTap: () => context.push('/student/timetable'),
                               ),
                             ),
                           ],
@@ -147,8 +158,6 @@ class InstructorDashboardScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-
-
 
                   const SizedBox(height: 24),
 
@@ -163,25 +172,35 @@ class InstructorDashboardScreen extends StatelessWidget {
 
                   const SizedBox(height: 18),
 
-                  classCard(
-                    title: "Computer Science 101",
-                    code: "CS101XYZ",
-                    time: "Mon, Wed, Fri - 9:00 AM",
-                    students: "45",
-                    showPending: true,
-                    onTap: () => context.go('/instructor/classes'),
-                  ),
-
-                  const SizedBox(height: 18),
-
-                  classCard(
-                    title: "Data Structures",
-                    code: "DS201ABC",
-                    time: "Tue, Thu - 2:00 PM",
-                    students: "32",
-                    showPending: false,
-                    onTap: () => context.go('/instructor/classes'),
-                  ),
+                  // ⭐ DYNAMIC CLASS LIST
+                  if (classes.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: Text(
+                        "No classes created yet",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    )
+                  else
+                    Column(
+                      children: classes.map((c) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 18),
+                          child: classCard(
+                            title: c["name"],
+                            code: c["id"],
+                            time:
+                                "${c["days"].join(", ")} - ${c["startTime"]} to ${c["endTime"]}",
+                            students: c["students"].toString(),
+                            showPending: c["pending"] > 0,
+                            onTap: () async{await context.push(
+                              '/instructor/class-details/${c["id"]}');
+                              setState(() {});
+                            
+            
+                      }));
+                      }).toList(),
+                    ),
                 ],
               ),
             ),
@@ -191,7 +210,7 @@ class InstructorDashboardScreen extends StatelessWidget {
     );
   }
 
-
+  // 🔵 STAT CARD
   Widget statCard({
     required IconData icon,
     required String title,
@@ -232,6 +251,7 @@ class InstructorDashboardScreen extends StatelessWidget {
     );
   }
 
+  // ⚡ QUICK ACTION CARD
   Widget quickActionCard({
     required Color color,
     required Color iconColor,
@@ -269,6 +289,7 @@ class InstructorDashboardScreen extends StatelessWidget {
     );
   }
 
+  // 📘 CLASS CARD
   Widget classCard({
     required String title,
     required String code,
@@ -296,6 +317,7 @@ class InstructorDashboardScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // TITLE + STATUS
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -367,14 +389,14 @@ class InstructorDashboardScreen extends StatelessWidget {
                   color: const Color(0xFFFFF2E8),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.error_outline,
+                    const Icon(Icons.error_outline,
                         color: Color(0xFFFF6A00), size: 18),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Text(
-                      "3 pending join requests",
-                      style: TextStyle(
+                      "$students pending join requests",
+                      style: const TextStyle(
                         color: Color(0xFFFF5C00),
                         fontSize: 15,
                       ),
