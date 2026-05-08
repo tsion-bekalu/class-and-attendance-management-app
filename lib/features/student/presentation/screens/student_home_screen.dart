@@ -73,7 +73,7 @@ class StudentHomeScreen extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 12),
                         child: ClassCard(
                           classData: mockClasses[index],
-                          onTap: () {},
+                          onTap: () { context.pushNamed('student-class');},
                         ),
                       );
                     },

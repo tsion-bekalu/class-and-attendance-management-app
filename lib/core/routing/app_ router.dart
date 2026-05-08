@@ -1,8 +1,10 @@
+import 'package:app/features/student/presentation/screens/class_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app/features/student/presentation/screens/notification_screen.dart';
 import 'package:app/features/student/presentation/screens/student_home_screen.dart';
 import 'package:app/features/student/presentation/screens/timetable_screen.dart';
+
 
 
 class SplashScreen extends StatelessWidget {
@@ -113,6 +115,8 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: '/student/attendance-history', name: 'student-attendance-history', builder: (_, __) => const AttendanceHistoryScreen()),
     GoRoute(path: '/student/announcements', name: 'student-announcements', builder: (_, __) => const StudentAnnouncementsScreen()),
     GoRoute(path: '/student/notifications', name: 'student-notifications', builder: (_, __) => const NotificationsScreen()),
+    GoRoute(path: '/student/class', name: 'student-class', builder: (context, state) => ClassDetailScreen(),),
+
   ],
 
 );

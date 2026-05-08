@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/routing/theme/app_theme.dart';
+import '../../../../features/student/presentation/widgets/logout_dialog.dart';
+import '../../../../features/student/presentation/widgets/delete_dialog.dart';
+
 
 class StudentDrawer extends StatelessWidget {
   const StudentDrawer({super.key});
@@ -51,14 +54,25 @@ class StudentDrawer extends StatelessWidget {
               icon: Icons.logout, 
               label: 'Logout', 
               color: Colors.red,
-              onTap: () => context.goNamed('login')
-            ),
+              onTap: () {
+                Navigator.pop(context); 
+                showDialog(
+                  context: context,
+                  builder: (context) => const LogoutDialog(),
+                );
+              }),
             const SizedBox(height: 10),
             _drawerItem(
               icon: Icons.delete_outline, 
               label: 'Delete Account', 
               color: Colors.red,
-              onTap: () {}
+              onTap: () {
+                Navigator.pop(context); 
+                showDialog(
+                  context: context,
+                  builder: (context) => const DeleteDialog(),
+                );
+              }
             ),
           ],
         ),
