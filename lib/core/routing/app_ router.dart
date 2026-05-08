@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app/features/student/presentation/screens/notification_screen.dart';
 import 'package:app/features/student/presentation/screens/student_home_screen.dart';
-
+import 'package:app/features/student/presentation/screens/timetable_screen.dart';
 
 
 class SplashScreen extends StatelessWidget {
@@ -60,11 +60,6 @@ class QRDisplayScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(body: Center(child: Text('QR $sessionId')));
 }
-class TimetableScreen extends StatelessWidget {
-  const TimetableScreen({super.key});
-  @override
-  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Timetable')));
-}
 class EnterJoinCodeScreen extends StatelessWidget {
   const EnterJoinCodeScreen({super.key});
   @override
@@ -111,7 +106,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: '/instructor/start-session/:classId', name: 'instructor-start-session', builder: (_, state) => StartSessionScreen(classId: state.pathParameters['classId']!)),
     GoRoute(path: '/instructor/qr-display/:sessionId', name: 'instructor-qr-display', builder: (_, state) => QRDisplayScreen(sessionId: state.pathParameters['sessionId']!)),
     // Student
-    GoRoute(path: '/student/timetable', name: 'student-timetable', builder: (_, __) => const TimetableScreen()),
+    GoRoute(path: '/student/timetable', name: 'student-timetable', builder: (context, state) => const TimetableScreen(),),
     GoRoute(path: '/student/join-code', name: 'student-join-code', builder: (_, __) => const EnterJoinCodeScreen()),
     GoRoute(path: '/student/request-status', name: 'student-request-status', builder: (_, __) => const JoinRequestStatusScreen()),
     GoRoute(path: '/student/attendance', name: 'student-attendance', builder: (_, __) => const StudentAttendanceScreen()),
