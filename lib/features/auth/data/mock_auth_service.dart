@@ -1,4 +1,4 @@
-import 'package:app/core/routing/theme/models/user.dart';
+import 'package:app/core/models/user.dart';
 
 class MockAuthService {
   static final List<User> mockUsers = [
