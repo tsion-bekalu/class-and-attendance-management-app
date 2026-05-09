@@ -7,6 +7,10 @@ import 'package:app/features/class_management/domain/use_cases/delete_class.dart
 // DATA
 import '../../../class_management/data/class_repository_impl.dart';
 
+// WIDGETS
+import '../widgets/top_info_card.dart';
+import '../widgets/menu_card.dart';
+
 class ClassDetailsScreen extends StatefulWidget {
   final String classId;
 
@@ -35,9 +39,8 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
 
   Future<void> loadClass() async {
     final data = await repository.getClassRawById(widget.classId);
-    setState(() {
-      classData = data;
-    });
+    if (!mounted) return;
+    setState(() => classData = data);
   }
 
   @override
@@ -73,7 +76,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                       height: 42,
                       width: 42,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
+                        color: Colors.white.withValues(alpha:0.18),
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
@@ -113,14 +116,14 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: _topInfoCard(
+                      child: TopInfoCard(
                         title: "Students",
                         value: classData!["students"].toString(),
                       ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
-                      child: _topInfoCard(
+                      child: TopInfoCard(
                         title: "Status",
                         value: classData!["status"],
                       ),
@@ -217,29 +220,29 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 18,
                     childAspectRatio: 0.95,
-                    children: [
-                      _menuCard(
+                    children: const [
+                      MenuCard(
                         icon: Icons.qr_code_scanner,
                         iconColor: Colors.blue,
-                        iconBg: const Color(0xFFDDE7FF),
+                        iconBg: Color(0xFFDDE7FF),
                         title: 'Start Attendance',
                       ),
-                      _menuCard(
+                      MenuCard(
                         icon: Icons.groups_2_outlined,
                         iconColor: Colors.purple,
-                        iconBg: const Color(0xFFF1E3FF),
+                        iconBg: Color(0xFFF1E3FF),
                         title: 'Join Requests',
                       ),
-                      _menuCard(
+                      MenuCard(
                         icon: Icons.bar_chart,
                         iconColor: Colors.green,
-                        iconBg: Colors.green.withValues(alpha: 0.12),
+                        iconBg: Color(0x1F00FF00),
                         title: 'Attendance\nRecords',
                       ),
-                      _menuCard(
+                      MenuCard(
                         icon: Icons.notifications_none,
                         iconColor: Colors.deepOrange,
-                        iconBg: Colors.orange.withValues(alpha: 0.12),
+                        iconBg: Color(0x1FFF9800),
                         title: 'Announcements',
                       ),
                     ],
@@ -289,7 +292,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
 
                               if (!context.mounted) return;
 
-                              context.pop(); // return to dashboard
+                              context.pop();
                             }
                           },
                           child: Container(
@@ -328,61 +331,13 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
     );
   }
 
-  // TOP INFO CARD
-  static Widget _topInfoCard({required String title, required String value}) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(color: Colors.white70, fontSize: 14)),
-          const SizedBox(height: 10),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500)),
-        ],
-      ),
-    );
-  }
-
-  // MENU CARD
-  static Widget _menuCard({
-    required IconData icon,
-    required Color iconColor,
-    required Color iconBg,
-    required String title,
-  }) {
-    return Container(
-      decoration: _cardDecoration(),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
-            child: Icon(icon, color: iconColor, size: 26),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF303443)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // CARD DECORATION
   static BoxDecoration _cardDecoration() {
     return BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(20),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.08),
+          color: Colors.black.withValues(alpha:0.08),
           blurRadius: 12,
           offset: const Offset(0, 4),
         ),

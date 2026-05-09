@@ -5,6 +5,9 @@ class ClassEntity {
   final List<String> days;
   final String startTime;
   final String endTime;
+  final int students;
+  final int pending;
+  final String status;
 
   ClassEntity({
     required this.id,
@@ -13,5 +16,8 @@ class ClassEntity {
     required this.days,
     required this.startTime,
     required this.endTime,
+    required this.students,
+    required this.pending,
+    required this.status,
   });
 }

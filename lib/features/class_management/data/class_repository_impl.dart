@@ -33,8 +33,11 @@ class ClassRepositoryImpl implements ClassRepository {
         name: data["name"],
         description: data["description"] ?? "",
         days: List<String>.from(data["days"] ?? []),
-      startTime: data["startTime"] ?? "",
-      endTime: data["endTime"] ?? "",
+        startTime: data["startTime"] ?? "",
+        endTime: data["endTime"] ?? "",
+        students: data["students"] ?? 0,
+        pending: data["pending"] ?? 0,
+        status: data["status"] ?? "Active",
       );
     }).toList();
   }

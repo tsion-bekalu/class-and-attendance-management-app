@@ -5,8 +5,14 @@ import 'package:go_router/go_router.dart';
 import 'package:app/features/class_management/domain/entities/class_entity.dart';
 import 'package:app/features/class_management/domain/use_cases/create_class.dart';
 
-// DATA (repository implementation)
+// DATA
 import 'package:app/features/class_management/data/class_repository_impl.dart';
+
+// WIDGETS
+import '../widgets/form_card.dart';
+import '../widgets/day_chip.dart';
+import '../widgets/time_input.dart';
+import '../widgets/info_box.dart';
 
 class CreateClassScreen extends StatefulWidget {
   const CreateClassScreen({super.key});
@@ -52,7 +58,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.18),
+                          color: Colors.white.withValues(alpha:0.18),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.arrow_back, color: Colors.white),
@@ -76,7 +82,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                 child: Column(
                   children: [
                     // CLASS NAME
-                    buildCard(
+                    FormCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -88,9 +94,24 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                           const SizedBox(height: 14),
                           TextField(
                             controller: classNameController,
-                            decoration: inputDecoration(
-                              hint: "e.g., Computer Science",
-                              icon: Icons.menu_book_outlined,
+                            decoration: const InputDecoration(
+                              hintText: "e.g., Computer Science",
+                              prefixIcon: Icon(Icons.menu_book_outlined,
+                                  color: Color(0xFF9AA3B2)),
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding:
+                                  EdgeInsets.symmetric(vertical: 18),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(16)),
+                                borderSide:
+                                    BorderSide(color: Color(0xFFD9DDE5)),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(16)),
+                                borderSide:
+                                    BorderSide(color: Color(0xFF1E5EFF)),
+                              ),
                             ),
                           ),
                         ],
@@ -100,7 +121,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                     const SizedBox(height: 24),
 
                     // DAYS
-                    buildCard(
+                    FormCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -114,35 +135,16 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                             spacing: 12,
                             runSpacing: 12,
                             children: days.map((day) {
-                              final isSelected = selectedDays.contains(day);
-                              return GestureDetector(
+                              return DayChip(
+                                day: day,
+                                selected: selectedDays.contains(day),
                                 onTap: () {
                                   setState(() {
-                                    isSelected
+                                    selectedDays.contains(day)
                                         ? selectedDays.remove(day)
                                         : selectedDays.add(day);
                                   });
                                 },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 22, vertical: 12),
-                                  decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? const Color(0xFF1E5EFF)
-                                        : const Color(0xFFF1F2F6),
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                  child: Text(
-                                    day,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: isSelected
-                                          ? Colors.white
-                                          : const Color(0xFF374151),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
                               );
                             }).toList(),
                           ),
@@ -153,7 +155,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                     const SizedBox(height: 24),
 
                     // TIME
-                    buildCard(
+                    FormCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -166,40 +168,16 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text("Start Time",
-                                        style:
-                                            TextStyle(color: Color(0xFF6D7485))),
-                                    const SizedBox(height: 8),
-                                    TextField(
-                                      controller: startTimeController,
-                                      decoration: inputDecoration(
-                                        icon: Icons.access_time_outlined,
-                                        hint: "11:30",
-                                      ),
-                                    ),
-                                  ],
+                                child: TimeInput(
+                                  label: "Start Time",
+                                  controller: startTimeController,
                                 ),
                               ),
                               const SizedBox(width: 14),
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text("End Time",
-                                        style:
-                                            TextStyle(color: Color(0xFF6D7485))),
-                                    const SizedBox(height: 8),
-                                    TextField(
-                                      controller: endTimeController,
-                                      decoration: inputDecoration(
-                                        icon: Icons.access_time_outlined,
-                                        hint: "12:30",
-                                      ),
-                                    ),
-                                  ],
+                                child: TimeInput(
+                                  label: "End Time",
+                                  controller: endTimeController,
                                 ),
                               ),
                             ],
@@ -211,30 +189,9 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                     const SizedBox(height: 24),
 
                     // INFO BOX
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE7F0FF),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.info_outline, color: Color(0xFF1E5EFF)),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              "A unique join code will be generated automatically when you create the class. Share it with students to let them join.",
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Color(0xFF1E293B),
-                                height: 1.4,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    const InfoBox(
+                      text:
+                          "A unique join code will be generated automatically when you create the class. Share it with students to let them join.",
                     ),
 
                     const SizedBox(height: 24),
@@ -267,9 +224,14 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                             days: selectedDays,
                             startTime: startTimeController.text,
                             endTime: endTimeController.text,
+                            students: 0,
+                            pending: 0,
+                            status: "Active",
+ 
                           );
 
                           await createClassUseCase.call(newClass);
+
                           if (!context.mounted) return;
                           context.push('/instructor/class-details/$id');
                         },
@@ -296,43 +258,6 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  InputDecoration inputDecoration({required IconData icon, String? hint}) {
-    return InputDecoration(
-      hintText: hint,
-      prefixIcon: Icon(icon, color: const Color(0xFF9AA3B2)),
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(vertical: 18),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFFD9DDE5)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFF1E5EFF)),
-      ),
-    );
-  }
-
-  Widget buildCard({required Widget child}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 14,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: child,
     );
   }
 }
