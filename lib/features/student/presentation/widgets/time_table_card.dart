@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/routing/theme/app_theme.dart';
+import '../../../../core/theme/app_theme.dart';
 import 'package:app/core/models/time_table_entry.dart';
 
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/routing/theme/app_theme.dart';
+import '../../../../core/theme/app_theme.dart';
 import 'package:app/features/student/presentation/widgets/time_table_card.dart';
 import 'package:app/features/student/data/mock_timetable.dart';
 

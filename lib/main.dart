@@ -1,7 +1,7 @@
 //import 'package:app/features/auth/presentation/screens/first.dart';
 import 'package:app/core/routing/app_%20router.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/routing/theme/app_theme.dart';
+import 'core/theme/app_theme.dart';
 
 
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/routing/theme/app_theme.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../features/student/presentation/widgets/logout_dialog.dart';
 import '../../../../features/student/presentation/widgets/delete_dialog.dart';
 

@@ -1,5 +1,5 @@
 import 'package:app/core/models/time_table_entry.dart';
-import '../../../../core/routing/theme/app_theme.dart';
+import '../../../core/theme/app_theme.dart';
 
 
 final List<TimetableEntry> mockSchedule = [

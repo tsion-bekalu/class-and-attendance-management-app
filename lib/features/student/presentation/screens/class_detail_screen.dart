@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/routing/theme/app_theme.dart';
+import '../../../../core/theme/app_theme.dart';
 import 'package:app/features/student/presentation/widgets/student_drawer.dart';
 import 'package:app/features/student/data/mock_announcement.dart';
 
