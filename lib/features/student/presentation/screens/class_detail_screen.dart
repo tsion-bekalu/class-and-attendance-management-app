@@ -2,34 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/routing/theme/app_theme.dart';
 import 'package:app/features/student/presentation/widgets/student_drawer.dart';
-
-class ClassDetail {
-  final String courseCode;
-  final String title;
-  final String instructor;
-  final String attendance;
-  final String sessions;
-  final String scheduleDays;
-  final String scheduleTime;
-
-  ClassDetail({
-    required this.courseCode,
-    required this.title,
-    required this.instructor,
-    required this.attendance,
-    required this.sessions,
-    required this.scheduleDays,
-    required this.scheduleTime,
-  });
-}
-
-class Announcement {
-  final String title;
-  final String description;
-  final String dateTime;
-
-  Announcement({required this.title, required this.description, required this.dateTime});
-}
+import 'package:app/features/student/data/mock_announcement.dart';
 
 class ClassDetailScreen extends StatelessWidget {
   ClassDetailScreen({super.key});
@@ -96,17 +69,26 @@ class ClassDetailScreen extends StatelessWidget {
           const Text("CS301", style: TextStyle(color: Colors.white70, fontSize: 16)),
           const Text(
             "Data Structures & Algorithms",
-            style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Row(
             children: const [
               Icon(Icons.people_outline, color: Colors.white70, size: 20),
               SizedBox(width: 8),
-              Text("Dr. Sarah Johnson", style: TextStyle(color: Colors.white70, fontSize: 16)),
+              Expanded(
+                child: Text(
+                  "Dr. Sarah Johnson",
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 24),
+
           Row(
             children: [
               _headerStatCard("Attendance", "80%"),
@@ -187,12 +169,16 @@ class ClassDetailScreen extends StatelessWidget {
 
   Widget _buildActionButtons(BuildContext context) {
     return Row(
-      children: [
-        _actionCard(Icons.qr_code_scanner, "Start Attendance", () {context.pushNamed('student-attendance');}),
-        const SizedBox(width: 16),
-        _actionCard(Icons.bar_chart_rounded, "Attendance History", () {context.pushNamed('student-attendance-history');}),
-      ],
-    );
+  children: [
+    Expanded(
+      child: _actionCard(Icons.qr_code_scanner, "Start Attendance", () {context.pushNamed('student-attendance');}),
+    ),
+    const SizedBox(width: 16),
+    Expanded(
+      child: _actionCard(Icons.bar_chart_rounded, "Attendance History", () {context.pushNamed('student-attendance-history');}),
+    ),
+  ],
+);
   }
 
   Widget _actionCard(IconData icon, String label, VoidCallback onTap) {
@@ -224,11 +210,6 @@ class ClassDetailScreen extends StatelessWidget {
   }
 
   Widget _buildAnnouncementList() {
-    final list = [
-      Announcement(title: "Class Cancelled - Monday", description: "Please note that Monday's class has been cancelled due to a faculty meeting.", dateTime: "2026-04-10 2:30 PM"),
-      Announcement(title: "Assignment Due Date Extended", description: "The deadline for Assignment 3 has been extended to April 20th.", dateTime: "2026-04-10 10:30 AM"),
-    ];
-
     return Column(
       children: list.map((a) => Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -239,7 +220,7 @@ class ClassDetailScreen extends StatelessWidget {
           children: [
             Text(a.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 8),
-            Text(a.description, style: const TextStyle(color: AppTheme.textSecondary, height: 1.4)),
+            Text(a.description, maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppTheme.textSecondary, height: 1.4)),
             const SizedBox(height: 16),
             Row(
               children: [

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/routing/theme/app_theme.dart';
+import 'package:app/features/student/presentation/widgets/time_table_card.dart';
+import 'package:app/features/student/data/mock_timetable.dart';
 
 class TimetableScreen extends StatelessWidget {
   const TimetableScreen({super.key});
@@ -17,7 +19,7 @@ class TimetableScreen extends StatelessWidget {
               padding: const EdgeInsets.only(top: 10),
               itemCount: mockSchedule.length,
               itemBuilder: (context, index) {
-                return ScheduleCard(entry: mockSchedule[index]);
+                return TimetableCard(entry: mockSchedule[index]);
               },
             ),
           ),
@@ -121,118 +123,3 @@ class TimetableScreen extends StatelessWidget {
   }
 }
 
-class ScheduleCard extends StatelessWidget {
-  final TimetableEntry entry;
-  const ScheduleCard({super.key, required this.entry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      // Using AppTheme's margin and surface colors
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 4,
-            height: 60,
-            decoration: BoxDecoration(
-              color: entry.accentColor,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      entry.title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold, 
-                        fontSize: 16, 
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                    Text(
-                      entry.duration, 
-                      style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
-                    ),
-                  ],
-                ),
-                Text(
-                  entry.courseCode, 
-                  style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Icon(Icons.access_time_rounded, size: 14, color: AppTheme.textSecondary),
-                    const SizedBox(width: 4),
-                    Text(entry.time, style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary)),
-                    const SizedBox(width: 16),
-                    const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.textSecondary),
-                    const SizedBox(width: 4),
-                    Text(entry.location, style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary)),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class TimetableEntry {
-  final String title;
-  final String courseCode;
-  final String time;
-  final String location;
-  final String duration;
-  final Color accentColor;
-
-  TimetableEntry({
-    required this.title,
-    required this.courseCode,
-    required this.time,
-    required this.location,
-    required this.duration,
-    required this.accentColor,
-  });
-}
-// Updated Mock Data using the new AppTheme colors
-final List<TimetableEntry> mockSchedule = [
-  TimetableEntry(
-    title: "Data Structures & Algorithms",
-    courseCode: "CS301",
-    time: "10:00 AM",
-    location: "Room 301",
-    duration: "1h 30m",
-    accentColor: AppTheme.primaryColor,
-  ),
-  TimetableEntry(
-    title: "Web Development Lab",
-    courseCode: "CS308",
-    time: "2:00 PM",
-    location: "Lab 2",
-    duration: "1h",
-    accentColor: AppTheme.infoPurple, // Using your new status color
-  ),
-];

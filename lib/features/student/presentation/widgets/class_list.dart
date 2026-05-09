@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app/core/routing/theme/models/class_model.dart'; //[cite: 4]
+import 'package:app/core/models/class_model.dart'; //[cite: 4]
 
 class ClassCard extends StatelessWidget {
   final Class classData; // Uses your Class model[cite: 4]

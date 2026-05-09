@@ -1,41 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/routing/theme/app_theme.dart';
-import '../../../../core/routing/theme/models/class_model.dart';
 import '../widgets/class_list.dart'; 
 import '../widgets/student_drawer.dart'; 
-import 'package:app/features/student/presentation/widgets/notification_card.dart';
 import '../widgets/join_class_dialog.dart';
+import 'package:app/features/student/data/mock_classes.dart';
+import 'package:app/features/student/data/mock_notifications.dart';
 
 class StudentHomeScreen extends StatelessWidget {
   const StudentHomeScreen({super.key});
 
   // Mock Data
-  static final List<Class> mockClasses = [
-    Class(
-      id: '1',
-      name: 'Data Structures & Algorithms',
-      joinCode: 'CS301',
-      instructorId: 'Dr. Sarah Johnson',
-      enrolledStudentIds: [],
-      status: ClassStatus.active,
-      day: 'Today',
-      startTime: const TimeOfDay(hour: 14, minute: 0),
-      endTime: const TimeOfDay(hour: 15, minute: 30),
-    ),
-    Class(
-      id: '2',
-      name: 'Database Management Systems',
-      joinCode: 'CS305',
-      instructorId: 'Prof. Michael Chen',
-      enrolledStudentIds: [],
-      status: ClassStatus.active,
-      day: 'Tomorrow',
-      startTime: const TimeOfDay(hour: 10, minute: 0),
-      endTime: const TimeOfDay(hour: 11, minute: 30),
-    ),
-  ];
-
+  
   @override
   Widget build(BuildContext context) {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -128,7 +104,6 @@ class StudentHomeScreen extends StatelessWidget {
                         Icons.notifications_none_outlined, 
                         hasNotification: mockNotifications.any((n) => n.isUnread),
                         onTap: ()  {
-                          print("Notification icon tapped!");
                           context.pushNamed('student-notifications');}
                       ),
                       const SizedBox(width: 12),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:app/features/student/presentation/screens/notification_screen.dart';
 import 'package:app/features/student/presentation/screens/student_home_screen.dart';
 import 'package:app/features/student/presentation/screens/timetable_screen.dart';
+import 'package:app/features/student/presentation/screens/attendace_history_screen.dart';
 
 
 
@@ -77,11 +78,7 @@ class StudentAttendanceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Student Attendance')));
 }
-class AttendanceHistoryScreen extends StatelessWidget {
-  const AttendanceHistoryScreen({super.key});
-  @override
-  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Attendance History')));
-}
+
 class StudentAnnouncementsScreen extends StatelessWidget {
   const StudentAnnouncementsScreen({super.key});
   @override
@@ -112,7 +109,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: '/student/join-code', name: 'student-join-code', builder: (_, __) => const EnterJoinCodeScreen()),
     GoRoute(path: '/student/request-status', name: 'student-request-status', builder: (_, __) => const JoinRequestStatusScreen()),
     GoRoute(path: '/student/attendance', name: 'student-attendance', builder: (_, __) => const StudentAttendanceScreen()),
-    GoRoute(path: '/student/attendance-history', name: 'student-attendance-history', builder: (_, __) => const AttendanceHistoryScreen()),
+    GoRoute(path: '/student/attendance-history', name: 'student-attendance-history', builder: (context, state) => const AttendanceHistoryScreen()),
     GoRoute(path: '/student/announcements', name: 'student-announcements', builder: (_, __) => const StudentAnnouncementsScreen()),
     GoRoute(path: '/student/notifications', name: 'student-notifications', builder: (_, __) => const NotificationsScreen()),
     GoRoute(path: '/student/class', name: 'student-class', builder: (context, state) => ClassDetailScreen(),),

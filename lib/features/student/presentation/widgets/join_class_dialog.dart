@@ -11,7 +11,7 @@ class JoinClassDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
       ),
       child: Container(
-        width: 500,
+        width: 400,
         padding: const EdgeInsets.fromLTRB(28, 28, 28, 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -92,7 +92,6 @@ class JoinClassDialog extends StatelessWidget {
 
                 ElevatedButton(
                   onPressed: () {
-                    print("Join button pressed");
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(

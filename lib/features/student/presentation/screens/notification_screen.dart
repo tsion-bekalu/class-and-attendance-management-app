@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:app/core/routing/theme/app_theme.dart';
 import 'package:app/features/student/presentation/widgets/notification_card.dart';
+import 'package:app/features/student/data/mock_notifications.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -7,27 +9,51 @@ class NotificationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      // Background color from our central theme
+      backgroundColor: AppTheme.backgroundColor, 
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        toolbarHeight: 100, 
+        backgroundColor: AppTheme.primaryColor,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+        centerTitle: false,
+        // Giving enough space for the custom back button
+        leadingWidth: 70, 
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: Center(
+            child: Container(
+              height: 47,
+              width: 47,
+              decoration: BoxDecoration(
+                // Matching the translucent circle style from Class Detail
+                color: AppTheme.surfaceColor.withOpacity(0.1), 
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: AppTheme.surfaceColor, size: 20),
+                onPressed: () => Navigator.pop(context),
+                padding: EdgeInsets.zero,
+              ),
+            ),
+          ),
         ),
         title: const Text(
           "Notifications",
-          style: TextStyle(color: Color(0xFF1A1C1E), fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: AppTheme.surfaceColor, 
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
         ),
       ),
       body: Column(
         children: [
-          _buildFilterBar(),
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               itemCount: mockNotifications.length,
               itemBuilder: (context, index) {
+                // Now using the separate NotificationCard file we just fixed!
                 return NotificationCard(notification: mockNotifications[index]);
               },
             ),
@@ -37,33 +63,4 @@ class NotificationsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterBar() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.only(left: 16, bottom: 16),
-      child: Row(
-        children: [
-          _filterChip("All", isActive: true),
-          _filterChip("Unread"),
-          _filterChip("Announcements"),
-        ],
-      ),
-    );
-  }
-
-  Widget _filterChip(String label, {bool isActive = false}) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      child: ChoiceChip(
-        label: Text(label),
-        selected: isActive,
-        onSelected: (val) {},
-        selectedColor: Colors.blue[600],
-        labelStyle: TextStyle(color: isActive ? Colors.white : Colors.black54),
-        backgroundColor: Colors.grey[200],
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        side: BorderSide.none,
-      ),
-    );
-  }
 }
