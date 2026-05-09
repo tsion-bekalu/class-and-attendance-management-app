@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../class_management/data/class_local_storage.dart';
+
+// DOMAIN
+import 'package:app/features/class_management/domain/entities/class_entity.dart';
+import 'package:app/features/class_management/domain/use_cases/create_class.dart';
+
+// DATA (repository implementation)
+import 'package:app/features/class_management/data/class_repository_impl.dart';
 
 class CreateClassScreen extends StatefulWidget {
   const CreateClassScreen({super.key});
@@ -16,6 +22,16 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
 
   final List<String> days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
   List<String> selectedDays = [];
+
+  late final ClassRepositoryImpl repository;
+  late final CreateClass createClassUseCase;
+
+  @override
+  void initState() {
+    super.initState();
+    repository = ClassRepositoryImpl();
+    createClassUseCase = CreateClass(repository);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +210,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
 
                     const SizedBox(height: 24),
 
-                    // ⭐ INFO BOX (exactly before button)
+                    // INFO BOX
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
@@ -228,7 +244,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                       width: double.infinity,
                       height: 58,
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (classNameController.text.isEmpty ||
                               selectedDays.isEmpty ||
                               startTimeController.text.isEmpty ||
@@ -244,17 +260,17 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                           final id =
                               "${classNameController.text.replaceAll(" ", "").substring(0, 3).toUpperCase()}${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}";
 
-                          ClassLocalStorage.addClass({
-                            "id": id,
-                            "name": classNameController.text,
-                            "students": 45,
-                            "status": "Active",
-                            "days": selectedDays,
-                            "startTime": startTimeController.text,
-                            "endTime": endTimeController.text,
-                            "pending": 3,
-                          });
+                          final newClass = ClassEntity(
+                            id: id,
+                            name: classNameController.text,
+                            description: "Instructor class",
+                            days: selectedDays,
+                            startTime: startTimeController.text,
+                            endTime: endTimeController.text,
+                          );
 
+                          await createClassUseCase.call(newClass);
+                          if (!context.mounted) return;
                           context.push('/instructor/class-details/$id');
                         },
                         style: ElevatedButton.styleFrom(

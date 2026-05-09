@@ -18,7 +18,7 @@ class ClassLocalStorage {
     _classes.removeWhere((c) => c['id'] == id);
   }
 
-  static List<Map<String, dynamic>> getAllClasses() {
+  static List<Map<String, dynamic>> getClasses() {
     return _classes;
   }
 }

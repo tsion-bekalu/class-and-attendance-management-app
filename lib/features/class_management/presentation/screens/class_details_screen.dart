@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../class_management/data/class_local_storage.dart';
 
-class ClassDetailsScreen extends StatelessWidget {
+// DOMAIN
+import 'package:app/features/class_management/domain/use_cases/delete_class.dart';
+
+// DATA
+import '../../../class_management/data/class_repository_impl.dart';
+
+class ClassDetailsScreen extends StatefulWidget {
   final String classId;
 
   const ClassDetailsScreen({
@@ -11,14 +16,35 @@ class ClassDetailsScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final classData = ClassLocalStorage.getClassById(classId);
+  State<ClassDetailsScreen> createState() => _ClassDetailsScreenState();
+}
 
+class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
+  late final ClassRepositoryImpl repository;
+  late final DeleteClass deleteClassUseCase;
+
+  Map<String, dynamic>? classData;
+
+  @override
+  void initState() {
+    super.initState();
+    repository = ClassRepositoryImpl();
+    deleteClassUseCase = DeleteClass(repository);
+    loadClass();
+  }
+
+  Future<void> loadClass() async {
+    final data = await repository.getClassRawById(widget.classId);
+    setState(() {
+      classData = data;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     if (classData == null) {
       return const Scaffold(
-        body: Center(
-          child: Text("Class not found"),
-        ),
+        body: Center(child: Text("Class not found")),
       );
     }
 
@@ -26,7 +52,7 @@ class ClassDetailsScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF5F5F5),
       body: Column(
         children: [
-          // 🔵 HEADER
+          // HEADER
           Container(
             width: double.infinity,
             padding: const EdgeInsets.only(
@@ -59,25 +85,21 @@ class ClassDetailsScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-
                     const SizedBox(width: 14),
-
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          classData["name"],
+                          classData!["name"],
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-
                         const SizedBox(height: 4),
-
                         Text(
-                          "Code: ${classData["id"]}",
+                          "Code: ${classData!["id"]}",
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
@@ -87,24 +109,20 @@ class ClassDetailsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 24),
-
                 Row(
                   children: [
                     Expanded(
                       child: _topInfoCard(
                         title: "Students",
-                        value: classData["students"].toString(),
+                        value: classData!["students"].toString(),
                       ),
                     ),
-
                     const SizedBox(width: 14),
-
                     Expanded(
                       child: _topInfoCard(
                         title: "Status",
-                        value: classData["status"],
+                        value: classData!["status"],
                       ),
                     ),
                   ],
@@ -119,7 +137,7 @@ class ClassDetailsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(18),
               child: Column(
                 children: [
-                  // 📅 SCHEDULE
+                  // SCHEDULE
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(18),
@@ -135,9 +153,7 @@ class ClassDetailsScreen extends StatelessWidget {
                             color: Color(0xFF303443),
                           ),
                         ),
-
                         const SizedBox(height: 16),
-
                         Row(
                           children: [
                             const Icon(
@@ -145,11 +161,9 @@ class ClassDetailsScreen extends StatelessWidget {
                               color: Color(0xFF2D6BFF),
                               size: 18,
                             ),
-
                             const SizedBox(width: 12),
-
                             Text(
-                              "${classData["days"].join(", ")}  ${classData["startTime"]} - ${classData["endTime"]}",
+                              "${classData!["days"].join(", ")}  ${classData!["startTime"]} - ${classData!["endTime"]}",
                               style: const TextStyle(
                                 fontSize: 15,
                                 color: Colors.grey,
@@ -164,30 +178,23 @@ class ClassDetailsScreen extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  // ⚠️ PENDING BANNER
-                  if (classData["pending"] > 0)
+                  // PENDING BANNER
+                  if (classData!["pending"] > 0)
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(36),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFF6EE),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: const Color(0xFFFFC58F),
-                        ),
+                        border: Border.all(color: const Color(0xFFFFC58F)),
                       ),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.error_outline,
-                            color: Color(0xFFFF6B00),
-                          ),
-
+                          const Icon(Icons.error_outline, color: Color(0xFFFF6B00)),
                           const SizedBox(width: 12),
-
                           Expanded(
                             child: Text(
-                              "${classData["pending"]} students waiting for approval",
+                              "${classData!["pending"]} students waiting for approval",
                               style: const TextStyle(
                                 color: Color(0xFFD56A1B),
                                 fontWeight: FontWeight.w500,
@@ -195,18 +202,14 @@ class ClassDetailsScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-
-                          const Icon(
-                            Icons.arrow_forward,
-                            color: Color(0xFFFF6B00),
-                          ),
+                          const Icon(Icons.arrow_forward, color: Color(0xFFFF6B00)),
                         ],
                       ),
                     ),
 
                   const SizedBox(height: 24),
 
-                  // 🔲 MENU GRID (ORDER FIXED)
+                  // MENU GRID
                   GridView.count(
                     crossAxisCount: 2,
                     shrinkWrap: true,
@@ -215,62 +218,24 @@ class ClassDetailsScreen extends StatelessWidget {
                     mainAxisSpacing: 18,
                     childAspectRatio: 0.95,
                     children: [
-                      // 1️⃣ START ATTENDANCE
                       _menuCard(
                         icon: Icons.qr_code_scanner,
                         iconColor: Colors.blue,
                         iconBg: const Color(0xFFDDE7FF),
                         title: 'Start Attendance',
                       ),
-
-                      // 2️⃣ JOIN REQUESTS (with badge)
-                      SizedBox.expand(
-                        child: Stack(
-                          children: [
-                            Positioned.fill(
-                              child: _menuCard(
-                                icon: Icons.groups_2_outlined,
-                                iconColor: Colors.purple,
-                                iconBg: const Color(0xFFF1E3FF),
-                                title: 'Join Requests',
-                              ),
-                            ),
-
-                            if (classData["pending"] > 0)
-                              Positioned(
-                                top: 10,
-                                right: 10,
-                                child: Container(
-                                  height: 24,
-                                  width: 24,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFF6B00),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    classData["pending"].toString(),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
+                      _menuCard(
+                        icon: Icons.groups_2_outlined,
+                        iconColor: Colors.purple,
+                        iconBg: const Color(0xFFF1E3FF),
+                        title: 'Join Requests',
                       ),
-
-                      // 3️⃣ ATTENDANCE RECORDS
                       _menuCard(
                         icon: Icons.bar_chart,
                         iconColor: Colors.green,
                         iconBg: Colors.green.withValues(alpha: 0.12),
                         title: 'Attendance\nRecords',
                       ),
-
-                      // 4️⃣ ANNOUNCEMENTS
                       _menuCard(
                         icon: Icons.notifications_none,
                         iconColor: Colors.deepOrange,
@@ -282,7 +247,7 @@ class ClassDetailsScreen extends StatelessWidget {
 
                   const SizedBox(height: 28),
 
-                  // ❌ DELETE CLASS (WORKING)
+                  // DELETE CLASS
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(18),
@@ -298,43 +263,33 @@ class ClassDetailsScreen extends StatelessWidget {
                             color: Color(0xFF303443),
                           ),
                         ),
-
                         const SizedBox(height: 20),
-
                         GestureDetector(
                           onTap: () async {
                             final confirm = await showDialog<bool>(
                               context: context,
-                              builder: (ctx) {
-                                return AlertDialog(
-                                  title: const Text("Delete Class"),
-                                  content: const Text(
-                                      "Are you sure you want to delete this class?"),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.of(ctx).pop(false),
-                                      child: const Text("Cancel"),
-                                    ),
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.of(ctx).pop(true),
-                                      child: const Text(
-                                        "Delete",
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
+                              builder: (ctx) => AlertDialog(
+                                title: const Text("Delete Class"),
+                                content: const Text("Are you sure you want to delete this class?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx, false),
+                                    child: const Text("Cancel"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx, true),
+                                    child: const Text("Delete", style: TextStyle(color: Colors.red)),
+                                  ),
+                                ],
+                              ),
                             );
 
                             if (confirm == true) {
-                              ClassLocalStorage.deleteClass(classId);
+                              await deleteClassUseCase.call(widget.classId);
 
                               if (!context.mounted) return;
 
-                              context.pop(); // go back after delete
+                              context.pop(); // return to dashboard
                             }
                           },
                           child: Container(
@@ -347,13 +302,8 @@ class ClassDetailsScreen extends StatelessWidget {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: const [
-                                Icon(
-                                  Icons.delete_outline,
-                                  color: Colors.red,
-                                ),
-
+                                Icon(Icons.delete_outline, color: Colors.red),
                                 SizedBox(width: 8),
-
                                 Text(
                                   "Delete Class",
                                   style: TextStyle(
@@ -378,11 +328,8 @@ class ClassDetailsScreen extends StatelessWidget {
     );
   }
 
-  // 🔵 TOP INFO CARD
-  static Widget _topInfoCard({
-    required String title,
-    required String value,
-  }) {
+  // TOP INFO CARD
+  static Widget _topInfoCard({required String title, required String value}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -392,30 +339,15 @@ class ClassDetailsScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-            ),
-          ),
-
+          Text(title, style: const TextStyle(color: Colors.white70, fontSize: 14)),
           const SizedBox(height: 10),
-
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text(value, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500)),
         ],
       ),
     );
   }
 
-  // 🔲 MENU CARD
+  // MENU CARD
   static Widget _menuCard({
     required IconData icon,
     required Color iconColor,
@@ -429,34 +361,21 @@ class ClassDetailsScreen extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: iconBg,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 26,
-            ),
+            decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
+            child: Icon(icon, color: iconColor, size: 26),
           ),
-
           const SizedBox(height: 16),
-
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF303443),
-            ),
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF303443)),
           ),
         ],
       ),
     );
   }
 
-  // 🎨 CARD STYLE
+  // CARD DECORATION
   static BoxDecoration _cardDecoration() {
     return BoxDecoration(
       color: Colors.white,
