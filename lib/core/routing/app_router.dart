@@ -6,7 +6,7 @@ import 'package:app/features/auth/presentation/screens/login.dart';
 import 'package:app/features/auth/presentation/screens/register.dart';
 
 
-// ignore_for_file: unnecessary_underscores
+
 class ClassListScreen extends StatelessWidget {
   const ClassListScreen({super.key});
   @override
