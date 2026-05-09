@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
-import 'package:app/core/routing/app_router.dart';
+import 'core/routing/app_router.dart';
+
 
 
 
@@ -22,11 +23,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
