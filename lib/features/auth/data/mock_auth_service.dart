@@ -30,7 +30,7 @@ class MockAuthService {
 
   static bool register(String name, String email, String password, String role) {
     try {
-      // Check if email already exists
+    
       final exists = mockUsers.any((u) => u.email == email);
       if (exists) {
         return false;

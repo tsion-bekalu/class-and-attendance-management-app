@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo icon (lightbulb/graduation style)
+            // Logo 
             Container(
               width: 90,
               height: 90,
