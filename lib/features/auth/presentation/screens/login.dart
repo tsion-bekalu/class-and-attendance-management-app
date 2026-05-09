@@ -233,8 +233,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                         if (user != null) {
                           user.role.name == 'instructor'
-                              ? context.go('/instructor/classes')
-                              : context.go('/student/timetable');
+                              ? context.go('/instructor/dashboard')
+                              : context.go('/student/home');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Invalid credentials')),
