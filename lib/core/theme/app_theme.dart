@@ -27,6 +27,8 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.light,
     fontFamily: 'Inter',
+
+
     primaryColor: primaryColor,
     scaffoldBackgroundColor: backgroundColor,
     colorScheme: const ColorScheme.light(

@@ -1,7 +1,6 @@
-//import 'package:app/features/auth/presentation/screens/first.dart';
-import 'package:app/core/routing/app_%20router.dart';
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
+import 'package:app/core/routing/app_router.dart';
 
 
 
@@ -13,10 +12,21 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: appRouter, // This connects your GoRouter file to the app
-      debugShowCheckedModeBanner: false,
+
+      title: 'Class Attendance System',
       theme: AppTheme.lightTheme,
+      themeMode: ThemeMode.system,
+      routerConfig: appRouter,
+      debugShowCheckedModeBanner: false,
+
     );
   }
 }
+
+
+
+
+
+
+
 
