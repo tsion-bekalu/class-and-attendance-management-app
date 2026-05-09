@@ -9,14 +9,12 @@ class NotificationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Background color from our central theme
       backgroundColor: AppTheme.backgroundColor, 
       appBar: AppBar(
         toolbarHeight: 100, 
         backgroundColor: AppTheme.primaryColor,
         elevation: 0,
         centerTitle: false,
-        // Giving enough space for the custom back button
         leadingWidth: 70, 
         leading: Padding(
           padding: const EdgeInsets.only(left: 16.0),
@@ -25,7 +23,6 @@ class NotificationsScreen extends StatelessWidget {
               height: 47,
               width: 47,
               decoration: BoxDecoration(
-                // Matching the translucent circle style from Class Detail
                 color: AppTheme.surfaceColor.withOpacity(0.1), 
                 shape: BoxShape.circle,
               ),
@@ -53,7 +50,6 @@ class NotificationsScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               itemCount: mockNotifications.length,
               itemBuilder: (context, index) {
-                // Now using the separate NotificationCard file we just fixed!
                 return NotificationCard(notification: mockNotifications[index]);
               },
             ),

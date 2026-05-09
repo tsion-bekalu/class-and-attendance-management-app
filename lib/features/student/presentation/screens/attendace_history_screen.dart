@@ -7,6 +7,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
   const AttendanceHistoryScreen({super.key});
 
   @override
+  //attendance card
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -28,6 +29,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
   }
 }
 
+//blue header
 Widget _buildHeader(BuildContext context) {
   return Container(
     padding: const EdgeInsets.fromLTRB(20, 50, 20, 40),

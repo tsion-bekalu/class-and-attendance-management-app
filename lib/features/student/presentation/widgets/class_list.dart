@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:app/core/models/class_model.dart'; //[cite: 4]
+import 'package:app/core/models/class_model.dart'; 
 
 class ClassCard extends StatelessWidget {
-  final Class classData; // Uses your Class model[cite: 4]
+  final Class classData; 
   final VoidCallback onTap;
 
   const ClassCard({
@@ -18,20 +18,19 @@ class ClassCard extends StatelessWidget {
         onTap: onTap,
         contentPadding: const EdgeInsets.all(16),
         title: Text(
-          classData.name, //[cite: 4]
+          classData.name, 
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 4),
-            Text("Instructor: ${classData.instructorId}"), //[cite: 4]
+            Text("Instructor: ${classData.instructorId}"),
             const SizedBox(height: 8),
             Row(
               children: [
                 const Icon(Icons.access_time, size: 16, color: Colors.grey),
                 const SizedBox(width: 1),
-                // Uses the helper from your model[cite: 4]
                 Text(classData.scheduleString(context)), 
               ],
             ),

@@ -37,7 +37,6 @@ class DeleteDialog extends StatelessWidget {
             const SizedBox(height: 32),
             Row(
               children: [
-                // Cancel Button
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
@@ -52,12 +51,12 @@ class DeleteDialog extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Log Out Button
+                
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context); // Close dialog
-                      context.goNamed('register'); // Use GoRouter to navigate
+                      Navigator.pop(context); 
+                      context.goNamed('register');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,

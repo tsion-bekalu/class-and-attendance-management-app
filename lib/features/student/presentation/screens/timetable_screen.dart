@@ -9,7 +9,6 @@ class TimetableScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Using your theme's background color
       backgroundColor: AppTheme.backgroundColor,
       body: Column(
         children: [

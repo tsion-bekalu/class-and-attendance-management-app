@@ -18,15 +18,14 @@ class StudentHomeScreen extends StatelessWidget {
 
     return Scaffold(
       key: scaffoldKey,
-      // Drawer is on the right, so we use endDrawer
       endDrawer: const StudentDrawer(),
       body: SingleChildScrollView(
         child: Column(
           children: [
             SizedBox(
-  height: 420,
-  child: _buildBlueHeader(context, scaffoldKey),
-),
+              height: 420,
+              child: _buildBlueHeader(context, scaffoldKey),
+            ),
             
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -91,7 +90,7 @@ class StudentHomeScreen extends StatelessWidget {
                       style: TextStyle(color: Colors.white, fontSize: 18),
                       children: [
                         TextSpan(
-                          text: "B", // Replaced 'b' with placeholder
+                          text: "B",
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -99,7 +98,6 @@ class StudentHomeScreen extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      // Notification Icon with dynamic unread logic
                       _headerIcon(
                         Icons.notifications_none_outlined, 
                         hasNotification: mockNotifications.any((n) => n.isUnread),
@@ -107,7 +105,6 @@ class StudentHomeScreen extends StatelessWidget {
                           context.pushNamed('student-notifications');}
                       ),
                       const SizedBox(width: 12),
-                      // Menu Icon to open the Right Drawer
                       _headerIcon(
                         Icons.menu,
                         onTap: () => key.currentState?.openEndDrawer(),
@@ -164,9 +161,9 @@ class StudentHomeScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(child: _statItem("Overall\nAttendance", "85%")),
-        const SizedBox(width: 10), // This adds the gap you wanted!
+        const SizedBox(width: 10), 
         Expanded(child: _statItem("Present\nSessions", "34")),
-        const SizedBox(width: 10), // Gap between middle and right
+        const SizedBox(width: 10), 
         Expanded(child: _statItem("Absent\nSessions", "6")),
       ],
     );
@@ -174,14 +171,11 @@ class StudentHomeScreen extends StatelessWidget {
 
   Widget _statItem(String label, String value) {
   return Container(
-    // Added a fixed width so all three boxes are the same size
     width: 105, 
     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
     decoration: BoxDecoration(
-      // Only using white with low opacity for a subtle "glass" feel
       color: Colors.white.withOpacity(0.1), 
       borderRadius: BorderRadius.circular(16),
-      // A very thin border helps define the edges on dark backgrounds
       border: Border.all(
         color: Colors.white.withOpacity(0.05),
         width: 1,
@@ -194,7 +188,7 @@ class StudentHomeScreen extends StatelessWidget {
           label,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.7), // Slightly dimmed text
+            color: Colors.white.withOpacity(0.7), 
             fontSize: 11,
             fontWeight: FontWeight.w500,
             height: 1.2,

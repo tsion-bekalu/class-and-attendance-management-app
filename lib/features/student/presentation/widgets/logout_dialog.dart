@@ -46,8 +46,8 @@ class LogoutDialog extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context); // Close dialog
-                      context.goNamed('login'); // Use GoRouter to navigate
+                      Navigator.pop(context); 
+                      context.goNamed('login'); 
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,

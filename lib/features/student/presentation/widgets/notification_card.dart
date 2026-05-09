@@ -9,24 +9,7 @@ class NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Style Mapping - matching the icons and soft backgrounds from the image
-    final styleMap = {
-      NotificationType.announcement: {
-        'bg': const Color(0xFFE3F2FD), // Very light blue
-        'icon': AppTheme.primaryColor,
-        'data': Icons.campaign_rounded,
-      },
-      NotificationType.alert: {
-        'bg': const Color(0xFFFFF3E0), // Very light orange
-        'icon': Colors.orange[800],
-        'data': Icons.report_problem_rounded,
-      },
-      NotificationType.reminder: {
-        'bg': const Color(0xFFF3E5F5), // Very light purple
-        'icon': Colors.purple[400],
-        'data': Icons.notifications_rounded,
-      },
-    };
+    
 
     final style = styleMap[notification.type]!;
 

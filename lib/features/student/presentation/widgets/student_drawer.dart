@@ -21,7 +21,6 @@ class StudentDrawer extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 80),
-            // Custom Profile Header
             Row(
               children: [
                 const CircleAvatar(
