@@ -49,7 +49,9 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
   Future<void> _load() async {
     pending = await getPendingRequests(widget.classId);
     processed = await getProcessedRequests(widget.classId);
+    if(mounted){
     setState(() {});
+    }
   }
 
   @override
@@ -78,21 +80,38 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
                   if (pending.isEmpty)
                     const Text("No pending requests", style: TextStyle(color: Colors.grey))
                   else
-                    Column(
-                      children: pending.map((req) {
-                        return PendingRequestCard(
-                          request: req,
-                          onApprove: () async {
-                            await approveJoinRequest(widget.classId, req);
-                            _load();
-                          },
-                          onReject: () async {
-                            await rejectJoinRequest(widget.classId, req);
-                            _load();
-                          },
-                        );
-                      }).toList(),
-                    ),
+Column(
+  children: List.generate(
+    pending.length,
+    (index) {
+      final req = pending[index];
+
+      return PendingRequestCard(
+        key: ValueKey(req.studentId),
+
+        request: req,
+
+        onApprove: () async {
+          await approveJoinRequest(
+            widget.classId,
+            req,
+          );
+
+          await _load();
+        },
+
+        onReject: () async {
+          await rejectJoinRequest(
+            widget.classId,
+            req,
+          );
+
+          await _load();
+        },
+      );
+    },
+  ),
+),
 
                   const SizedBox(height: 42),
 

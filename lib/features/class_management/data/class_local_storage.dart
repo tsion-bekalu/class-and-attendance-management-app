@@ -1,126 +1,208 @@
 import 'package:app/features/class_management/domain/entities/join_request.dart';
 
-
 class ClassLocalStorage {
   static final List<Map<String, dynamic>> _classes = [
     {
-    "id": "CS101",
-    "name": "Computer Science 101",
-    "students": 45,
-    "status": "Active",
-    "days": ["Sun", "Tue"],
-    "startTime": "10:00 AM",
-    "endTime": "12:00 PM",
+      "id": "CS101",
+      "name": "Computer Science 101",
+      "students": 45,
+      "status": "Active",
+      "days": ["Sun", "Tue"],
+      "startTime": "10:00 AM",
+      "endTime": "12:00 PM",
 
-    // ⭐ MOCK DATA FOR JOIN REQUESTS
-    "pendingRequests": [
-      {
-        "name": "Mike Johnson",
-        "email": "mike.j@university.edu",
-        "studentId": "ST101",
-        "status": "pending"
-      },
-      {
-        "name": "Sarah Williams",
-        "email": "sarah.w@university.edu",
-        "studentId": "ST102",
-        "status": "pending"
-      },
-      {
-        "name": "Omar Khaled",
-        "email": "omar.k@university.edu",
-        "studentId": "ST103",
-        "status": "pending"
-      }
-    ],
+      // ⭐ PENDING REQUESTS
+      "pendingRequests": [
+        {
+          "name": "Mike Johnson",
+          "email": "mike.j@university.edu",
+          "studentId": "ST101",
+          "status": "pending",
+        },
+        {
+          "name": "Sarah Williams",
+          "email": "sarah.w@university.edu",
+          "studentId": "ST102",
+          "status": "pending",
+        },
+        {
+          "name": "Omar Khaled",
+          "email": "omar.k@university.edu",
+          "studentId": "ST103",
+          "status": "pending",
+        },
+      ],
 
-    "processedRequests": [
-      {
-        "name": "John Doe",
-        "email": "john.doe@university.edu",
-        "studentId": "ST201",
-        "status": "approved"
-      },
-      {
-        "name": "Jane Smith",
-        "email": "jane.smith@university.edu",
-        "studentId": "ST202",
-        "status": "rejected"
-      }
-    ],
+      // ⭐ PROCESSED REQUESTS
+      "processedRequests": [
+        {
+          "name": "John Doe",
+          "email": "john.doe@university.edu",
+          "studentId": "ST201",
+          "status": "approved",
+        },
+        {
+          "name": "Jane Smith",
+          "email": "jane.smith@university.edu",
+          "studentId": "ST202",
+          "status": "rejected",
+        },
+      ],
 
-    "pending": 3,
-  },
+      "pending": 3,
+    },
   ];
 
+  // ➕ ADD CLASS
   static void addClass(Map<String, dynamic> classData) {
     _classes.add(classData);
   }
 
-  static Map<String, dynamic>? getClassById(String id) {
+  // 🔍 GET CLASS BY ID
+  static Map<String, dynamic>? getClassById(
+    String id,
+  ) {
     try {
-      return _classes.firstWhere((c) => c['id'] == id);
+      return _classes.firstWhere(
+        (c) => c["id"] == id,
+      );
     } catch (_) {
       return null;
     }
   }
 
+  // ❌ DELETE CLASS
   static void deleteClass(String id) {
-    _classes.removeWhere((c) => c['id'] == id);
+    _classes.removeWhere(
+      (c) => c["id"] == id,
+    );
   }
 
-  static List<Map<String, dynamic>> getClasses() {
+  // 📚 GET ALL CLASSES
+  static List<Map<String, dynamic>>
+      getClasses() {
     return _classes;
   }
 
-  static List<JoinRequest> getPendingRequests(String classId) {   
-  final classData = getClassById(classId);
-  if (classData == null) return [];
+  // ⏳ GET PENDING REQUESTS
+  static List<JoinRequest> getPendingRequests(
+    String classId,
+  ) {
+    final classData = getClassById(classId);
 
-  return (classData["pendingRequests"] as List)
-      .map((e) => JoinRequest.fromMap(e))
-      .toList();
-      }
-  static List<JoinRequest> getProcessedRequests(String classId) {   final classData = getClassById(classId);
-  if (classData == null) return [];
+    if (classData == null) return [];
 
-  return (classData["processedRequests"] as List)
-      .map((e) => JoinRequest.fromMap(e))
-      .toList();
-       }
-  static void approveRequest(String classId, String studentId) { final classData = getClassById(classId);
-  if (classData == null) return;
-
-  final pending = classData["pendingRequests"] as List;
-  final processed = classData["processedRequests"] as List;
-
-  final req = pending.firstWhere((r) => r["studentId"] == studentId);
-
-  pending.removeWhere((r) => r["studentId"] == studentId);
-
-  processed.add({
-    ...req,
-    "status": "approved",
-  });
-
-  classData["students"] += 1;
-  classData["pending"] -= 1;
-  }
-  static void rejectRequest(String classId, String studentId) {  final classData = getClassById(classId);
-  if (classData == null) return;
-
-  final pending = classData["pendingRequests"] as List;
-  final processed = classData["processedRequests"] as List;
-
-  final req = pending.firstWhere((r) => r["studentId"] == studentId);
-
-  pending.removeWhere((r) => r["studentId"] == studentId);
-
-  processed.add({
-    ...req,
-    "status": "rejected",
-  });
-   classData["pending"] -= 1;
+    return (classData["pendingRequests"] as List)
+        .map(
+          (e) => JoinRequest.fromMap(
+            Map<String, dynamic>.from(e),
+          ),
+        )
+        .toList();
   }
 
+  // ✅ GET PROCESSED REQUESTS
+  static List<JoinRequest>
+      getProcessedRequests(
+    String classId,
+  ) {
+    final classData = getClassById(classId);
+
+    if (classData == null) return [];
+
+    return (classData["processedRequests"]
+            as List)
+        .map(
+          (e) => JoinRequest.fromMap(
+            Map<String, dynamic>.from(e),
+          ),
+        )
+        .toList();
+  }
+
+  // ✅ APPROVE REQUEST
+  static void approveRequest(
+    String classId,
+    String studentId,
+  ) {
+    final classData = getClassById(classId);
+
+    if (classData == null) return;
+
+    final pending =
+        classData["pendingRequests"] as List;
+
+    final processed =
+        classData["processedRequests"] as List;
+
+    final index = pending.indexWhere(
+      (r) => r["studentId"] == studentId,
+    );
+
+    // 🚫 NOT FOUND
+    if (index == -1) return;
+
+    final req =
+        Map<String, dynamic>.from(
+      pending[index],
+    );
+
+    // REMOVE FROM PENDING
+    pending.removeAt(index);
+
+    // ADD TO PROCESSED
+    processed.add({
+      ...req,
+      "status": "approved",
+    });
+
+    // UPDATE COUNTS
+    classData["students"] += 1;
+
+    if (classData["pending"] > 0) {
+      classData["pending"] -= 1;
+    }
+  }
+
+  // ❌ REJECT REQUEST
+  static void rejectRequest(
+    String classId,
+    String studentId,
+  ) {
+    final classData = getClassById(classId);
+
+    if (classData == null) return;
+
+    final pending =
+        classData["pendingRequests"] as List;
+
+    final processed =
+        classData["processedRequests"] as List;
+
+    final index = pending.indexWhere(
+      (r) => r["studentId"] == studentId,
+    );
+
+    // 🚫 NOT FOUND
+    if (index == -1) return;
+
+    final req =
+        Map<String, dynamic>.from(
+      pending[index],
+    );
+
+    // REMOVE FROM PENDING
+    pending.removeAt(index);
+
+    // ADD TO PROCESSED
+    processed.add({
+      ...req,
+      "status": "rejected",
+    });
+
+    // UPDATE COUNTS
+    if (classData["pending"] > 0) {
+      classData["pending"] -= 1;
+    }
+  }
 }
