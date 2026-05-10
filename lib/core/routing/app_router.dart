@@ -26,10 +26,13 @@ import 'package:app/features/student/presentation/screens/attendace_history_scre
 import 'package:app/features/student/presentation/screens/class_detail_screen.dart';
 import 'package:app/features/student/presentation/screens/attendance_marked_screen.dart';
 import 'package:app/features/class_management/domain/entities/session_record.dart';
+import 'package:app/features/student/presentation/screens/attendance_enter_code_screen.dart';
+import 'package:app/features/student/presentation/screens/attendance_scanner_screen.dart';
+
 
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/instructor/dashboard',
+  initialLocation: '/splash',
   routes: [
     // Auth
     GoRoute(path: '/splash', name: 'splash', builder: (_, _) => const SplashScreen()),
@@ -73,6 +76,11 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: '/student/notifications', name: 'student-notifications', builder: (_, __) => const NotificationsScreen()),
     GoRoute(path: '/student/class', name: 'student-class', builder: (context, state) => ClassDetailScreen(),),
     GoRoute(path: '/attendance-marked', name: 'attendance-marked', builder: (_, __) => const AttendanceMarkedScreen()),
-
+    GoRoute(path: '/attendance-manual-code-entry', name: 'manual-code-entry', builder: (_, __) => const EnterCodeScreen()),
+    GoRoute(
+      path: '/attendance-scanner-screen',
+      name: 'scanner-screen',
+      builder: (_, __) => const AttendanceScannerScreen(),
+    ),
   ]
 );

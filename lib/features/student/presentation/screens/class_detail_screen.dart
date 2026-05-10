@@ -61,7 +61,7 @@ class ClassDetailScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _circularIconButton(Icons.arrow_back, () => Navigator.pop(context)),
+              _circularIconButton(Icons.arrow_back, () => context.pushNamed('student-home')),
               _circularIconButton(Icons.menu, () => scaffoldKey.currentState?.openEndDrawer(),),
             ],
           ),

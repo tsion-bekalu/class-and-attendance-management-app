@@ -4,6 +4,7 @@ import '../../../core/theme/app_theme.dart';
 
 final List<TimetableEntry> mockSchedule = [
   TimetableEntry(
+    day: "Mon",
     title: "Data Structures & Algorithms",
     courseCode: "CS301",
     time: "10:00 AM",
@@ -12,6 +13,7 @@ final List<TimetableEntry> mockSchedule = [
     accentColor: AppTheme.primaryColor,
   ),
   TimetableEntry(
+    day: "Mon",
     title: "Web Development Lab",
     courseCode: "CS308",
     time: "2:00 PM",

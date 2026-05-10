@@ -86,7 +86,7 @@ class AttendanceScanScreen extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () {
               // Navigate to the camera/scanner screen
-              context.pushNamed('qr-scanner');
+              context.pushNamed('scanner-screen');
             },
             icon: const Icon(Icons.qr_code_scanner, color: AppTheme.primaryColor),
             label: const Text("Scan QR Code"),
