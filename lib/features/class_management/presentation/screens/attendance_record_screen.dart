@@ -3,6 +3,8 @@ import '../../../../core/theme/app_theme.dart';
 import '../widgets/session_record_card.dart';
 import '../../domain/entities/session_record.dart';
 import '../../data/mock_attendance_data.dart';
+import '../widgets/student_attendance_card.dart';
+import '../../data/mock_student_data.dart';
 
 class AttendanceRecordScreen extends StatefulWidget {
   const AttendanceRecordScreen({super.key});
@@ -192,18 +194,12 @@ class _AttendanceRecordScreen extends State<AttendanceRecordScreen> {
 
   // Placeholder for the Students tab
   Widget _buildStudentsView() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.people_outline, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
-          Text(
-            "Individual Student Records",
-            style: TextStyle(color: AppTheme.textSecondary, fontSize: 16),
-          ),
-        ],
-      ),
-    );
-  }
+  return ListView.builder(
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    itemCount: mockStudentAttendance.length,
+    itemBuilder: (context, index) {
+      return StudentAttendanceCard(student: mockStudentAttendance[index]);
+    },
+  );
+}
 }
