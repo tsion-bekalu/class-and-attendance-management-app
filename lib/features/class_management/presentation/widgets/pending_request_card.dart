@@ -26,7 +26,7 @@ class PendingRequestCard extends StatelessWidget {
             children: [
               _profile(),
               const SizedBox(width: 14),
-              _info(),
+              Expanded(child: _info()),
             ],
           ),
           const SizedBox(height: 22),
