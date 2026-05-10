@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../widgets/session_record_card.dart';
 import '../../domain/entities/session_record.dart';
 import '../../data/mock_attendance_data.dart';
 import '../widgets/student_attendance_card.dart';
 import '../../data/mock_student_data.dart';
+
 
 class AttendanceRecordScreen extends StatefulWidget {
   const AttendanceRecordScreen({super.key});
@@ -74,7 +76,7 @@ class _AttendanceRecordScreen extends State<AttendanceRecordScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
             Text(
-              "Attendance Session",
+              "Attendance Records",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 22,
@@ -185,9 +187,7 @@ class _AttendanceRecordScreen extends State<AttendanceRecordScreen> {
       time: session.time,
       attendanceCount: session.attendanceCount,
       percentage: session.percentage,
-      onTap: () {
-        // Navigate to session details here
-        debugPrint("Navigating to details for ${session.date}");
+      onTap: () {context.pushNamed('session-details', extra: session);
       },
     );
   }

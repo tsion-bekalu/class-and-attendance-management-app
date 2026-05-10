@@ -3,6 +3,7 @@ import 'package:app/core/theme/app_theme.dart';
 import '../../data/attendance_entry.dart';
 import '../../domain/entities/attendance_entry.dart';
 import 'package:go_router/go_router.dart';
+import '../../domain/entities/session_record.dart';
 
 
 class StartAttendanceScreen extends StatelessWidget {
@@ -200,7 +201,25 @@ class StartAttendanceScreen extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           elevation: 0,
         ),
-        onPressed: () {context.pushNamed('session-details');},
+        onPressed: () {
+  final session = AttendanceSession(
+    date: "May 10, 2026",
+    time: "10:00 AM",
+    attendanceCount: "${mockLiveAttendance.length}",
+    percentage: "80%",
+    attendees: mockLiveAttendance.map((student) {
+      return SessionAttendee(
+        name: student.studentName,
+        isPresent: true,
+      );
+    }).toList(),
+  );
+
+  context.replaceNamed(
+    'session-details',
+    extra: session,
+  );
+},
         icon: const Icon(Icons.stop_circle_outlined),
         label: const Text("End Session", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       ),
