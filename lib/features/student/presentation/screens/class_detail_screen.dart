@@ -182,8 +182,7 @@ class ClassDetailScreen extends StatelessWidget {
   }
 
   Widget _actionCard(IconData icon, String label, VoidCallback onTap) {
-    return Expanded(
-      child: GestureDetector(
+    return GestureDetector(
         onTap: onTap,
         child: Container(
           height: 120,
@@ -205,7 +204,7 @@ class ClassDetailScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
+
     );
   }
 
