@@ -129,7 +129,7 @@ class StudentHomeScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: AppTheme.accentBlue.withValues(alpha:0.2),
+          color: AppTheme.accentBlue.withOpacity(0.2),
           shape: BoxShape.circle,
         ),
         child: Stack(
@@ -174,10 +174,10 @@ class StudentHomeScreen extends StatelessWidget {
     width: 105, 
     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
     decoration: BoxDecoration(
-      color: Colors.white.withValues(alpha:0.1), 
+      color: Colors.white.withOpacity(0.1), 
       borderRadius: BorderRadius.circular(16),
       border: Border.all(
-        color: Colors.white.withValues(alpha:0.05),
+        color: Colors.white.withOpacity(0.05),
         width: 1,
       ),
     ),
@@ -188,7 +188,7 @@ class StudentHomeScreen extends StatelessWidget {
           label,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Colors.white.withValues(alpha:0.7), 
+            color: Colors.white.withOpacity(0.7), 
             fontSize: 11,
             fontWeight: FontWeight.w500,
             height: 1.2,

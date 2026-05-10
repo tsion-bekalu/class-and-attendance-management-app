@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class AnnouncementsScreen extends StatelessWidget {
-  const AnnouncementsScreen({super.key});
+  const AnnouncementsScreen({super.key, required String classId});
 
   @override
   Widget build(BuildContext context) {
