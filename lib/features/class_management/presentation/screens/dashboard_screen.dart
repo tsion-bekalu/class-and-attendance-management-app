@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/class_card.dart';
 import '../widgets/quick_action_card.dart';
+import '../../../../features/student/presentation/widgets/logout_dialog.dart';
+import '../../../../features/student/presentation/widgets/delete_dialog.dart';
 
 // DOMAIN
 import 'package:app/features/class_management/domain/use_cases/get_classes.dart';
@@ -234,13 +236,22 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.red),
                 title: const Text("Logout", style: TextStyle(color: Colors.red)),
-                onTap: () {},
+                onTap: () {Navigator.pop(context); 
+                showDialog(
+                  context: context,
+                  builder: (context) => const LogoutDialog(),
+                );
+              },
               ),
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: Colors.red),
                 title: const Text("Delete Account",
                     style: TextStyle(color: Colors.red)),
-                onTap: () {},
+                onTap: () {Navigator.pop(context); 
+                showDialog(
+                  context: context,
+                  builder: (context) => const DeleteDialog(),
+                );},
               ),
             ],
           ),

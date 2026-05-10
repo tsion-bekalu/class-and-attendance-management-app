@@ -56,7 +56,7 @@ class DeleteDialog extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context); 
-                      context.goNamed('register');
+                      context.goNamed('role_selection');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,

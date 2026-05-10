@@ -64,7 +64,7 @@ class StudentAttendanceScreen extends StatelessWidget {
 
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/splash',
+  initialLocation: '/instructor/dashboard',
   routes: [
     // Instructor
     GoRoute(path: '/splash', name: 'splash', builder: (context,state) => const SplashScreen()),
