@@ -19,7 +19,7 @@ class NotificationCard extends StatelessWidget {
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(16),
         // Adding the subtle border seen in the image
-        border: Border.all(color: Colors.blue.withOpacity(0.15), width: 1.5),
+        border: Border.all(color: Colors.blue.withValues(alpha:0.15), width: 1.5),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),

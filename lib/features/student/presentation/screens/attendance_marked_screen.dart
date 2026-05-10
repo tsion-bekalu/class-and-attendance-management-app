@@ -19,7 +19,7 @@ class AttendanceMarkedScreen extends StatelessWidget {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: const Color(0xFF107C10).withOpacity(0.1),
+                color: const Color(0xFF107C10).withValues(alpha:0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(

@@ -52,7 +52,7 @@ class StartAttendanceScreen extends StatelessWidget {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha:0.2),
             shape: BoxShape.circle,
           ),
           child: IconButton(
@@ -98,7 +98,7 @@ class StartAttendanceScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 15)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 15)],
       ),
       child: Column(
         children: [
@@ -139,7 +139,7 @@ class StartAttendanceScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 15)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 15)],
       ),
       child: Column(
         children: [
@@ -157,7 +157,7 @@ class StartAttendanceScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          ...mockLiveAttendance.map((student) => _buildStudentTile(student)).toList(),
+          ...mockLiveAttendance.map((student) => _buildStudentTile(student)),
         ],
       ),
     );

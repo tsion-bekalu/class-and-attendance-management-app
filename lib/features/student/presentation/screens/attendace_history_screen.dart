@@ -48,7 +48,7 @@ Widget _buildHeader(BuildContext context) {
           height: 45,
           width: 45,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha:0.2),
             shape: BoxShape.circle,
           ),
           child: IconButton(

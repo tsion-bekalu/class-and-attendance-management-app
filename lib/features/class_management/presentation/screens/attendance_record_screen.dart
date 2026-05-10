@@ -57,7 +57,7 @@ class _AttendanceRecordScreen extends State<AttendanceRecordScreen> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha:(0.2)),
             shape: BoxShape.circle,
           ),
           child: IconButton(
@@ -93,7 +93,7 @@ class _AttendanceRecordScreen extends State<AttendanceRecordScreen> {
             ),
           ],
         ),
-      ],
+    ],
     ),
   );
 }
@@ -108,7 +108,7 @@ class _AttendanceRecordScreen extends State<AttendanceRecordScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
