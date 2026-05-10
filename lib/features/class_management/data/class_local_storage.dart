@@ -94,13 +94,16 @@ class ClassLocalStorage {
   final pending = classData["pendingRequests"] as List;
   final processed = classData["processedRequests"] as List;
 
-  final req = pending.firstWhere((r) => r["studentId"] == studentId);
+  final req = Map<String, dynamic>.from(pending.firstWhere((r) => r["studentId"] == studentId),);
 
   pending.removeWhere((r) => r["studentId"] == studentId);
 
   processed.add({
-    ...req,
-    "status": "approved",
+      "name": req["name"],
+  "email": req["email"],
+  "studentId": req["studentId"],
+  "status": "approved",
+
   });
 
   classData["students"] += 1;
@@ -112,13 +115,15 @@ class ClassLocalStorage {
   final pending = classData["pendingRequests"] as List;
   final processed = classData["processedRequests"] as List;
 
-  final req = pending.firstWhere((r) => r["studentId"] == studentId);
+  final req = Map<String, dynamic>.from(pending.firstWhere((r) => r["studentId"] == studentId),);
 
   pending.removeWhere((r) => r["studentId"] == studentId);
 
   processed.add({
-    ...req,
-    "status": "rejected",
+  "name": req["name"],
+  "email": req["email"],
+  "studentId": req["studentId"],
+  "status": "rejected",
   });
    classData["pending"] -= 1;
   }
