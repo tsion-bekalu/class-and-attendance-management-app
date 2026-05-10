@@ -76,7 +76,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                       height: 42,
                       width: 42,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha:0.18),
+                        color: Colors.white.withValues(alpha: 0.18),
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
@@ -183,30 +183,38 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
 
                   // PENDING BANNER
                   if (classData!["pending"] > 0)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(36),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF6EE),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFFFC58F)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.error_outline, color: Color(0xFFFF6B00)),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              "${classData!["pending"]} students waiting for approval",
-                              style: const TextStyle(
-                                color: Color(0xFFD56A1B),
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14,
+                    GestureDetector(
+                      onTap: () async {
+                        await context.push(
+                          '/instructor/class-details/${widget.classId}/join-requests',
+                        );
+                        await loadClass(); // ⭐ refresh after returning
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(36),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF6EE),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFFFC58F)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.error_outline, color: Color(0xFFFF6B00)),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                "${classData!["pending"]} students waiting for approval",
+                                style: const TextStyle(
+                                  color: Color(0xFFD56A1B),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
-                          ),
-                          const Icon(Icons.arrow_forward, color: Color(0xFFFF6B00)),
-                        ],
+                            const Icon(Icons.arrow_forward, color: Color(0xFFFF6B00)),
+                          ],
+                        ),
                       ),
                     ),
 
@@ -220,33 +228,39 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 18,
                     childAspectRatio: 0.95,
-                    children:  [
+                    children: [
                       MenuCard(
                         icon: Icons.qr_code_scanner,
                         iconColor: Colors.blue,
-                        iconBg: Color(0xFFDDE7FF),
+                        iconBg: const Color(0xFFDDE7FF),
                         title: 'Start Attendance',
+                        onTap: () => context.pushNamed('start-attendance'),
                       ),
                       MenuCard(
                         icon: Icons.groups_2_outlined,
                         iconColor: Colors.purple,
-                        iconBg: Color(0xFFF1E3FF),
+                        iconBg: const Color(0xFFF1E3FF),
                         title: 'Join Requests',
-                        onTap: () {
-                          context.push('/instructor/class-details/${widget.classId}/join-requests');
-                        }
+                        onTap: () async {
+                          await context.push(
+                            '/instructor/class-details/${widget.classId}/join-requests',
+                          );
+                          await loadClass(); // ⭐ refresh after returning
+                        },
                       ),
                       MenuCard(
                         icon: Icons.bar_chart,
                         iconColor: Colors.green,
-                        iconBg: Color(0x1F00FF00),
+                        iconBg: const Color(0x1F00FF00),
                         title: 'Attendance\nRecords',
+                        onTap: () => context.pushNamed('attendance-record'),
                       ),
                       MenuCard(
                         icon: Icons.notifications_none,
                         iconColor: Colors.deepOrange,
-                        iconBg: Color(0x1FFF9800),
+                        iconBg: const Color(0x1FFF9800),
                         title: 'Announcements',
+                        onTap: () => context.pushNamed('instructor-announcements'),
                       ),
                     ],
                   ),
@@ -292,9 +306,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
 
                             if (confirm == true) {
                               await deleteClassUseCase.call(widget.classId);
-
                               if (!context.mounted) return;
-
                               context.pop();
                             }
                           },
@@ -305,9 +317,9 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                               color: const Color(0xFFFFEFEF),
                               borderRadius: BorderRadius.circular(14),
                             ),
-                            child: Row(
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
+                              children: [
                                 Icon(Icons.delete_outline, color: Colors.red),
                                 SizedBox(width: 8),
                                 Text(
@@ -340,7 +352,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
       borderRadius: BorderRadius.circular(20),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha:0.08),
+          color: Colors.black.withValues(alpha: 0.08),
           blurRadius: 12,
           offset: const Offset(0, 4),
         ),
