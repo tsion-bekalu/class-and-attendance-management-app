@@ -17,6 +17,12 @@ import 'package:app/features/student/presentation/screens/class_detail_screen.da
 
 
 
+class EditClassScreen extends StatelessWidget {
+  final String classId;
+  const EditClassScreen({super.key, required this.classId});
+  @override
+  Widget build(BuildContext context) => Scaffold(body: Center(child: Text('Edit Class $classId')));
+}
 
 class AnnouncementsScreen extends StatelessWidget {
   final String classId;
