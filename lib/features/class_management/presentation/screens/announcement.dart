@@ -1,131 +1,130 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../domain/entities/announcement.dart';
+import '../../data/mock_announcement_data.dart';
 
 class AnnouncementsScreen extends StatelessWidget {
-  const AnnouncementsScreen({super.key, required String classId});
+  const AnnouncementsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Mock announcements data
-    const List<Map<String, String>> announcements = [
-      {
-        'title': 'Class Cancelled - Monday',
-        'message':
-            'Please note that Monday\'s class has been cancelled due to a faculty meeting. We will resume on Wednesday.',
-        'date': '2026-04-10 2:30 PM',
-      },
-      {
-        'title': 'Assignment Due Date Extended',
-        'message':
-            'The deadline for Assignment 3 has been extended to April 20th. Please submit your work by then.',
-        'date': '2026-04-10 10:30 AM',
-      },
-    ];
-
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Announcements',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        centerTitle: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add, color: Colors.blue),
-            onPressed: () {
-              // Navigate to create announcement screen
-              context.go('/instructor/create-announcement');
-            },
+      backgroundColor: AppTheme.backgroundColor,
+      body: Column(
+        children: [
+          // Reuse header logic
+          _buildHeader(context),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              itemCount: mockAnnouncements.length,
+              itemBuilder: (context, index) {
+                return _buildAnnouncementCard(mockAnnouncements[index]);
+              },
+            ),
           ),
         ],
       ),
-      body: Column(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigate to new announcement screen
+          context.pushNamed('instructor-create-announcement');
+        },
+        backgroundColor: AppTheme.primaryColor,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
+      width: double.infinity,
+      decoration: const BoxDecoration(color: AppTheme.primaryColor),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Class name header
           Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            color: Colors.white,
-            child: Text(
-              'Computer Science',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.blue[700],
-              ),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+              onPressed: () => context.pop(),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                "Announcements",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                "Computer Science",
+                style: TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
-          // Announcements list
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: announcements.length,
-              itemBuilder: (context, index) {
-                final announcement = announcements[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey[200]!),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        announcement['title']!,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        announcement['message']!,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                          height: 1.4,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.calendar_today,
-                            size: 14,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            announcement['date']!,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
+  // Individual Card implementation
+  Widget _buildAnnouncementCard(Announcement announcement) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            announcement.title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
             ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            announcement.message,
+            style: const TextStyle(color: AppTheme.textSecondary, height: 1.4),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Icon(
+                Icons.access_time_rounded,
+                size: 16,
+                color: Colors.black38,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                announcement.dateTime,
+                style: const TextStyle(color: Colors.black38, fontSize: 13),
+              ),
+            ],
           ),
         ],
       ),

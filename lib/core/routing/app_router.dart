@@ -29,7 +29,7 @@ import 'package:app/features/class_management/domain/entities/session_record.dar
 
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/student/home',
+  initialLocation: '/instructor/dashboard',
   routes: [
     // Auth
     GoRoute(path: '/splash', name: 'splash', builder: (_, _) => const SplashScreen()),
@@ -57,9 +57,9 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(
-      path: '/instructor/announcements/:classId',
+      path: '/instructor/announcements',
       name: 'instructor-announcements',
-      builder: (_, state) => AnnouncementsScreen(classId: state.pathParameters['classId']!),
+      builder: (context, state) => AnnouncementsScreen(),
     ),
     GoRoute(path: '/instructor/session-details',name: 'session-details',builder: (context, state) {
     final session = state.extra as AttendanceSession; 
