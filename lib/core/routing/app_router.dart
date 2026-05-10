@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:app/features/class_management/presentation/screens/class_details_screen.dart';
 import 'package:app/features/class_management/presentation/screens/dashboard_screen.dart';
 import 'package:app/features/class_management/presentation/screens/create_class_screen.dart';
+import 'package:app/features/class_management/presentation/screens/announcement.dart';
+import 'package:app/features/class_management/presentation/screens/create_announcement.dart';
+import 'package:app/features/class_management/presentation/screens/attendance_record_screen.dart';
+import 'package:app/features/class_management/presentation/screens/start_attendance_screen.dart';
 import 'package:app/features/auth/presentation/screens/splash.dart';
 import 'package:app/features/auth/presentation/screens/role_selection.dart';
 import 'package:app/features/auth/presentation/screens/login.dart';
@@ -12,7 +16,7 @@ import 'package:app/features/student/presentation/screens/student_home_screen.da
 import 'package:app/features/student/presentation/screens/timetable_screen.dart';
 import 'package:app/features/student/presentation/screens/attendace_history_screen.dart';
 import 'package:app/features/student/presentation/screens/class_detail_screen.dart';
-
+import 'package:app/features/student/presentation/screens/attendance_marked_screen.dart';
 
 
 class EditClassScreen extends StatelessWidget {
@@ -26,12 +30,6 @@ class JoinRequestsScreen extends StatelessWidget {
   const JoinRequestsScreen({super.key, required this.classId});
   @override
   Widget build(BuildContext context) => Scaffold(body: Center(child: Text('Join Requests for $classId')));
-}
-class AnnouncementsScreen extends StatelessWidget {
-  final String classId;
-  const AnnouncementsScreen({super.key, required this.classId});
-  @override
-  Widget build(BuildContext context) => Scaffold(body: Center(child: Text('Announcements $classId')));
 }
 class StartSessionScreen extends StatelessWidget {
   final String classId;
@@ -78,10 +76,13 @@ final GoRouter appRouter = GoRouter(
       return ClassDetailsScreen(classId: id);} ),
     GoRoute(path: '/instructor/edit-class/:classId', name: 'instructor-edit-class', builder: (_, state) => EditClassScreen(classId: state.pathParameters['classId']!)),
     GoRoute(path: '/instructor/join-requests/:classId', name: 'instructor-join-requests', builder: (_, state) => JoinRequestsScreen(classId: state.pathParameters['classId']!)),
-    GoRoute(path: '/instructor/announcements/:classId', name: 'instructor-announcements', builder: (_, state) => AnnouncementsScreen(classId: state.pathParameters['classId']!)),
     GoRoute(path: '/instructor/start-session/:classId', name: 'instructor-start-session', builder: (_, state) => StartSessionScreen(classId: state.pathParameters['classId']!)),
     GoRoute(path: '/instructor/qr-display/:sessionId', name: 'instructor-qr-display', builder: (_, state) => QRDisplayScreen(sessionId: state.pathParameters['sessionId']!)),
     GoRoute(path: '/instructor/timetable', name: 'instructor-timetable', builder: (_, __) => const TimetableScreen()),
+    GoRoute(path: '/instructor/announcements',name: 'instructor-announcements',builder: (context, state) => const AnnouncementsScreen(),),
+    GoRoute(path: '/instructor/create-announcement',name: 'instructor-create-announcement',builder: (context, state) => const CreateAnnouncementScreen(),),
+    GoRoute(path: '/instructor/attendance-record',name: 'attendance-record',builder: (context, state) => const AttendanceRecordScreen(),),
+    GoRoute(path: '/instructor/start-attendance',name: 'start-attendance',builder: (context, state) => const StartAttendanceScreen(),),
     // Student
     GoRoute(path: '/student/home', name: 'student-home', builder: (context, state) => const StudentHomeScreen()),
     GoRoute(path: '/student/timetable', name: 'student-timetable', builder: (context, state) => const TimetableScreen(),),
@@ -91,5 +92,6 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: '/student/attendance-history', name: 'student-attendance-history', builder: (context, state) => const AttendanceHistoryScreen()),
     GoRoute(path: '/student/notifications', name: 'student-notifications', builder: (_, __) => const NotificationsScreen()),
     GoRoute(path: '/student/class', name: 'student-class', builder: (context, state) => ClassDetailScreen(),),
+    GoRoute(path: '/attendance-marked', name: 'attendance-marked', builder: (_, __) => const AttendanceMarkedScreen()),
     ],
 );

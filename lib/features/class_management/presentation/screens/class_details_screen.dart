@@ -206,6 +206,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                             ),
                           ),
                           const Icon(Icons.arrow_forward, color: Color(0xFFFF6B00)),
+                
                         ],
                       ),
                     ),
@@ -220,30 +221,37 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 18,
                     childAspectRatio: 0.95,
-                    children: const [
+                    children:  [
                       MenuCard(
                         icon: Icons.qr_code_scanner,
                         iconColor: Colors.blue,
                         iconBg: Color(0xFFDDE7FF),
                         title: 'Start Attendance',
+                        onTap: () {context.pushNamed('start-attendance');},
                       ),
                       MenuCard(
                         icon: Icons.groups_2_outlined,
                         iconColor: Colors.purple,
                         iconBg: Color(0xFFF1E3FF),
                         title: 'Join Requests',
+                        onTap: () {context.pushNamed('instructor-announcements');},
+
                       ),
                       MenuCard(
                         icon: Icons.bar_chart,
                         iconColor: Colors.green,
                         iconBg: Color(0x1F00FF00),
                         title: 'Attendance\nRecords',
+                        onTap: () {context.pushNamed('attendance-record');},
+
                       ),
                       MenuCard(
                         icon: Icons.notifications_none,
                         iconColor: Colors.deepOrange,
                         iconBg: Color(0x1FFF9800),
                         title: 'Announcements',
+                        onTap: () {context.pushNamed('instructor-announcements');},
+
                       ),
                     ],
                   ),

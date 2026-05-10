@@ -14,131 +14,137 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
-      body: Column(
-        children: [
-          // Top area with logo
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
+      backgroundColor: const Color(0xFFF3F5FB),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // TOP LOGO SECTION
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/logo3.png',
+                      width: 150,
+                      height: 150,
                     ),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/logo1.png',
-                        fit: BoxFit.cover,
+                    
+                  ],
+                ),
+              ),
+            ),
+
+            // WHITE CARD
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(24, 34, 24, 30),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(34),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.10),
+                    blurRadius: 30,
+                    offset: const Offset(0, -6),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  const Text(
+                    'Join as',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1D2433),
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  const Text(
+                    'Select your role to continue',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF7B8190),
+                    ),
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  // INSTRUCTOR TILE
+                  _RoleTile(
+                    icon: Icons.school_outlined,
+                    title: 'Instructor',
+                    subtitle: 'Manage classes &\nattendance',
+                    isSelected: _selectedRole == 'Instructor',
+                    onTap: () =>
+                        setState(() => _selectedRole = 'Instructor'),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // STUDENT TILE
+                  _RoleTile(
+                    icon: Icons.groups_outlined,
+                    title: 'Student',
+                    subtitle: 'Join classes & mark\nattendance',
+                    isSelected: _selectedRole == 'Student',
+                    onTap: () =>
+                        setState(() => _selectedRole = 'Student'),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // BUTTON
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2962FF),
+                        elevation: 4,
+                        shadowColor:
+                            Colors.black.withValues(alpha: 0.25),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      onPressed: _selectedRole == null
+                          ? null
+                          : () => context.push(
+                                '/login',
+                                extra: _selectedRole,
+                              ),
+                      child: const Text(
+                        'Continue',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'UNI TRACK',
+
+                  const SizedBox(height: 24),
+
+                  Text(
+                    'By continuing, you agree to our Terms & Privacy Policy',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A60FF),
-                      letterSpacing: 1.5,
+                      fontSize: 11,
+                      color: Colors.grey.shade400,
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-
-          // Bottom white card
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-              boxShadow: [
-                BoxShadow(color: Colors.black12, blurRadius: 20, offset: Offset(0, -4)),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text(
-                  'Join as',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Select your role to continue',
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
-                ),
-                const SizedBox(height: 20),
-
-                // Instructor tile
-                _RoleTile(
-                  icon: Icons.person_outline,
-                  title: 'Instructor',
-                  subtitle: 'Manage classes &\nattendance',
-                  isSelected: _selectedRole == 'Instructor',
-                  onTap: () => setState(() => _selectedRole = 'Instructor'),
-                ),
-                const SizedBox(height: 12),
-
-                // Student tile
-                _RoleTile(
-                  icon: Icons.school_outlined,
-                  title: 'Student',
-                  subtitle: 'Join classes & view\nattendance',
-                  isSelected: _selectedRole == 'Student',
-                  onTap: () => setState(() => _selectedRole = 'Student'),
-                ),
-
-                const SizedBox(height: 28),
-
-                // Continue button
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1A60FF),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 0,
-                    ),
-                    onPressed: _selectedRole == null
-                        ? null
-                        : () => context.push('/login', extra: _selectedRole),
-                    child: const Text(
-                      'Continue',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    'By continuing, you agree to our Terms & Privacy Policy',
-                    style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -164,34 +170,46 @@ class _RoleTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        duration: const Duration(milliseconds: 180),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 18,
+        ),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFEEF3FF) : Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          color: isSelected
+              ? const Color(0xFFF2F6FF)
+              : const Color(0xFFFAFAFC),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected ? const Color(0xFF1A60FF) : Colors.grey.shade200,
-            width: isSelected ? 1.5 : 1,
+            color: isSelected
+                ? const Color(0xFF2962FF)
+                : const Color(0xFFE7EAF0),
+            width: 1.5,
           ),
         ),
         child: Row(
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 50,
+              height: 50,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFF1A60FF).withValues(alpha: 0.12)
-                    : Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(12),
+                    ? const Color(0xFF2962FF)
+                    : const Color(0xFFF1F3F7),
+                shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                color: isSelected ? const Color(0xFF1A60FF) : Colors.grey,
-                size: 22,
+                color: isSelected
+                    ? Colors.white
+                    : const Color(0xFFB7BCC8),
+                size: 24,
               ),
             ),
-            const SizedBox(width: 14),
+
+            const SizedBox(width: 16),
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,21 +217,39 @@ class _RoleTile extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: isSelected ? const Color(0xFF1A60FF) : Colors.black87,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: isSelected
+                          ? const Color(0xFF1D2433)
+                          : const Color(0xFFC1C5D0),
                     ),
                   ),
-                  const SizedBox(height: 2),
+
+                  const SizedBox(height: 4),
+
                   Text(
                     subtitle,
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    style: TextStyle(
+                      height: 1.4,
+                      fontSize: 14,
+                      color: isSelected
+                          ? const Color(0xFF5E6573)
+                          : const Color(0xFFC9CDD6),
+                    ),
                   ),
                 ],
               ),
             ),
-            if (isSelected)
-              const Icon(Icons.check_circle, color: Color(0xFF1A60FF), size: 22),
+
+            Icon(
+              isSelected
+                  ? Icons.check_circle_outline
+                  : Icons.radio_button_unchecked,
+              color: isSelected
+                  ? const Color(0xFF2962FF)
+                  : const Color(0xFFD5D9E2),
+              size: 24,
+            ),
           ],
         ),
       ),
