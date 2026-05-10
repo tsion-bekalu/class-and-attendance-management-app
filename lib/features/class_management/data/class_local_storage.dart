@@ -129,21 +129,19 @@ class ClassLocalStorage {
 
     if (classData == null) return;
 
-    final pending =
-        classData["pendingRequests"] as List;
+    final List pending =
+       List.from( classData["pendingRequests"]);
 
-    final processed =
-        classData["processedRequests"] as List;
+    final List processed =
+        List.from(classData["processedRequests"]);
 
     final index = pending.indexWhere(
       (r) => r["studentId"] == studentId,
     );
 
-    // 🚫 NOT FOUND
     if (index == -1) return;
 
-    final req =
-        Map<String, dynamic>.from(
+    final Map<String, dynamic> req = Map<String, dynamic>.from(
       pending[index],
     );
 
@@ -152,17 +150,23 @@ class ClassLocalStorage {
 
     // ADD TO PROCESSED
     processed.add({
-      ...req,
-      "status": "approved",
+    "name": req["name"],
+    "email": req["email"],
+    "studentId": req["studentId"],
+    "status": "approved",
+
     });
 
     // UPDATE COUNTS
-    classData["students"] += 1;
+  classData["pendingRequests"] = pending;
+  classData["processedRequests"] = processed;
 
-    if (classData["pending"] > 0) {
-      classData["pending"] -= 1;
-    }
+  classData["students"] += 1;
+
+  if (classData["pending"] > 0) {
+    classData["pending"] -= 1;
   }
+}
 
   // ❌ REJECT REQUEST
   static void rejectRequest(
@@ -173,20 +177,19 @@ class ClassLocalStorage {
 
     if (classData == null) return;
 
-    final pending =
-        classData["pendingRequests"] as List;
+    final List pending =
+        List.from(classData["pendingRequests"]);
 
-    final processed =
-        classData["processedRequests"] as List;
+    final List processed =
+        List.from(classData["processedRequests"]);
 
     final index = pending.indexWhere(
       (r) => r["studentId"] == studentId,
     );
 
-    // 🚫 NOT FOUND
     if (index == -1) return;
 
-    final req =
+    final Map<String, dynamic> req =
         Map<String, dynamic>.from(
       pending[index],
     );
@@ -196,13 +199,16 @@ class ClassLocalStorage {
 
     // ADD TO PROCESSED
     processed.add({
-      ...req,
-      "status": "rejected",
+     "name": req["name"],
+    "email": req["email"],
+    "studentId": req["studentId"],
+    "status": "rejected",
     });
 
-    // UPDATE COUNTS
-    if (classData["pending"] > 0) {
-      classData["pending"] -= 1;
-    }
+  classData["pendingRequests"] = pending;
+  classData["processedRequests"] = processed;
+
+  if (classData["pending"] > 0) {
+    classData["pending"] -= 1;
   }
-}
+}}
