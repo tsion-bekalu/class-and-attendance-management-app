@@ -5,6 +5,7 @@ class MenuCard extends StatelessWidget {
   final Color iconColor;
   final Color iconBg;
   final String title;
+  final VoidCallback? onTap;
 
   const MenuCard({
     super.key,
@@ -12,11 +13,14 @@ class MenuCard extends StatelessWidget {
     required this.iconColor,
     required this.iconBg,
     required this.title,
+    this.onTap
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -48,6 +52,6 @@ class MenuCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }

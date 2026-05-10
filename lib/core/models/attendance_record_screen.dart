@@ -89,7 +89,7 @@ class StudentsAttendanceList extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.05),
+                color: Colors.grey.withValues(alpha:0.05),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -134,7 +134,7 @@ class StudentsAttendanceList extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: _getPercentageColor(
                           attendancePercentage,
-                        ).withOpacity(0.1),
+                        ).withValues(alpha:0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(

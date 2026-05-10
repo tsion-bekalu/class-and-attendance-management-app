@@ -220,7 +220,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 18,
                     childAspectRatio: 0.95,
-                    children: const [
+                    children:  [
                       MenuCard(
                         icon: Icons.qr_code_scanner,
                         iconColor: Colors.blue,
@@ -232,6 +232,9 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                         iconColor: Colors.purple,
                         iconBg: Color(0xFFF1E3FF),
                         title: 'Join Requests',
+                        onTap: () {
+                          context.push('/instructor/class-details/${widget.classId}/join-requests');
+                        }
                       ),
                       MenuCard(
                         icon: Icons.bar_chart,

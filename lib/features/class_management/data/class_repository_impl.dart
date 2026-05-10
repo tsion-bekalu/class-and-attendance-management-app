@@ -1,6 +1,8 @@
 import '../domain/entities/class_entity.dart';
 import '../domain/repositories/class_repository.dart';
 import 'class_local_storage.dart';
+import 'package:app/features/class_management/domain/entities/join_request.dart';
+
 
 class ClassRepositoryImpl implements ClassRepository {
   @override
@@ -14,10 +16,51 @@ class ClassRepositoryImpl implements ClassRepository {
       "days": newClass.days,
       "startTime": newClass.startTime,
       "endTime": newClass.endTime,
-      "pending": 3,
+      "pendingRequests": [
+      {
+        "name": "Mike Johnson",
+        "email": "mike.j@university.edu",
+        "studentId": "ST101",
+        "status": "pending"
+      },
+      {
+        "name": "Sarah Williams",
+        "email": "sarah.w@university.edu",
+        "studentId": "ST102",
+        "status": "pending"
+      },
+    ],
+    "processedRequests": [
+      {
+        "name": "John Doe",
+        "email": "john.doe@university.edu",
+        "studentId": "ST201",
+        "status": "approved"
+      }
+    ],
+
+    "pending": 2,
+  
     });
   }
-
+  @override
+  Future<List<JoinRequest>> getPendingRequests(String classId) async {
+   return  ClassLocalStorage.getPendingRequests(classId);
+   
+  }
+  @override
+  Future<List<JoinRequest>> getProcessedRequests(String classId) async {
+     return ClassLocalStorage.getProcessedRequests(classId);
+    
+}
+  @override
+  Future<void> approveRequest(String classId, String studentId) async {
+    ClassLocalStorage.approveRequest(classId, studentId);
+  }
+  @override
+  Future<void> rejectRequest(String classId, String studentId) async {
+    ClassLocalStorage.rejectRequest(classId, studentId);
+  }
   @override
   Future<void> deleteClass(String classId) async {
     ClassLocalStorage.deleteClass(classId);

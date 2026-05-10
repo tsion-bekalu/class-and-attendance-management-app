@@ -40,7 +40,7 @@ class AppTheme {
       color: surfaceColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey.withOpacity(0.1)),
+        side: BorderSide(color: Colors.grey.withValues(alpha:0.1)),
       ),
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
     ),

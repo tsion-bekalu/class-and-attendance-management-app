@@ -23,7 +23,7 @@ class NotificationsScreen extends StatelessWidget {
               height: 47,
               width: 47,
               decoration: BoxDecoration(
-                color: AppTheme.surfaceColor.withOpacity(0.1), 
+                color: AppTheme.surfaceColor.withValues(alpha:0.1), 
                 shape: BoxShape.circle,
               ),
               child: IconButton(

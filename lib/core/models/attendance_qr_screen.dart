@@ -36,7 +36,7 @@ class AttendanceQRScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFF155DFC).withOpacity(0.1),
+                color: const Color(0xFF155DFC).withValues(alpha:0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const Text(
