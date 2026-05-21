@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/announcement.dart';
-import '../../data/mock_announcement_data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/announcement_provider.dart';
 
-class AnnouncementsScreen extends StatelessWidget {
+class AnnouncementsScreen extends ConsumerWidget {
   const AnnouncementsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final announcementState = ref.watch(announcementProvider);
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Column(
@@ -18,9 +21,11 @@ class AnnouncementsScreen extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              itemCount: mockAnnouncements.length,
+              itemCount: announcementState.announcements.length,
               itemBuilder: (context, index) {
-                return _buildAnnouncementCard(mockAnnouncements[index]);
+                return _buildAnnouncementCard(
+                  announcementState.announcements[index],
+                );
               },
             ),
           ),

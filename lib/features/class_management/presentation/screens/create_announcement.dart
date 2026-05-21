@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/announcement_provider.dart';
 
-class CreateAnnouncementScreen extends StatefulWidget {
+class CreateAnnouncementScreen extends ConsumerStatefulWidget {
   const CreateAnnouncementScreen({super.key});
 
   @override
-  State<CreateAnnouncementScreen> createState() => _CreateAnnouncementScreen();
+  ConsumerState<CreateAnnouncementScreen> createState() =>
+      _CreateAnnouncementScreen();
 }
 
-class _CreateAnnouncementScreen extends State<CreateAnnouncementScreen> {
+class _CreateAnnouncementScreen extends ConsumerState<CreateAnnouncementScreen> {
   final _titleController = TextEditingController();
   final _messageController = TextEditingController();
   int _titleLength = 0;
@@ -102,7 +105,21 @@ class _CreateAnnouncementScreen extends State<CreateAnnouncementScreen> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          // TODO: Handle post logic
+                          if (_titleController.text.trim().isEmpty) {
+                            return;
+                          }
+
+                          if (_messageController.text.trim().isEmpty) {
+                            return;
+                          }
+
+                          ref
+                              .read(announcementProvider.notifier)
+                              .createAnnouncement(
+                                title: _titleController.text.trim(),
+                                message: _messageController.text.trim(),
+                              );
+
                           context.pop();
                         },
                         style: ElevatedButton.styleFrom(
@@ -198,7 +215,9 @@ class _CreateAnnouncementScreen extends State<CreateAnnouncementScreen> {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: const TextStyle(color: Colors.black26),
-            prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Colors.black26) : null,
+            prefixIcon: prefixIcon != null
+                ? Icon(prefixIcon, color: Colors.black26)
+                : null,
             filled: true,
             fillColor: Colors.white,
             contentPadding: const EdgeInsets.all(16),
