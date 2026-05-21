@@ -18,6 +18,7 @@ class _StartAttendanceScreenState extends ConsumerState<StartAttendanceScreen> {
   void initState() {
     super.initState();
 
+
     Future.microtask(() {
       ref.read(attendanceProvider.notifier).startSession();
     });
