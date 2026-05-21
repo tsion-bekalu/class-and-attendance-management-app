@@ -3,17 +3,30 @@ import 'package:app/core/theme/app_theme.dart';
 import '../../domain/entities/attendance_entry.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:app/features/class_management/presentation/providers/attencance_provider.dart';
+import 'package:app/features/class_management/presentation/providers/attendance_provider.dart';
 
-class StartAttendanceScreen extends ConsumerWidget {
+class StartAttendanceScreen extends ConsumerStatefulWidget {
   const StartAttendanceScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final attendanceState = ref.watch(attendanceProvider);
-    if (!attendanceState.isSessionRunning) {
+  ConsumerState<StartAttendanceScreen> createState() =>
+      _StartAttendanceScreenState();
+}
+
+class _StartAttendanceScreenState extends ConsumerState<StartAttendanceScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
       ref.read(attendanceProvider.notifier).startSession();
-    }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final attendanceState = ref.watch(attendanceProvider);
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Column(
