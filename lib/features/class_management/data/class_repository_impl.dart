@@ -2,9 +2,10 @@ import '../domain/entities/class_entity.dart';
 import '../domain/repositories/class_repository.dart';
 import 'class_local_storage.dart';
 import 'package:app/features/class_management/domain/entities/join_request.dart';
-
+import 'class_database.dart';
 
 class ClassRepositoryImpl implements ClassRepository {
+  final _database = ClassDatabase();
   @override
   Future<void> createClass(ClassEntity newClass) async {
     ClassLocalStorage.addClass({
@@ -17,57 +18,68 @@ class ClassRepositoryImpl implements ClassRepository {
       "startTime": newClass.startTime,
       "endTime": newClass.endTime,
       "pendingRequests": [
-      {
-        "name": "Mike Johnson",
-        "email": "mike.j@university.edu",
-        "studentId": "ST101",
-        "status": "pending"
-      },
-      {
-        "name": "Sarah Williams",
-        "email": "sarah.w@university.edu",
-        "studentId": "ST102",
-        "status": "pending"
-      },
-    ],
-    "processedRequests": [
-      {
-        "name": "John Doe",
-        "email": "john.doe@university.edu",
-        "studentId": "ST201",
-        "status": "approved"
-      }
-    ],
+        {
+          "name": "Mike Johnson",
+          "email": "mike.j@university.edu",
+          "studentId": "ST101",
+          "status": "pending",
+        },
+        {
+          "name": "Sarah Williams",
+          "email": "sarah.w@university.edu",
+          "studentId": "ST102",
+          "status": "pending",
+        },
+      ],
+      "processedRequests": [
+        {
+          "name": "John Doe",
+          "email": "john.doe@university.edu",
+          "studentId": "ST201",
+          "status": "approved",
+        },
+      ],
 
-    "pending": 2,
-  
+      "pending": 2,
     });
+
+    await _database.insertClass(newClass);
   }
+
   @override
   Future<List<JoinRequest>> getPendingRequests(String classId) async {
-   return  ClassLocalStorage.getPendingRequests(classId);
-   
+    return ClassLocalStorage.getPendingRequests(classId);
   }
+
   @override
   Future<List<JoinRequest>> getProcessedRequests(String classId) async {
-     return ClassLocalStorage.getProcessedRequests(classId);
-    
-}
+    return ClassLocalStorage.getProcessedRequests(classId);
+  }
+
   @override
   Future<void> approveRequest(String classId, String studentId) async {
     ClassLocalStorage.approveRequest(classId, studentId);
   }
+
   @override
   Future<void> rejectRequest(String classId, String studentId) async {
     ClassLocalStorage.rejectRequest(classId, studentId);
   }
+
   @override
   Future<void> deleteClass(String classId) async {
     ClassLocalStorage.deleteClass(classId);
+    await _database.deleteClass(classId);
   }
 
   @override
   Future<List<ClassEntity>> getClasses() async {
+    final sqliteClasses = await _database.getClasses();
+
+    if (sqliteClasses.isNotEmpty) {
+      return sqliteClasses;
+    }
+
     final rawList = ClassLocalStorage.getClasses();
 
     return rawList.map((data) {

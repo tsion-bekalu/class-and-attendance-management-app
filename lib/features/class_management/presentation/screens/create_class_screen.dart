@@ -1,43 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-// DOMAIN
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/class_provider.dart';
 import 'package:app/features/class_management/domain/entities/class_entity.dart';
-import 'package:app/features/class_management/domain/use_cases/create_class.dart';
-
-// DATA
-import 'package:app/features/class_management/data/class_repository_impl.dart';
-
-// WIDGETS
 import '../widgets/form_card.dart';
 import '../widgets/day_chip.dart';
 import '../widgets/time_input.dart';
 import '../widgets/info_box.dart';
 
-class CreateClassScreen extends StatefulWidget {
+class CreateClassScreen extends ConsumerStatefulWidget {
   const CreateClassScreen({super.key});
 
   @override
-  State<CreateClassScreen> createState() => _CreateClassScreenState();
+  ConsumerState<CreateClassScreen> createState() => _CreateClassScreenState();
 }
 
-class _CreateClassScreenState extends State<CreateClassScreen> {
+class _CreateClassScreenState extends ConsumerState<CreateClassScreen> {
   final TextEditingController classNameController = TextEditingController();
   final TextEditingController startTimeController = TextEditingController();
   final TextEditingController endTimeController = TextEditingController();
 
   final List<String> days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
   List<String> selectedDays = [];
-
-  late final ClassRepositoryImpl repository;
-  late final CreateClass createClassUseCase;
-
-  @override
-  void initState() {
-    super.initState();
-    repository = ClassRepositoryImpl();
-    createClassUseCase = CreateClass(repository);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +33,10 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
               // HEADER
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
                 decoration: const BoxDecoration(color: Color(0xFF1E5EFF)),
                 child: Row(
                   children: [
@@ -58,10 +45,13 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha:0.18),
+                          color: Colors.white.withValues(alpha: 0.18),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.arrow_back, color: Colors.white),
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -86,31 +76,43 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text("Class Name",
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF2C3444))),
+                          const Text(
+                            "Class Name",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF2C3444),
+                            ),
+                          ),
                           const SizedBox(height: 14),
                           TextField(
                             controller: classNameController,
                             decoration: const InputDecoration(
                               hintText: "e.g., Computer Science",
-                              prefixIcon: Icon(Icons.menu_book_outlined,
-                                  color: Color(0xFF9AA3B2)),
+                              prefixIcon: Icon(
+                                Icons.menu_book_outlined,
+                                color: Color(0xFF9AA3B2),
+                              ),
                               filled: true,
                               fillColor: Colors.white,
-                              contentPadding:
-                                  EdgeInsets.symmetric(vertical: 18),
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: 18,
+                              ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(16)),
-                                borderSide:
-                                    BorderSide(color: Color(0xFFD9DDE5)),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(16),
+                                ),
+                                borderSide: BorderSide(
+                                  color: Color(0xFFD9DDE5),
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(16)),
-                                borderSide:
-                                    BorderSide(color: Color(0xFF1E5EFF)),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(16),
+                                ),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF1E5EFF),
+                                ),
                               ),
                             ),
                           ),
@@ -125,11 +127,14 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text("Select Days",
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF2C3444))),
+                          const Text(
+                            "Select Days",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF2C3444),
+                            ),
+                          ),
                           const SizedBox(height: 18),
                           Wrap(
                             spacing: 12,
@@ -159,11 +164,14 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text("Class Time",
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF2C3444))),
+                          const Text(
+                            "Class Time",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF2C3444),
+                            ),
+                          ),
                           const SizedBox(height: 18),
                           Row(
                             children: [
@@ -227,10 +235,11 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                             students: 0,
                             pending: 0,
                             status: "Active",
- 
                           );
 
-                          await createClassUseCase.call(newClass);
+                          await ref
+                              .read(classProvider.notifier)
+                              .createClass(newClass);
 
                           if (!context.mounted) return;
                           context.push('/instructor/class-details/$id');
