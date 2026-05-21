@@ -1,6 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-
 import '../../data/attendance_entry.dart';
 import '../../data/mock_attendance_data.dart';
 import '../../domain/entities/attendance_entry.dart';
