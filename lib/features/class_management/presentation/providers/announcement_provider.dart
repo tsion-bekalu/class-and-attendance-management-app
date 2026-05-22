@@ -4,20 +4,21 @@ import '../../domain/entities/announcement.dart';
 import '../../data/announcement_database.dart';
 
 final announcementProvider =
-    StateNotifierProvider<AnnouncementNotifier, List<Announcement>>((ref) {
-  return AnnouncementNotifier();
+    StateNotifierProvider.family<AnnouncementNotifier, List<Announcement>,String>((ref, classId) {
+  return AnnouncementNotifier(classId);
 });
 
 class AnnouncementNotifier extends StateNotifier<List<Announcement>> {
   final AnnouncementDatabase _database = AnnouncementDatabase();
+  final String classId;
 
-  AnnouncementNotifier() : super([]) {
+  AnnouncementNotifier(this.classId) : super([]) {
     loadAnnouncements();
   }
 
   Future<void> loadAnnouncements() async {
     final announcements =
-        await _database.getAnnouncements();
+        await _database.getAnnouncements(classId);
 
     state = announcements;
   }
@@ -30,7 +31,6 @@ class AnnouncementNotifier extends StateNotifier<List<Announcement>> {
     );
 
     await loadAnnouncements();
-    print("ADDING: ${announcement.title}");
   }
 
   Future<void> deleteAnnouncement(

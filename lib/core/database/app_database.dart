@@ -40,6 +40,7 @@ class AppDatabase {
         await db.execute('''
           CREATE TABLE attendance_sessions(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            
             date TEXT,
             time TEXT,
             attendanceCount TEXT,
@@ -49,6 +50,7 @@ class AppDatabase {
         await db.execute('''
           CREATE TABLE announcements(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            classId TEXT,
             title TEXT,
             message TEXT,
             dateTime TEXT
@@ -77,6 +79,7 @@ class AppDatabase {
           await db.execute('''
         CREATE TABLE announcements(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
+          classId TEXT,
           title TEXT,
           message TEXT,
           dateTime TEXT

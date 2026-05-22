@@ -241,7 +241,7 @@ class _ClassDetailsScreenState extends ConsumerState<ClassDetailsScreen> {
                         iconBg: const Color(0x1FFF9800),
                         title: 'Announcements',
                         onTap: () =>
-                            context.pushNamed('instructor-announcements'),
+                            context.pushNamed('instructor-announcements', extra: widget.classId),
                       ),
                     ],
                   ),

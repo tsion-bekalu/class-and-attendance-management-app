@@ -11,6 +11,7 @@ class AnnouncementDatabase {
     await db.insert(
       'announcements',
       {
+        'classId': announcement.classId,
         'title': announcement.title,
         'message': announcement.message,
         'dateTime': announcement.dateTime,
@@ -19,16 +20,19 @@ class AnnouncementDatabase {
     );
   }
 
-  Future<List<Announcement>> getAnnouncements() async {
+  Future<List<Announcement>> getAnnouncements(String classId) async {
     final db = await AppDatabase.database;
 
     final result = await db.query(
       'announcements',
+      where: 'classId = ?',
+      whereArgs: [classId],
       orderBy: 'id DESC',
     );
 
     return result.map((e) {
       return Announcement(
+        classId: e['classId'] as String,
         title: e['title'] as String,
         message: e['message'] as String,
         dateTime: e['dateTime'] as String,

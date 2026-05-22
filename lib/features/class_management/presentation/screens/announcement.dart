@@ -6,12 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/announcement_provider.dart';
 
 class AnnouncementsScreen extends ConsumerWidget {
-  const AnnouncementsScreen({super.key});
+  final String classId;
+  const AnnouncementsScreen({super.key, required this.classId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final announcementState = ref.watch(announcementProvider);
-
+    final announcementState = ref.watch(announcementProvider(classId));
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Column(
@@ -23,9 +23,7 @@ class AnnouncementsScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
               itemCount: announcementState.length,
               itemBuilder: (context, index) {
-                return _buildAnnouncementCard(
-                  announcementState[index],
-                );
+                return _buildAnnouncementCard(announcementState[index]);
               },
             ),
           ),
@@ -34,7 +32,7 @@ class AnnouncementsScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Navigate to new announcement screen
-          context.pushNamed('instructor-create-announcement');
+          context.pushNamed('instructor-create-announcement', extra: classId);
         },
         backgroundColor: AppTheme.primaryColor,
         child: const Icon(Icons.add, color: Colors.white),

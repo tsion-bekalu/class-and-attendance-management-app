@@ -6,14 +6,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/announcement_provider.dart';
 
 class CreateAnnouncementScreen extends ConsumerStatefulWidget {
-  const CreateAnnouncementScreen({super.key});
+  final String classId;
+  const CreateAnnouncementScreen({super.key, required this.classId});
 
   @override
   ConsumerState<CreateAnnouncementScreen> createState() =>
       _CreateAnnouncementScreen();
 }
 
-class _CreateAnnouncementScreen extends ConsumerState<CreateAnnouncementScreen> {
+class _CreateAnnouncementScreen
+    extends ConsumerState<CreateAnnouncementScreen> {
   final _titleController = TextEditingController();
   final _messageController = TextEditingController();
   int _titleLength = 0;
@@ -115,13 +117,17 @@ class _CreateAnnouncementScreen extends ConsumerState<CreateAnnouncementScreen> 
                           }
 
                           ref
-                              .read(announcementProvider.notifier).addAnnouncement(
+                              .read(
+                                announcementProvider(widget.classId).notifier,
+                              )
+                              .addAnnouncement(
                                 Announcement(
-                              
-                                title: _titleController.text.trim(),
-                                message: _messageController.text.trim(),
+                                  classId: widget.classId,
+                                  title: _titleController.text.trim(),
+                                  message: _messageController.text.trim(),
                                   dateTime: DateTime.now().toString(),
-                              ));
+                                ),
+                              );
 
                           context.pop();
                         },
