@@ -1,29 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-// DOMAIN
+import '../providers/class_provider.dart';
 import 'package:app/features/class_management/domain/use_cases/delete_class.dart';
-
-// DATA
 import '../../../class_management/data/class_repository_impl.dart';
-
-// WIDGETS
 import '../widgets/top_info_card.dart';
 import '../widgets/menu_card.dart';
 
-class ClassDetailsScreen extends StatefulWidget {
+class ClassDetailsScreen extends ConsumerStatefulWidget {
   final String classId;
 
-  const ClassDetailsScreen({
-    super.key,
-    required this.classId,
-  });
+  const ClassDetailsScreen({super.key, required this.classId});
 
   @override
-  State<ClassDetailsScreen> createState() => _ClassDetailsScreenState();
+  ConsumerState<ClassDetailsScreen> createState() => _ClassDetailsScreenState();
 }
 
-class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
+class _ClassDetailsScreenState extends ConsumerState<ClassDetailsScreen> {
   late final ClassRepositoryImpl repository;
   late final DeleteClass deleteClassUseCase;
 
@@ -46,9 +39,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     if (classData == null) {
-      return const Scaffold(
-        body: Center(child: Text("Class not found")),
-      );
+      return const Scaffold(body: Center(child: Text("Class not found")));
     }
 
     return Scaffold(
@@ -64,9 +55,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
               right: 20,
               bottom: 28,
             ),
-            decoration: const BoxDecoration(
-              color: Color(0xFF1E5BFF),
-            ),
+            decoration: const BoxDecoration(color: Color(0xFF1E5BFF)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -200,7 +189,10 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.error_outline, color: Color(0xFFFF6B00)),
+                            const Icon(
+                              Icons.error_outline,
+                              color: Color(0xFFFF6B00),
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
@@ -212,7 +204,10 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                                 ),
                               ),
                             ),
-                            const Icon(Icons.arrow_forward, color: Color(0xFFFF6B00)),
+                            const Icon(
+                              Icons.arrow_forward,
+                              color: Color(0xFFFF6B00),
+                            ),
                           ],
                         ),
                       ),
@@ -260,7 +255,8 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                         iconColor: Colors.deepOrange,
                         iconBg: const Color(0x1FFF9800),
                         title: 'Announcements',
-                        onTap: () => context.pushNamed('instructor-announcements'),
+                        onTap: () =>
+                            context.pushNamed('instructor-announcements'),
                       ),
                     ],
                   ),
@@ -290,7 +286,9 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                               context: context,
                               builder: (ctx) => AlertDialog(
                                 title: const Text("Delete Class"),
-                                content: const Text("Are you sure you want to delete this class?"),
+                                content: const Text(
+                                  "Are you sure you want to delete this class?",
+                                ),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(ctx, false),
@@ -298,14 +296,21 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                                   ),
                                   TextButton(
                                     onPressed: () => Navigator.pop(ctx, true),
-                                    child: const Text("Delete", style: TextStyle(color: Colors.red)),
+                                    child: const Text(
+                                      "Delete",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
                                   ),
                                 ],
                               ),
                             );
-
                             if (confirm == true) {
                               await deleteClassUseCase.call(widget.classId);
+
+                              await ref
+                                  .read(classProvider.notifier)
+                                  .getClasses();
+
                               if (!context.mounted) return;
                               context.pop();
                             }
