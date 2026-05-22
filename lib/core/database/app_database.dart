@@ -64,6 +64,17 @@ class AppDatabase {
         status TEXT
       )
     ''');
+
+        if (oldVersion < 2) {
+          await db.execute('''
+        CREATE TABLE announcements(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT,
+          message TEXT,
+          dateTime TEXT
+        )
+      ''');
+        }
       },
     );
   }

@@ -21,10 +21,10 @@ class AnnouncementsScreen extends ConsumerWidget {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              itemCount: announcementState.announcements.length,
+              itemCount: announcementState.length,
               itemBuilder: (context, index) {
                 return _buildAnnouncementCard(
-                  announcementState.announcements[index],
+                  announcementState[index],
                 );
               },
             ),

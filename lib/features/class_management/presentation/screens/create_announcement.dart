@@ -1,3 +1,4 @@
+import 'package:app/features/class_management/domain/entities/announcement.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -114,11 +115,13 @@ class _CreateAnnouncementScreen extends ConsumerState<CreateAnnouncementScreen> 
                           }
 
                           ref
-                              .read(announcementProvider.notifier)
-                              .createAnnouncement(
+                              .read(announcementProvider.notifier).addAnnouncement(
+                                Announcement(
+                              
                                 title: _titleController.text.trim(),
                                 message: _messageController.text.trim(),
-                              );
+                                  dateTime: DateTime.now().toString(),
+                              ));
 
                           context.pop();
                         },
