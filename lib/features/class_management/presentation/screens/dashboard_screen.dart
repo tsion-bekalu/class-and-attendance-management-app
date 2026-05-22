@@ -35,7 +35,6 @@ class _InstructorDashboardScreenState
 
   @override
   Widget build(BuildContext context) {
-    print(ref.watch(classProvider).classes.length);
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: buildDrawer(),
@@ -299,7 +298,6 @@ class _InstructorDashboardScreenState
   // ---------------- CLASS LIST ----------------
 
   Widget buildClassList(List<ClassEntity> classes) {
-          print(classes.length);
     if (classes.isEmpty) {
       return const Padding(
         padding: EdgeInsets.only(top: 20),

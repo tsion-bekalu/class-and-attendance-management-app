@@ -8,48 +8,9 @@ class ClassRepositoryImpl implements ClassRepository {
   final _database = ClassDatabase();
   @override
   Future<void> createClass(ClassEntity newClass) async {
-    print("CREATING CLASS: ${newClass.name}");
-    ClassLocalStorage.addClass({
-      "id": newClass.id,
-      "name": newClass.name,
-      "description": newClass.description,
-      "students": 45,
-      "status": "Active",
-      "days": newClass.days,
-      "startTime": newClass.startTime,
-      "endTime": newClass.endTime,
-      "pendingRequests": [
-        {
-          "name": "Mike Johnson",
-          "email": "mike.j@university.edu",
-          "studentId": "ST101",
-          "status": "pending",
-        },
-        {
-          "name": "Sarah Williams",
-          "email": "sarah.w@university.edu",
-          "studentId": "ST102",
-          "status": "pending",
-        },
-      ],
-      "processedRequests": [
-        {
-          "name": "John Doe",
-          "email": "john.doe@university.edu",
-          "studentId": "ST201",
-          "status": "approved",
-        },
-      ],
-
-      "pending": 2,
-    });
-    print("LOCAL STORAGE SAVED");
-
     await _database.insertClass(newClass);
 
-    print("SQLITE SAVED");
-    final check = await _database.getClasses();
-    print("DATABASE COUNT: ${check.length}");
+    await _database.getClasses();
   }
 
   @override
@@ -74,37 +35,12 @@ class ClassRepositoryImpl implements ClassRepository {
 
   @override
   Future<void> deleteClass(String classId) async {
-    ClassLocalStorage.deleteClass(classId);
     await _database.deleteClass(classId);
   }
 
   @override
   Future<List<ClassEntity>> getClasses() async {
-    final sqliteClasses = await _database.getClasses();
-
-    final localClasses = ClassLocalStorage.getClasses().map((data) {
-      return ClassEntity(
-        id: data["id"],
-        name: data["name"],
-        description: data["description"] ?? "",
-        days: List<String>.from(data["days"] ?? []),
-        startTime: data["startTime"] ?? "",
-        endTime: data["endTime"] ?? "",
-        students: data["students"] ?? 0,
-        pending: data["pending"] ?? 0,
-        status: data["status"] ?? "Active",
-      );
-    }).toList();
-
-    // merge both without duplicates
-    final allClasses = [
-      ...sqliteClasses,
-      ...localClasses.where(
-        (local) => !sqliteClasses.any((db) => db.id == local.id),
-      ),
-    ];
-
-    return allClasses;
+    return await _database.getClasses();
   }
 
   // RAW ACCESS FOR DASHBOARD
@@ -112,8 +48,21 @@ class ClassRepositoryImpl implements ClassRepository {
     return ClassLocalStorage.getClasses();
   }
 
-  // RAW ACCESS FOR CLASS DETAILS
   Future<Map<String, dynamic>?> getClassRawById(String id) async {
-    return ClassLocalStorage.getClassById(id);
+    final classEntity = await _database.getClassById(id);
+
+    if (classEntity == null) return null;
+
+    return {
+      "id": classEntity.id,
+      "name": classEntity.name,
+      "description": classEntity.description,
+      "days": classEntity.days,
+      "startTime": classEntity.startTime,
+      "endTime": classEntity.endTime,
+      "students": classEntity.students,
+      "pending": classEntity.pending,
+      "status": classEntity.status,
+    };
   }
 }

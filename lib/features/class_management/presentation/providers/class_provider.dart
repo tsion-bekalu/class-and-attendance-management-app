@@ -29,17 +29,13 @@ class ClassNotifier extends StateNotifier<ClassState> {
 
   Future<void> createClass(ClassEntity newClass) async {
     try {
-          print("PROVIDER CREATE START");
       state = state.copyWith(isLoading: true);
 
       final repository = ref.read(classRepositoryProvider);
 
       await repository.createClass(newClass);
-  print("REPOSITORY CREATE DONE");
       await getClasses();
-          print("GET CLASSES DONE");
     } catch (e) {
-          print("CREATE ERROR: $e");
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
