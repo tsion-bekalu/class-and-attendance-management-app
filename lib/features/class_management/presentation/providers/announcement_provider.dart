@@ -1,10 +1,11 @@
 import 'package:flutter_riverpod/legacy.dart';
-
 import '../../domain/entities/announcement.dart';
 import '../../data/announcement_database.dart';
 
-final announcementProvider =
-    StateNotifierProvider.family<AnnouncementNotifier, List<Announcement>,String>((ref, classId) {
+final announcementProvider = StateNotifierProvider.family<
+    AnnouncementNotifier,
+    List<Announcement>,
+    String>((ref, classId) {
   return AnnouncementNotifier(classId);
 });
 

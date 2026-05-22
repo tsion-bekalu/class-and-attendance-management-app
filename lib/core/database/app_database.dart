@@ -21,7 +21,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE classes(
@@ -77,7 +77,7 @@ class AppDatabase {
 
         if (oldVersion < 2) {
           await db.execute('''
-        CREATE TABLE announcements(
+        CREATE TABLE IF NOT EXISTS announcements(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           classId TEXT,
           title TEXT,

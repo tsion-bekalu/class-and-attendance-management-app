@@ -12,6 +12,7 @@ class AnnouncementsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final announcementState = ref.watch(announcementProvider(classId));
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Column(
@@ -30,9 +31,11 @@ class AnnouncementsScreen extends ConsumerWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async{
           // Navigate to new announcement screen
-          context.pushNamed('instructor-create-announcement', extra: classId);
+          await context.pushNamed('instructor-create-announcement', extra: classId);
+
+          ref.read(announcementProvider(classId).notifier).loadAnnouncements();
         },
         backgroundColor: AppTheme.primaryColor,
         child: const Icon(Icons.add, color: Colors.white),

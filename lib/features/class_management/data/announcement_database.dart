@@ -16,11 +16,15 @@ class AnnouncementDatabase {
         'message': announcement.message,
         'dateTime': announcement.dateTime,
       },
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      conflictAlgorithm:
+          ConflictAlgorithm.replace,
     );
   }
 
-  Future<List<Announcement>> getAnnouncements(String classId) async {
+  Future<List<Announcement>>
+  getAnnouncements(
+    String classId,
+  ) async {
     final db = await AppDatabase.database;
 
     final result = await db.query(
@@ -30,12 +34,20 @@ class AnnouncementDatabase {
       orderBy: 'id DESC',
     );
 
+    print(
+      "DB FOUND ${result.length} announcements for $classId",
+    );
+
     return result.map((e) {
       return Announcement(
-        classId: e['classId'] as String,
-        title: e['title'] as String,
-        message: e['message'] as String,
-        dateTime: e['dateTime'] as String,
+        classId:
+            e['classId'] as String,
+        title:
+            e['title'] as String,
+        message:
+            e['message'] as String,
+        dateTime:
+            e['dateTime'] as String,
       );
     }).toList();
   }
