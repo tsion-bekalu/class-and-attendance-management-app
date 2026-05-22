@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/legacy.dart';
+
 import '../../domain/entities/announcement.dart';
-import '../../data/mock_announcement_data.dart';
+import '../../data/announcement_database.dart';
 
 final announcementProvider =
     StateNotifierProvider<AnnouncementNotifier, List<Announcement>>((ref) {
@@ -8,13 +9,37 @@ final announcementProvider =
 });
 
 class AnnouncementNotifier extends StateNotifier<List<Announcement>> {
-  AnnouncementNotifier() : super(mockAnnouncements);
+  final AnnouncementDatabase _database = AnnouncementDatabase();
 
-  void addAnnouncement(Announcement announcement) {
-    state = [announcement, ...state];
+  AnnouncementNotifier() : super([]) {
+    loadAnnouncements();
   }
 
-  void deleteAnnouncement(Announcement announcement) {
-    state = state.where((a) => a != announcement).toList();
+  Future<void> loadAnnouncements() async {
+    final announcements =
+        await _database.getAnnouncements();
+
+    state = announcements;
+  }
+
+  Future<void> addAnnouncement(
+    Announcement announcement,
+  ) async {
+    await _database.insertAnnouncement(
+      announcement,
+    );
+
+    await loadAnnouncements();
+    print("ADDING: ${announcement.title}");
+  }
+
+  Future<void> deleteAnnouncement(
+    Announcement announcement,
+  ) async {
+    await _database.deleteAnnouncement(
+      announcement.title,
+    );
+
+    await loadAnnouncements();
   }
 }
