@@ -5,9 +5,7 @@ import '../widgets/class_card.dart';
 import '../widgets/quick_action_card.dart';
 import '../../../../features/student/presentation/widgets/logout_dialog.dart';
 import '../../../../features/student/presentation/widgets/delete_dialog.dart';
-import 'package:app/features/class_management/domain/use_cases/get_classes.dart';
 import 'package:app/features/class_management/domain/entities/class_entity.dart';
-import '../../../class_management/data/class_repository_impl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/class_provider.dart';
 
@@ -21,24 +19,35 @@ class InstructorDashboardScreen extends ConsumerStatefulWidget {
 
 class _InstructorDashboardScreenState
     extends ConsumerState<InstructorDashboardScreen> {
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  List<ClassEntity> get classes {
+    return ref.watch(classProvider).classes;
+  }
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      ref.read(classProvider.notifier).getClasses();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final classState = ref.watch(classProvider);
-    final classes = classState.classes;
+    print(ref.watch(classProvider).classes.length);
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: buildDrawer(),
       body: SingleChildScrollView(
-        child: Column(children: [buildHeader(), buildBody()]),
+        child: Column(children: [buildHeader(classes), buildBody(classes)]),
       ),
     );
   }
 
   // ---------------- HEADER ----------------
 
-  Widget buildHeader() {
+  Widget buildHeader(List<ClassEntity> classes) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(top: 60, left: 22, right: 22, bottom: 60),
@@ -114,9 +123,7 @@ class _InstructorDashboardScreenState
     );
   }
 
-  // ---------------- BODY ----------------
-
-  Widget buildBody() {
+  Widget buildBody(List<ClassEntity> classes) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
       child: Column(
@@ -133,7 +140,7 @@ class _InstructorDashboardScreenState
             ),
           ),
           const SizedBox(height: 18),
-          buildClassList(),
+          buildClassList(classes),
         ],
       ),
     );
@@ -291,13 +298,15 @@ class _InstructorDashboardScreenState
 
   // ---------------- CLASS LIST ----------------
 
-  Widget buildClassList() {
+  Widget buildClassList(List<ClassEntity> classes) {
+          print(classes.length);
     if (classes.isEmpty) {
       return const Padding(
         padding: EdgeInsets.only(top: 20),
         child: Text(
           "No classes created yet",
           style: TextStyle(color: Colors.grey),
+
         ),
       );
     }

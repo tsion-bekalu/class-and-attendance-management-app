@@ -242,7 +242,8 @@ class _CreateClassScreenState extends ConsumerState<CreateClassScreen> {
                               .createClass(newClass);
 
                           if (!context.mounted) return;
-                          context.push('/instructor/class-details/$id');
+                          // context.replace('/instructor/class-details/$id');
+                          context.pop();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1E5EFF),

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routing/app_router.dart';
 
 void main() {
+    sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
   runApp(
     const ProviderScope(
       child: MyApp(),

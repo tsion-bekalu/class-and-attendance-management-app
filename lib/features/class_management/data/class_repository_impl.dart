@@ -8,6 +8,7 @@ class ClassRepositoryImpl implements ClassRepository {
   final _database = ClassDatabase();
   @override
   Future<void> createClass(ClassEntity newClass) async {
+    print("CREATING CLASS: ${newClass.name}");
     ClassLocalStorage.addClass({
       "id": newClass.id,
       "name": newClass.name,
@@ -42,8 +43,13 @@ class ClassRepositoryImpl implements ClassRepository {
 
       "pending": 2,
     });
+    print("LOCAL STORAGE SAVED");
 
     await _database.insertClass(newClass);
+
+    print("SQLITE SAVED");
+    final check = await _database.getClasses();
+    print("DATABASE COUNT: ${check.length}");
   }
 
   @override
@@ -76,13 +82,7 @@ class ClassRepositoryImpl implements ClassRepository {
   Future<List<ClassEntity>> getClasses() async {
     final sqliteClasses = await _database.getClasses();
 
-    if (sqliteClasses.isNotEmpty) {
-      return sqliteClasses;
-    }
-
-    final rawList = ClassLocalStorage.getClasses();
-
-    return rawList.map((data) {
+    final localClasses = ClassLocalStorage.getClasses().map((data) {
       return ClassEntity(
         id: data["id"],
         name: data["name"],
@@ -95,6 +95,16 @@ class ClassRepositoryImpl implements ClassRepository {
         status: data["status"] ?? "Active",
       );
     }).toList();
+
+    // merge both without duplicates
+    final allClasses = [
+      ...sqliteClasses,
+      ...localClasses.where(
+        (local) => !sqliteClasses.any((db) => db.id == local.id),
+      ),
+    ];
+
+    return allClasses;
   }
 
   // RAW ACCESS FOR DASHBOARD
