@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:app/features/auth/data/mock_auth_service.dart';
+import 'package:app/core/providers/app_providers.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   final String role;
   const LoginScreen({super.key, required this.role});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -42,8 +43,37 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final authState = ref.read(authStateProvider.notifier);
+    await authState.login(
+      _emailController.text.trim(),
+      _passwordController.text,
+      widget.role,
+    );
+
+    // Update global auth state
+    ref.read(isAuthenticatedProvider.notifier).set(true);
+    ref.read(userRoleProvider.notifier).set(widget.role);
+    ref.read(currentUserProvider.notifier).set({
+      'email': _emailController.text.trim(),
+      'role': widget.role,
+    });
+
+    if (mounted) {
+      if (widget.role.toLowerCase() == 'instructor') {
+        context.go('/instructor/dashboard');
+      } else {
+        context.go('/student/home');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authStateProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -225,33 +255,43 @@ class _LoginScreenState extends State<LoginScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       elevation: 0,
                     ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        final user = MockAuthService.login(
-                          _emailController.text,
-                          _passwordController.text,
-                        );
-                        if (user != null) {
-                          user.role.name == 'instructor'
-                              ? context.go('/instructor/dashboard')
-                              : context.go('/student/home');
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Invalid credentials')),
-                          );
-                        }
-                      }
-                    },
-                    child: const Text(
-                      'Sign in',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                    onPressed: authState.isLoading ? null : _handleLogin,
+                    child: authState.isLoading
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation(Colors.white),
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Sign in',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                ),
+
+                if (authState.hasError)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red),
+                      ),
+                      child: Text(
+                        authState.error.toString(),
+                        style: const TextStyle(color: Colors.red, fontSize: 12),
                       ),
                     ),
                   ),
-                ),
 
                 const SizedBox(height: 20),
 
@@ -265,7 +305,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(fontSize: 13, color: Colors.black54),
                       ),
                       GestureDetector(
-                        onTap: () => context.push('/register', extra: widget.role),
+                        onTap: () => context.pushNamed('register', extra: widget.role),
                         child: const Text(
                           'Sign Up',
                           style: TextStyle(
