@@ -214,7 +214,7 @@ class _ClassDetailsScreenState extends ConsumerState<ClassDetailsScreen> {
                         iconColor: Colors.blue,
                         iconBg: const Color(0xFFDDE7FF),
                         title: 'Start Attendance',
-                        onTap: () => context.pushNamed('start-attendance'),
+                        onTap: () => context.pushNamed('start-attendance', extra: widget.classId),
                       ),
                       MenuCard(
                         icon: Icons.groups_2_outlined,
@@ -233,7 +233,7 @@ class _ClassDetailsScreenState extends ConsumerState<ClassDetailsScreen> {
                         iconColor: Colors.green,
                         iconBg: const Color(0x1F00FF00),
                         title: 'Attendance\nRecords',
-                        onTap: () => context.pushNamed('attendance-record'),
+                        onTap: () => context.pushNamed('attendance-record', extra: widget.classId),
                       ),
                       MenuCard(
                         icon: Icons.notifications_none,

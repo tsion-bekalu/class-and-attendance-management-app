@@ -90,7 +90,11 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/instructor/attendance-record',
       name: 'attendance-record',
-      builder: (context, state) => const AttendanceRecordScreen(),
+      builder: (context, state) {
+        final classId = state.extra as String;
+
+        return AttendanceRecordScreen(classId: classId);
+      },
     ),
     GoRoute(
       path: '/instructor/start-attendance',

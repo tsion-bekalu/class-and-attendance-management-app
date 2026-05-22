@@ -4,12 +4,12 @@ import '../../../../core/theme/app_theme.dart';
 import '../widgets/session_record_card.dart';
 import '../../domain/entities/session_record.dart';
 import '../widgets/student_attendance_card.dart';
-import '../../data/mock_student_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app/features/class_management/presentation/providers/attendance_provider.dart';
 
 class AttendanceRecordScreen extends ConsumerStatefulWidget {
-  const AttendanceRecordScreen({super.key});
+  final String classId;
+  const AttendanceRecordScreen({super.key, required this.classId});
 
   @override
   ConsumerState<AttendanceRecordScreen> createState() =>
@@ -22,7 +22,7 @@ class _AttendanceRecordScreen extends ConsumerState<AttendanceRecordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final attendanceState = ref.watch(attendanceProvider);
+    final attendanceState = ref.watch(attendanceProvider(widget.classId));
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Column(
@@ -35,7 +35,7 @@ class _AttendanceRecordScreen extends ConsumerState<AttendanceRecordScreen> {
             // Logic to switch between views
             child: _selectedTabIndex == 0
                 ? _buildSessionsView(attendanceState.sessions)
-                : _buildStudentsView(),
+                : _buildStudentsView(attendanceState.sessions),
           ),
         ],
       ),
@@ -188,13 +188,52 @@ class _AttendanceRecordScreen extends ConsumerState<AttendanceRecordScreen> {
     );
   }
 
-  // Placeholder for the Students tab
-  Widget _buildStudentsView() {
+  Widget _buildStudentsView(List<AttendanceSession> sessions) {
+    final Map<String, int> attendanceCount = {};
+
+    final int totalSessions = sessions.length;
+
+    for (final session in sessions) {
+      final attendees = session.attendees ?? [];
+
+      for (final student in attendees) {
+        if (student.isPresent) {
+          attendanceCount[student.name] =
+              (attendanceCount[student.name] ?? 0) + 1;
+        }
+      }
+    }
+
+    final students = attendanceCount.entries.toList();
+
+    if (students.isEmpty) {
+      return const Center(child: Text("No attendance data yet"));
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      itemCount: mockStudentAttendance.length,
+      itemCount: students.length,
       itemBuilder: (context, index) {
-        return StudentAttendanceCard(student: mockStudentAttendance[index]);
+        final student = students[index];
+
+        final percentage = totalSessions == 0
+            ? 0
+            : ((student.value / totalSessions) * 100).round();
+
+return StudentAttendanceCard(
+  studentName:
+      student.key,
+
+  attendancePercentage:
+      percentage,
+
+  presentCount:
+      student.value,
+
+  absentCount:
+      totalSessions -
+          student.value,
+);
       },
     );
   }

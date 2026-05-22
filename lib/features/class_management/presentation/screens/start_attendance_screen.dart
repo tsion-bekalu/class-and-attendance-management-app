@@ -6,7 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app/features/class_management/presentation/providers/attendance_provider.dart';
 
 class StartAttendanceScreen extends ConsumerStatefulWidget {
-  const StartAttendanceScreen({super.key});
+  final String classId;
+  const StartAttendanceScreen({super.key, required this.classId});
 
   @override
   ConsumerState<StartAttendanceScreen> createState() =>
@@ -20,13 +21,13 @@ class _StartAttendanceScreenState extends ConsumerState<StartAttendanceScreen> {
 
 
     Future.microtask(() {
-      ref.read(attendanceProvider.notifier).startSession();
+      ref.read(attendanceProvider(widget.classId).notifier).startSession();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final attendanceState = ref.watch(attendanceProvider);
+    final attendanceState = ref.watch(attendanceProvider(widget.classId));
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -262,7 +263,7 @@ class _StartAttendanceScreenState extends ConsumerState<StartAttendanceScreen> {
           elevation: 0,
         ),
         onPressed: () {
-          final session = ref.read(attendanceProvider.notifier).endSession();
+          final session = ref.read(attendanceProvider(widget.classId).notifier).endSession();
 
           context.replaceNamed('session-details', extra: session);
         },
