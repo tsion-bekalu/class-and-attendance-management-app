@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/class_provider.dart';
-import 'package:app/features/class_management/domain/use_cases/delete_class.dart';
-import '../../../class_management/data/class_repository_impl.dart';
 import '../widgets/top_info_card.dart';
 import '../widgets/menu_card.dart';
 
@@ -17,29 +15,16 @@ class ClassDetailsScreen extends ConsumerStatefulWidget {
 }
 
 class _ClassDetailsScreenState extends ConsumerState<ClassDetailsScreen> {
-  late final ClassRepositoryImpl repository;
-  late final DeleteClass deleteClassUseCase;
-
-  Map<String, dynamic>? classData;
-
-  @override
-  void initState() {
-    super.initState();
-    repository = ClassRepositoryImpl();
-    deleteClassUseCase = DeleteClass(repository);
-    loadClass();
-  }
-
-  Future<void> loadClass() async {
-    final data = await repository.getClassRawById(widget.classId);
-    if (!mounted) return;
-    setState(() => classData = data);
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (classData == null) {
-      return const Scaffold(body: Center(child: Text("Class not found")));
+    final classState = ref.watch(classProvider);
+
+    final classData = classState.classes.firstWhere(
+      (c) => c.id == widget.classId,
+      orElse: () => throw Exception("Class not found"),
+    );
+    if (classState.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -82,7 +67,7 @@ class _ClassDetailsScreenState extends ConsumerState<ClassDetailsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          classData!["name"],
+                          classData.name,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -91,7 +76,7 @@ class _ClassDetailsScreenState extends ConsumerState<ClassDetailsScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "Code: ${classData!["id"]}",
+                          "Code: ${classData.id}",
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
@@ -107,14 +92,14 @@ class _ClassDetailsScreenState extends ConsumerState<ClassDetailsScreen> {
                     Expanded(
                       child: TopInfoCard(
                         title: "Students",
-                        value: classData!["students"].toString(),
+                        value: classData.students.toString(),
                       ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
                       child: TopInfoCard(
                         title: "Status",
-                        value: classData!["status"],
+                        value: classData.status,
                       ),
                     ),
                   ],
@@ -155,7 +140,7 @@ class _ClassDetailsScreenState extends ConsumerState<ClassDetailsScreen> {
                             ),
                             const SizedBox(width: 12),
                             Text(
-                              "${classData!["days"].join(", ")}  ${classData!["startTime"]} - ${classData!["endTime"]}",
+                              "${classData.days.join(", ")}  ${classData.startTime} - ${classData.endTime}",
                               style: const TextStyle(
                                 fontSize: 15,
                                 color: Colors.grey,
@@ -171,13 +156,13 @@ class _ClassDetailsScreenState extends ConsumerState<ClassDetailsScreen> {
                   const SizedBox(height: 20),
 
                   // PENDING BANNER
-                  if (classData!["pending"] > 0)
+                  if (classData.pending > 0)
                     GestureDetector(
                       onTap: () async {
                         await context.push(
                           '/instructor/class-details/${widget.classId}/join-requests',
                         );
-                        await loadClass(); // ⭐ refresh after returning
+                        await ref.read(classProvider.notifier).getClasses(); 
                       },
                       child: Container(
                         width: double.infinity,
@@ -196,7 +181,7 @@ class _ClassDetailsScreenState extends ConsumerState<ClassDetailsScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                "${classData!["pending"]} students waiting for approval",
+                                "${classData.pending} students waiting for approval",
                                 style: const TextStyle(
                                   color: Color(0xFFD56A1B),
                                   fontWeight: FontWeight.w500,
@@ -240,7 +225,7 @@ class _ClassDetailsScreenState extends ConsumerState<ClassDetailsScreen> {
                           await context.push(
                             '/instructor/class-details/${widget.classId}/join-requests',
                           );
-                          await loadClass(); // ⭐ refresh after returning
+                          await ref.read(classProvider.notifier).getClasses(); 
                         },
                       ),
                       MenuCard(
@@ -305,11 +290,9 @@ class _ClassDetailsScreenState extends ConsumerState<ClassDetailsScreen> {
                               ),
                             );
                             if (confirm == true) {
-                              await deleteClassUseCase.call(widget.classId);
-
                               await ref
                                   .read(classProvider.notifier)
-                                  .getClasses();
+                                  .deleteClass(widget.classId);
 
                               if (!context.mounted) return;
                               context.pop();
