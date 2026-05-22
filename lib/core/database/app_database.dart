@@ -21,7 +21,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE classes(
@@ -40,7 +40,7 @@ class AppDatabase {
         await db.execute('''
           CREATE TABLE attendance_sessions(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            
+            classId TEXT,
             date TEXT,
             time TEXT,
             attendanceCount TEXT,
@@ -86,6 +86,19 @@ class AppDatabase {
         )
       ''');
         }
+
+        await db.execute('DROP TABLE IF EXISTS attendance_sessions');
+
+        await db.execute('''
+          CREATE TABLE attendance_sessions(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            classId TEXT,
+            date TEXT,
+            time TEXT,
+            attendanceCount TEXT,
+            percentage TEXT
+          )
+        ''');
       },
     );
   }

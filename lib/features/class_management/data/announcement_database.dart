@@ -34,9 +34,6 @@ class AnnouncementDatabase {
       orderBy: 'id DESC',
     );
 
-    print(
-      "DB FOUND ${result.length} announcements for $classId",
-    );
 
     return result.map((e) {
       return Announcement(

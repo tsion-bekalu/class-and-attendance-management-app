@@ -95,7 +95,11 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/instructor/start-attendance',
       name: 'start-attendance',
-      builder: (context, state) => const StartAttendanceScreen(),
+      builder: (context, state) {
+        final classId = state.extra as String;
+
+        return StartAttendanceScreen(classId: classId);
+      },
     ),
     GoRoute(
       path: '/instructor/class-details/:id/join-requests',
