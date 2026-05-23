@@ -87,7 +87,6 @@ class _LogoutDialogState extends ConsumerState<LogoutDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // Cancel Button
                 Expanded(
                   child: TextButton(
                     onPressed: _isLoading ? null : () => Navigator.pop(context),

@@ -1,5 +1,9 @@
 import 'package:app/features/student/presentation/screens/attendance_analog_screen.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:app/core/providers/app_providers.dart';
 
 // Instructor Screens
 import 'package:app/features/class_management/presentation/screens/class_details_screen.dart';
@@ -32,6 +36,7 @@ import 'package:app/features/student/presentation/screens/attendance_scanner_scr
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash',
+  redirect: _authorizeRoute,
   routes: [
     // Auth
     GoRoute(
@@ -204,3 +209,43 @@ final GoRouter appRouter = GoRouter(
     ),
   ],
 );
+
+String? _authorizeRoute(BuildContext context, GoRouterState state) {
+  final location = state.matchedLocation;
+
+  if (location == '/splash' ||
+      location == '/role_selection' ||
+      location == '/login' ||
+      location == '/register') {
+    return null;
+  }
+
+  final container = ProviderScope.containerOf(context);
+  final isAuthenticated = container.read(isAuthenticatedProvider);
+  final role = container.read(userRoleProvider)?.toLowerCase();
+
+  if (!isAuthenticated || role == null) {
+    return '/role_selection';
+  }
+
+  final isInstructorRoute = location.startsWith('/instructor/');
+  final isStudentRoute =
+      location.startsWith('/student/') ||
+      location == '/attendance-marked' ||
+      location == '/attendance-manual-code-entry' ||
+      location == '/attendance-scanner-screen';
+
+  if (role == 'instructor' && isInstructorRoute) {
+    return null;
+  }
+
+  if (role == 'student' && isStudentRoute) {
+    return null;
+  }
+
+  if (role == 'instructor') {
+    return '/instructor/dashboard';
+  }
+
+  return '/student/home';
+}
