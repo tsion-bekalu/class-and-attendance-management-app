@@ -1,11 +1,68 @@
+// features/student/presentation/screens/attendance_enter_code_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../providers/student_providers.dart';
 
-class EnterCodeScreen extends StatelessWidget {
-  const EnterCodeScreen({super.key});
+class EnterCodeScreen extends ConsumerStatefulWidget {
+  final String classId;
+
+  const EnterCodeScreen({super.key, required this.classId});
+
+  @override
+  ConsumerState<EnterCodeScreen> createState() => _EnterCodeScreenState();
+}
+
+class _EnterCodeScreenState extends ConsumerState<EnterCodeScreen> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final code = _controller.text.trim().toUpperCase();
+    if (code.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter the session code.')),
+      );
+      return;
+    }
+
+    await ref
+        .read(attendanceSubmissionProvider.notifier)
+        .submitByCode(widget.classId, code);
+
+    final state = ref.read(attendanceSubmissionProvider);
+    state.whenData((result) {
+      if (result != null) {
+        context.goNamed(
+          'attendance-marked',
+          queryParameters: {
+            'isPresent': result.isPresent.toString(),
+            'className': result.className ?? '',
+            'sessionTime': result.sessionTime ?? '',
+          },
+        );
+      }
+    });
+
+    if (state.hasError) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${state.error}')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final submissionState = ref.watch(attendanceSubmissionProvider);
+    final isLoading = submissionState.isLoading;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -16,10 +73,9 @@ class EnterCodeScreen extends StatelessWidget {
         title: const Text(
           'Back',
           style: TextStyle(
-            color: Color(0xFF155DFC),
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
+              color: Color(0xFF155DFC),
+              fontSize: 16,
+              fontWeight: FontWeight.w500),
         ),
         titleSpacing: 0,
         backgroundColor: Colors.white,
@@ -36,36 +92,30 @@ class EnterCodeScreen extends StatelessWidget {
               child: Text(
                 'Enter Code',
                 style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1C2433),
-                ),
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1C2433)),
               ),
             ),
             const Divider(thickness: 1, color: Color(0xFFF1F4F9)),
-            const Spacer(flex: 1),
-            // Circular Icon Badge
+            const Spacer(),
+
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE8EFFF),
+              decoration: const BoxDecoration(
+                color: Color(0xFFE8EFFF),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.keyboard_alt_outlined,
-                size: 40,
-                color: Color(0xFF155DFC),
-              ),
+              child: const Icon(Icons.keyboard_alt_outlined,
+                  size: 40, color: Color(0xFF155DFC)),
             ),
             const SizedBox(height: 32),
-            // Header Text
             const Text(
               'Enter Session Code',
               style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1C2433),
-              ),
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1C2433)),
             ),
             const SizedBox(height: 12),
             const Text(
@@ -74,16 +124,19 @@ class EnterCodeScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 48),
-            // Code Input Field
-            const TextField(
+
+            // Code Input
+            TextField(
+              controller: _controller,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              textCapitalization: TextCapitalization.characters,
+              style: const TextStyle(
                 fontSize: 32,
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w600,
                 letterSpacing: 12,
-                color: Colors.grey,
+                color: Color(0xFF1C2433),
               ),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'XXXXXX',
                 hintStyle: TextStyle(
                   fontSize: 32,
@@ -93,28 +146,36 @@ class EnterCodeScreen extends StatelessWidget {
                 ),
                 border: InputBorder.none,
               ),
+              maxLength: 8,
+              buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
+                  null,
             ),
             const SizedBox(height: 32),
-            // Submit Button
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  context.go('/attendance-marked');
-                },
+                onPressed: isLoading ? null : _submit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF155DFC),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                      borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
-                child: const Text(
-                  'Submit Attendance',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
+                child: isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child:
+                            CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      )
+                    : const Text(
+                        'Submit Attendance',
+                        style:
+                            TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
               ),
             ),
             const Spacer(flex: 2),
