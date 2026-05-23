@@ -19,11 +19,11 @@ class InstructorDashboardScreen extends ConsumerStatefulWidget {
 
 class _InstructorDashboardScreenState
     extends ConsumerState<InstructorDashboardScreen> {
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<ClassEntity> get classes {
     return ref.watch(classProvider).classes;
   }
+
   @override
   void initState() {
     super.initState();
@@ -43,8 +43,6 @@ class _InstructorDashboardScreenState
       ),
     );
   }
-
-  // ---------------- HEADER ----------------
 
   Widget buildHeader(List<ClassEntity> classes) {
     return Container(
@@ -304,7 +302,6 @@ class _InstructorDashboardScreenState
         child: Text(
           "No classes created yet",
           style: TextStyle(color: Colors.grey),
-
         ),
       );
     }
