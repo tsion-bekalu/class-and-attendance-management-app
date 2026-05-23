@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:app/core/theme/app_theme.dart';
+import 'package:app/core/providers/app_providers.dart';
 
-class RoleSelectionScreen extends StatefulWidget {
+class RoleSelectionScreen extends ConsumerStatefulWidget {
   const RoleSelectionScreen({super.key});
 
   @override
-  State<RoleSelectionScreen> createState() => _RoleSelectionScreenState();
+  ConsumerState<RoleSelectionScreen> createState() => _RoleSelectionScreenState();
 }
 
-class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
+class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
   String? _selectedRole;
 
   @override
@@ -29,7 +32,6 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                       width: 150,
                       height: 150,
                     ),
-                    
                   ],
                 ),
               ),
@@ -62,9 +64,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                       color: Color(0xFF1D2433),
                     ),
                   ),
-
                   const SizedBox(height: 8),
-
                   const Text(
                     'Select your role to continue',
                     style: TextStyle(
@@ -72,7 +72,6 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                       color: Color(0xFF7B8190),
                     ),
                   ),
-
                   const SizedBox(height: 28),
 
                   // INSTRUCTOR TILE
@@ -80,11 +79,12 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                     icon: Icons.school_outlined,
                     title: 'Instructor',
                     subtitle: 'Manage classes &\nattendance',
-                    isSelected: _selectedRole == 'Instructor',
-                    onTap: () =>
-                        setState(() => _selectedRole = 'Instructor'),
+                    isSelected: _selectedRole == 'instructor',
+                    onTap: () {
+                      setState(() => _selectedRole = 'instructor');
+                      ref.read(selectedRoleProvider.notifier).set('instructor');
+                    },
                   ),
-
                   const SizedBox(height: 16),
 
                   // STUDENT TILE
@@ -92,11 +92,12 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                     icon: Icons.groups_outlined,
                     title: 'Student',
                     subtitle: 'Join classes & mark\nattendance',
-                    isSelected: _selectedRole == 'Student',
-                    onTap: () =>
-                        setState(() => _selectedRole = 'Student'),
+                    isSelected: _selectedRole == 'student',
+                    onTap: () {
+                      setState(() => _selectedRole = 'student');
+                      ref.read(selectedRoleProvider.notifier).set('student');
+                    },
                   ),
-
                   const SizedBox(height: 30),
 
                   // BUTTON
@@ -105,20 +106,19 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                     height: 56,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2962FF),
+                        backgroundColor: AppTheme.primaryColor,
                         elevation: 4,
-                        shadowColor:
-                            Colors.black.withValues(alpha: 0.25),
+                        shadowColor: Colors.black.withValues(alpha: 0.25),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
                       onPressed: _selectedRole == null
                           ? null
-                          : () => context.push(
-                                '/login',
-                                extra: _selectedRole,
-                              ),
+                          : () {
+                              // Use push instead of go to allow back navigation
+                              context.push('/login', extra: _selectedRole);
+                            },
                       child: const Text(
                         'Continue',
                         style: TextStyle(
@@ -129,9 +129,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 24),
-
                   Text(
                     'By continuing, you agree to our Terms & Privacy Policy',
                     textAlign: TextAlign.center,
@@ -177,14 +175,10 @@ class _RoleTile extends StatelessWidget {
           vertical: 18,
         ),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFFF2F6FF)
-              : const Color(0xFFFAFAFC),
+          color: isSelected ? const Color(0xFFF2F6FF) : const Color(0xFFFAFAFC),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected
-                ? const Color(0xFF2962FF)
-                : const Color(0xFFE7EAF0),
+            color: isSelected ? AppTheme.primaryColor : const Color(0xFFE7EAF0),
             width: 1.5,
           ),
         ),
@@ -194,22 +188,16 @@ class _RoleTile extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFF2962FF)
-                    : const Color(0xFFF1F3F7),
+                color: isSelected ? AppTheme.primaryColor : const Color(0xFFF1F3F7),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                color: isSelected
-                    ? Colors.white
-                    : const Color(0xFFB7BCC8),
+                color: isSelected ? Colors.white : const Color(0xFFB7BCC8),
                 size: 24,
               ),
             ),
-
             const SizedBox(width: 16),
-
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,35 +207,24 @@ class _RoleTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: isSelected
-                          ? const Color(0xFF1D2433)
-                          : const Color(0xFFC1C5D0),
+                      color: isSelected ? const Color(0xFF1D2433) : const Color(0xFFC1C5D0),
                     ),
                   ),
-
                   const SizedBox(height: 4),
-
                   Text(
                     subtitle,
                     style: TextStyle(
                       height: 1.4,
                       fontSize: 14,
-                      color: isSelected
-                          ? const Color(0xFF5E6573)
-                          : const Color(0xFFC9CDD6),
+                      color: isSelected ? const Color(0xFF5E6573) : const Color(0xFFC9CDD6),
                     ),
                   ),
                 ],
               ),
             ),
-
             Icon(
-              isSelected
-                  ? Icons.check_circle_outline
-                  : Icons.radio_button_unchecked,
-              color: isSelected
-                  ? const Color(0xFF2962FF)
-                  : const Color(0xFFD5D9E2),
+              isSelected ? Icons.check_circle_outline : Icons.radio_button_unchecked,
+              color: isSelected ? AppTheme.primaryColor : const Color(0xFFD5D9E2),
               size: 24,
             ),
           ],

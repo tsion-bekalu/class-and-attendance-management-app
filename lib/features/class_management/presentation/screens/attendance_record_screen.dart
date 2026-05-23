@@ -3,24 +3,26 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../widgets/session_record_card.dart';
 import '../../domain/entities/session_record.dart';
-import '../../data/mock_attendance_data.dart';
 import '../widgets/student_attendance_card.dart';
-import '../../data/mock_student_data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:app/features/class_management/presentation/providers/attendance_provider.dart';
 
-
-class AttendanceRecordScreen extends StatefulWidget {
-  const AttendanceRecordScreen({super.key});
+class AttendanceRecordScreen extends ConsumerStatefulWidget {
+  final String classId;
+  const AttendanceRecordScreen({super.key, required this.classId});
 
   @override
-  State<AttendanceRecordScreen> createState() => _AttendanceRecordScreen();
+  ConsumerState<AttendanceRecordScreen> createState() =>
+      _AttendanceRecordScreen();
 }
 
-class _AttendanceRecordScreen extends State<AttendanceRecordScreen> {
+class _AttendanceRecordScreen extends ConsumerState<AttendanceRecordScreen> {
   // 0 = Sessions Tab, 1 = Students Tab
   int _selectedTabIndex = 0;
 
   @override
   Widget build(BuildContext context) {
+    final attendanceState = ref.watch(attendanceProvider(widget.classId));
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Column(
@@ -31,9 +33,9 @@ class _AttendanceRecordScreen extends State<AttendanceRecordScreen> {
           const SizedBox(height: 20),
           Expanded(
             // Logic to switch between views
-            child: _selectedTabIndex == 0 
-                ? _buildSessionsView() 
-                : _buildStudentsView(),
+            child: _selectedTabIndex == 0
+                ? _buildSessionsView(attendanceState.sessions)
+                : _buildStudentsView(attendanceState.sessions),
           ),
         ],
       ),
@@ -41,62 +43,55 @@ class _AttendanceRecordScreen extends State<AttendanceRecordScreen> {
   }
 
   // Blue Header section with back button and course info
- Widget _buildHeader(BuildContext context) {
-  return Container(
-    padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
-    width: double.infinity,
-    decoration: const BoxDecoration(
-      color: AppTheme.primaryColor,
-      borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(32),
-        bottomRight: Radius.circular(32),
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: AppTheme.primaryColor,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
       ),
-    ),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha:(0.2)),
-            shape: BoxShape.circle,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: (0.2)),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+              onPressed: () => Navigator.pop(context),
+            ),
           ),
-          child: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-              size: 20,
-            ),
-            onPressed: () => Navigator.pop(context),
+
+          const SizedBox(width: 12),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                "Attendance Records",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                "Computer Science",
+                style: TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+            ],
           ),
-        ),
-
-        const SizedBox(width: 12),
-
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              "Attendance Records",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 4),
-            Text(
-              "Computer Science",
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
-    ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   // The Sessions/Students pill toggle
   Widget _buildTabToggle() {
@@ -108,7 +103,7 @@ class _AttendanceRecordScreen extends State<AttendanceRecordScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -150,13 +145,13 @@ class _AttendanceRecordScreen extends State<AttendanceRecordScreen> {
   }
 
   // The list of all sessions using the mock data list
-  Widget _buildSessionsView() {
+  Widget _buildSessionsView(List<AttendanceSession> sessions) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      itemCount: mockAttendanceSessions.length,
+      itemCount: sessions.length,
       itemBuilder: (context, index) {
-        final session = mockAttendanceSessions[index];
-        
+        final session = sessions[index];
+
         // Wrap first item with "All Sessions" header
         if (index == 0) {
           return Column(
@@ -175,7 +170,7 @@ class _AttendanceRecordScreen extends State<AttendanceRecordScreen> {
             ],
           );
         }
-        
+
         return _buildCard(session);
       },
     );
@@ -187,19 +182,59 @@ class _AttendanceRecordScreen extends State<AttendanceRecordScreen> {
       time: session.time,
       attendanceCount: session.attendanceCount,
       percentage: session.percentage,
-      onTap: () {context.pushNamed('session-details', extra: session);
+      onTap: () {
+        context.pushNamed('session-details', extra: session);
       },
     );
   }
 
-  // Placeholder for the Students tab
-  Widget _buildStudentsView() {
-  return ListView.builder(
-    padding: const EdgeInsets.symmetric(horizontal: 20),
-    itemCount: mockStudentAttendance.length,
-    itemBuilder: (context, index) {
-      return StudentAttendanceCard(student: mockStudentAttendance[index]);
-    },
-  );
-}
+  Widget _buildStudentsView(List<AttendanceSession> sessions) {
+    final Map<String, int> attendanceCount = {};
+
+    final int totalSessions = sessions.length;
+
+    for (final session in sessions) {
+      final attendees = session.attendees ?? [];
+
+      for (final student in attendees) {
+        if (student.isPresent) {
+          attendanceCount[student.name] =
+              (attendanceCount[student.name] ?? 0) + 1;
+        }
+      }
+    }
+
+    final students = attendanceCount.entries.toList();
+
+    if (students.isEmpty) {
+      return const Center(child: Text("No attendance data yet"));
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      itemCount: students.length,
+      itemBuilder: (context, index) {
+        final student = students[index];
+
+        final percentage = totalSessions == 0
+            ? 0
+            : ((student.value / totalSessions) * 100).round();
+
+return StudentAttendanceCard(
+  studentName:
+      student.key,
+
+  attendancePercentage:
+      percentage,
+
+  presentCount:
+      student.value,
+
+  absentCount:
+      totalSessions -
+          student.value,
+);
+      },
+    );
+  }
 }

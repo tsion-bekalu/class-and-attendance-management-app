@@ -1,48 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-// WIDGETS
 import '../widgets/stat_card.dart';
 import '../widgets/class_card.dart';
 import '../widgets/quick_action_card.dart';
 import '../../../../features/student/presentation/widgets/logout_dialog.dart';
 import '../../../../features/student/presentation/widgets/delete_dialog.dart';
-
-// DOMAIN
-import 'package:app/features/class_management/domain/use_cases/get_classes.dart';
 import 'package:app/features/class_management/domain/entities/class_entity.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/class_provider.dart';
 
-// DATA
-import '../../../class_management/data/class_repository_impl.dart';
-
-class InstructorDashboardScreen extends StatefulWidget {
+class InstructorDashboardScreen extends ConsumerStatefulWidget {
   const InstructorDashboardScreen({super.key});
 
   @override
-  State<InstructorDashboardScreen> createState() =>
+  ConsumerState<InstructorDashboardScreen> createState() =>
       _InstructorDashboardScreenState();
 }
 
-class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
+class _InstructorDashboardScreenState
+    extends ConsumerState<InstructorDashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  late final ClassRepositoryImpl repository;
-  late final GetClasses getClassesUseCase;
-
-  List<ClassEntity> classes = [];
+  List<ClassEntity> get classes {
+    return ref.watch(classProvider).classes;
+  }
 
   @override
   void initState() {
     super.initState();
-    repository = ClassRepositoryImpl();
-    getClassesUseCase = GetClasses(repository);
-    loadClasses();
-  }
 
-  Future<void> loadClasses() async {
-    final result = await getClassesUseCase.call();
-    if (!mounted) return;
-    setState(() => classes = result);
+    Future.microtask(() {
+      ref.read(classProvider.notifier).getClasses();
+    });
   }
 
   @override
@@ -51,27 +39,15 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
       key: _scaffoldKey,
       endDrawer: buildDrawer(),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            buildHeader(),
-            buildBody(),
-          ],
-        ),
+        child: Column(children: [buildHeader(classes), buildBody(classes)]),
       ),
     );
   }
 
-  // ---------------- HEADER ----------------
-
-  Widget buildHeader() {
+  Widget buildHeader(List<ClassEntity> classes) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(
-        top: 60,
-        left: 22,
-        right: 22,
-        bottom: 60,
-      ),
+      padding: const EdgeInsets.only(top: 60, left: 22, right: 22, bottom: 60),
       decoration: const BoxDecoration(
         color: Color(0xFF1E5EFF),
         borderRadius: BorderRadius.only(
@@ -98,10 +74,7 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
                   SizedBox(height: 6),
                   Text(
                     "Mr.Tilahun",
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 18,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontSize: 18),
                   ),
                 ],
               ),
@@ -135,10 +108,9 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
                 child: StatCard(
                   icon: Icons.groups_2_outlined,
                   title: "Students",
-                  value: classes.fold<int>(
-                    0,
-                    (sum, c) => sum + c.students,
-                  ).toString(),
+                  value: classes
+                      .fold<int>(0, (sum, c) => sum + c.students)
+                      .toString(),
                 ),
               ),
             ],
@@ -148,9 +120,7 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
     );
   }
 
-  // ---------------- BODY ----------------
-
-  Widget buildBody() {
+  Widget buildBody(List<ClassEntity> classes) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
       child: Column(
@@ -167,7 +137,7 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
             ),
           ),
           const SizedBox(height: 18),
-          buildClassList(),
+          buildClassList(classes),
         ],
       ),
     );
@@ -216,10 +186,7 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
                         ),
                       ),
                       SizedBox(height: 4),
-                      Text(
-                        "Instructor",
-                        style: TextStyle(color: Colors.grey),
-                      ),
+                      Text("Instructor", style: TextStyle(color: Colors.grey)),
                     ],
                   ),
                 ],
@@ -235,23 +202,31 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.red),
-                title: const Text("Logout", style: TextStyle(color: Colors.red)),
-                onTap: () {Navigator.pop(context); 
-                showDialog(
-                  context: context,
-                  builder: (context) => const LogoutDialog(),
-                );
-              },
+                title: const Text(
+                  "Logout",
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (context) => const LogoutDialog(),
+                  );
+                },
               ),
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: Colors.red),
-                title: const Text("Delete Account",
-                    style: TextStyle(color: Colors.red)),
-                onTap: () {Navigator.pop(context); 
-                showDialog(
-                  context: context,
-                  builder: (context) => const DeleteDialog(),
-                );},
+                title: const Text(
+                  "Delete Account",
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (context) => const DeleteDialog(),
+                  );
+                },
               ),
             ],
           ),
@@ -270,7 +245,7 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
@@ -298,7 +273,6 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
                   title: "New Class",
                   onTap: () async {
                     await context.push('/instructor/create-class');
-                    loadClasses();
                   },
                 ),
               ),
@@ -321,12 +295,14 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
 
   // ---------------- CLASS LIST ----------------
 
-  Widget buildClassList() {
+  Widget buildClassList(List<ClassEntity> classes) {
     if (classes.isEmpty) {
       return const Padding(
         padding: EdgeInsets.only(top: 20),
-        child: Text("No classes created yet",
-            style: TextStyle(color: Colors.grey)),
+        child: Text(
+          "No classes created yet",
+          style: TextStyle(color: Colors.grey),
+        ),
       );
     }
 
@@ -342,7 +318,6 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
             pending: c.pending,
             onTap: () async {
               await context.push('/instructor/class-details/${c.id}');
-              loadClasses();
             },
           ),
         );

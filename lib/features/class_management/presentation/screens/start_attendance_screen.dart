@@ -1,16 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:app/core/theme/app_theme.dart';
-import '../../data/attendance_entry.dart';
 import '../../domain/entities/attendance_entry.dart';
 import 'package:go_router/go_router.dart';
-import '../../domain/entities/session_record.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:app/features/class_management/presentation/providers/attendance_provider.dart';
+
+class StartAttendanceScreen extends ConsumerStatefulWidget {
+  final String classId;
+  const StartAttendanceScreen({super.key, required this.classId});
+
+  @override
+  ConsumerState<StartAttendanceScreen> createState() =>
+      _StartAttendanceScreenState();
+}
+
+class _StartAttendanceScreenState extends ConsumerState<StartAttendanceScreen> {
+  @override
+  void initState() {
+    super.initState();
 
 
-class StartAttendanceScreen extends StatelessWidget {
-  const StartAttendanceScreen({super.key});
+    Future.microtask(() {
+      ref.read(attendanceProvider(widget.classId).notifier).startSession();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final attendanceState = ref.watch(attendanceProvider(widget.classId));
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Column(
@@ -23,9 +41,9 @@ class StartAttendanceScreen extends StatelessWidget {
                 children: [
                   _buildQRCodeCard(),
                   const SizedBox(height: 20),
-                  _buildLiveAttendanceList(),
+                  _buildLiveAttendanceList(attendanceState.liveAttendance),
                   const SizedBox(height: 30),
-                  _buildEndSessionButton(context),
+                  _buildEndSessionButton(context, ref),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -37,60 +55,53 @@ class StartAttendanceScreen extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
-  return Container(
-    padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
-    width: double.infinity,
-    decoration: const BoxDecoration(
-      color: AppTheme.primaryColor,
-      borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(32),
-        bottomRight: Radius.circular(32),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: AppTheme.primaryColor,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
       ),
-    ),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha:0.2),
-            shape: BoxShape.circle,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+              onPressed: () => Navigator.pop(context),
+            ),
           ),
-          child: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-              size: 20,
-            ),
-            onPressed: () => Navigator.pop(context),
+
+          const SizedBox(width: 12),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                "Attendance Session",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                "Computer Science",
+                style: TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+            ],
           ),
-        ),
-
-        const SizedBox(width: 12),
-
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              "Attendance Session",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              "Computer Science",
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _buildQRCodeCard() {
     return Container(
@@ -98,66 +109,107 @@ class StartAttendanceScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 15)],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 15,
+          ),
+        ],
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF0F7FF), // Very light blue for QR background
+              color: const Color(
+                0xFFF0F7FF,
+              ), // Very light blue for QR background
               borderRadius: BorderRadius.circular(20),
             ),
             child: Image.asset(
               'assets/qr.png', // Replace with your actual path
               height: 200,
               width: 200,
-              errorBuilder: (context, error, stackTrace) => const Icon(Icons.qr_code_2, size: 200, color: AppTheme.primaryColor),
+              errorBuilder: (context, error, stackTrace) => const Icon(
+                Icons.qr_code_2,
+                size: 200,
+                color: AppTheme.primaryColor,
+              ),
             ),
           ),
           const SizedBox(height: 20),
-          const Text("Session Code", style: TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+          const Text(
+            "Session Code",
+            style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+          ),
           const SizedBox(height: 4),
           const Text(
             "1NMQQCB4",
-            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 2, color: AppTheme.textPrimary),
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 2,
+              color: AppTheme.textPrimary,
+            ),
           ),
           const SizedBox(height: 16),
           const Text(
             "Students can scan this QR code or enter the code manually to mark attendance",
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppTheme.textSecondary, fontSize: 13, height: 1.5),
+            style: TextStyle(
+              color: AppTheme.textSecondary,
+              fontSize: 13,
+              height: 1.5,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildLiveAttendanceList() {
+  Widget _buildLiveAttendanceList(List<LiveAttendanceEntry> liveAttendance) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 15)],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 15,
+          ),
+        ],
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Live Attendance", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                "Live Attendance",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               Row(
                 children: [
-                  const Icon(Icons.circle, size: 8, color: Color.fromARGB(255, 56, 205, 56)),
+                  const Icon(
+                    Icons.circle,
+                    size: 8,
+                    color: Color.fromARGB(255, 56, 205, 56),
+                  ),
                   const SizedBox(width: 6),
-                  Text("${mockLiveAttendance.length} marked", style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                  Text(
+                    "${liveAttendance.length} marked",
+                    style: const TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 13,
+                    ),
+                  ),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 16),
-          ...mockLiveAttendance.map((student) => _buildStudentTile(student)),
+          ...liveAttendance.map((student) => _buildStudentTile(student)),
         ],
       ),
     );
@@ -173,12 +225,19 @@ class StartAttendanceScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.check_circle, color: Color.fromARGB(255, 28, 161, 28), size: 24),
+          const Icon(
+            Icons.check_circle,
+            color: Color.fromARGB(255, 28, 161, 28),
+            size: 24,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               student.studentName,
-              style: const TextStyle(fontWeight: FontWeight.w400, color: AppTheme.textPrimary),
+              style: const TextStyle(
+                fontWeight: FontWeight.w400,
+                color: AppTheme.textPrimary,
+              ),
             ),
           ),
           Text(
@@ -190,7 +249,7 @@ class StartAttendanceScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEndSessionButton(BuildContext context) {
+  Widget _buildEndSessionButton(BuildContext context, WidgetRef ref) {
     return SizedBox(
       width: double.infinity,
       height: 60,
@@ -198,30 +257,21 @@ class StartAttendanceScreen extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.red,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           elevation: 0,
         ),
         onPressed: () {
-  final session = AttendanceSession(
-    date: "May 10, 2026",
-    time: "10:00 AM",
-    attendanceCount: "${mockLiveAttendance.length}",
-    percentage: "80%",
-    attendees: mockLiveAttendance.map((student) {
-      return SessionAttendee(
-        name: student.studentName,
-        isPresent: true,
-      );
-    }).toList(),
-  );
+          final session = ref.read(attendanceProvider(widget.classId).notifier).endSession();
 
-  context.replaceNamed(
-    'session-details',
-    extra: session,
-  );
-},
+          context.replaceNamed('session-details', extra: session);
+        },
         icon: const Icon(Icons.stop_circle_outlined),
-        label: const Text("End Session", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        label: const Text(
+          "End Session",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
