@@ -46,7 +46,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: '/instructor/class-details/:classId', name: 'class-details', builder: (_,state){
       final id = state.pathParameters['classId']!; 
       return ClassDetailsScreen(classId: id);} ),
-    GoRoute(path: '/instructor/timetable', name: 'instructor-timetable', builder: (_, __) => const TimetableScreen()),
+    GoRoute(path: '/instructor/timetable', name: 'instructor-timetable', builder: (_, _) => const TimetableScreen()),
     GoRoute(path: '/instructor/create-announcement',name: 'instructor-create-announcement',builder: (context, state) => const CreateAnnouncementScreen(),),
     GoRoute(path: '/instructor/attendance-record',name: 'attendance-record',builder: (context, state) => const AttendanceRecordScreen(),),
     GoRoute(path: '/instructor/start-attendance',name: 'start-attendance',builder: (context, state) => const StartAttendanceScreen(),),
@@ -73,14 +73,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: '/student/timetable', name: 'student-timetable', builder: (context, state) => const TimetableScreen(),),
     GoRoute(path: '/student/attendance', name: 'student-attendance', builder: (context, state) => const AttendanceScanScreen()),
     GoRoute(path: '/student/attendance-history', name: 'student-attendance-history', builder: (context, state) => const AttendanceHistoryScreen()),
-    GoRoute(path: '/student/notifications', name: 'student-notifications', builder: (_, __) => const NotificationsScreen()),
+    GoRoute(path: '/student/notifications', name: 'student-notifications', builder: (_, _) => const NotificationsScreen()),
     GoRoute(path: '/student/class', name: 'student-class', builder: (context, state) => ClassDetailScreen(),),
-    GoRoute(path: '/attendance-marked', name: 'attendance-marked', builder: (_, __) => const AttendanceMarkedScreen()),
-    GoRoute(path: '/attendance-manual-code-entry', name: 'manual-code-entry', builder: (_, __) => const EnterCodeScreen()),
+    GoRoute(path: '/attendance-marked', name: 'attendance-marked', builder: (_, _) => const AttendanceMarkedScreen()),
+    GoRoute(path: '/attendance-manual-code-entry', name: 'manual-code-entry', builder: (_, _) => const EnterCodeScreen()),
     GoRoute(
       path: '/attendance-scanner-screen',
       name: 'scanner-screen',
-      builder: (_, __) => const AttendanceScannerScreen(),
+      builder: (_, _) => const AttendanceScannerScreen(),
     ),
   ]
 );
