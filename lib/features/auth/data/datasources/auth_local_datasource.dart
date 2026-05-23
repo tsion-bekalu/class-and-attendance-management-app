@@ -4,6 +4,8 @@ import 'package:app/features/auth/domain/models/auth_response.dart';
 class AuthLocalDataSource {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
 
+  String _normalizeEmail(String email) => email.trim().toLowerCase();
+
   /// Cache user session after login/register
   Future<void> cacheAuthSession(AuthResponse authResponse) async {
     final now = DateTime.now().millisecondsSinceEpoch;
@@ -92,20 +94,26 @@ class AuthLocalDataSource {
     required String password,
     required String role,
   }) async {
-    final existing = await getUserByEmail(email);
+    final normalizedEmail = _normalizeEmail(email);
+    final existing = await getUserByEmail(normalizedEmail);
+    final existingByUserId = existing == null
+        ? await getUserByUserId(userId)
+        : null;
+    final target = existing ?? existingByUserId;
 
-    if (existing != null) {
+    if (target != null) {
       await _databaseHelper.update(
         'user_accounts',
         {
           'userId': userId,
           'name': name,
+          'email': normalizedEmail,
           'password': password,
           'role': role,
           'updatedAt': DateTime.now().millisecondsSinceEpoch,
         },
-        where: 'email = ?',
-        whereArgs: [email],
+        where: 'id = ?',
+        whereArgs: [target['id']],
       );
       return;
     }
@@ -113,7 +121,7 @@ class AuthLocalDataSource {
     await _databaseHelper.insert('user_accounts', {
       'userId': userId,
       'name': name,
-      'email': email,
+      'email': normalizedEmail,
       'password': password,
       'role': role,
       'createdAt': DateTime.now().millisecondsSinceEpoch,
@@ -123,7 +131,7 @@ class AuthLocalDataSource {
 
   /// Authenticate using the persisted user accounts table.
   Future<AuthResponse?> authenticateUser(String email, String password) async {
-    final user = await getUserByEmail(email);
+    final user = await getUserByEmail(_normalizeEmail(email));
 
     if (user == null || user['password'] != password) {
       return null;
@@ -145,10 +153,22 @@ class AuthLocalDataSource {
   }
 
   Future<Map<String, dynamic>?> getUserByEmail(String email) async {
+    final normalizedEmail = _normalizeEmail(email);
     final result = await _databaseHelper.query(
       'user_accounts',
-      where: 'email = ?',
-      whereArgs: [email],
+      where: 'LOWER(email) = ?',
+      whereArgs: [normalizedEmail],
+      limit: 1,
+    );
+
+    return result.isEmpty ? null : result.first;
+  }
+
+  Future<Map<String, dynamic>?> getUserByUserId(String userId) async {
+    final result = await _databaseHelper.query(
+      'user_accounts',
+      where: 'userId = ?',
+      whereArgs: [userId],
       limit: 1,
     );
 
@@ -250,8 +270,8 @@ class AuthLocalDataSource {
   Future<void> deleteUserByEmail(String email) async {
     await _databaseHelper.delete(
       'user_accounts',
-      where: 'email = ?',
-      whereArgs: [email],
+      where: 'LOWER(email) = ?',
+      whereArgs: [_normalizeEmail(email)],
     );
   }
 }
