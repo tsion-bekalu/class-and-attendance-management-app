@@ -129,6 +129,9 @@ class AuthStateNotifier extends Notifier<AsyncValue<AuthResponse?>> {
     try {
       final authRepo = ref.read(authRepositoryProvider);
       await authRepo.logout();
+      ref.read(isAuthenticatedProvider.notifier).set(false);
+      ref.read(userRoleProvider.notifier).set(null);
+      ref.read(currentUserProvider.notifier).set(null);
       state = const AsyncValue.data(null);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
