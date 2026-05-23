@@ -30,13 +30,11 @@ class MockAuthService {
 
   static bool register(String name, String email, String password, String role) {
     try {
-    
       final exists = mockUsers.any((u) => u.email == email);
       if (exists) {
         return false;
       }
 
-      // Create new user
       final newUser = User(
         id: '${mockUsers.length + 1}',
         name: name,
@@ -48,6 +46,20 @@ class MockAuthService {
       );
 
       mockUsers.add(newUser);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  static bool delete(String email) {
+    try {
+      final index = mockUsers.indexWhere((user) => user.email == email);
+      if (index == -1) {
+        return false;
+      }
+
+      mockUsers.removeAt(index);
       return true;
     } catch (e) {
       return false;

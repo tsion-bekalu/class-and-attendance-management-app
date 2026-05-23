@@ -138,6 +138,19 @@ class AuthStateNotifier extends Notifier<AsyncValue<AuthResponse?>> {
     }
   }
 
+  Future<void> deleteAccount() async {
+    try {
+      final authRepo = ref.read(authRepositoryProvider);
+      await authRepo.deleteAccount();
+      ref.read(isAuthenticatedProvider.notifier).set(false);
+      ref.read(userRoleProvider.notifier).set(null);
+      ref.read(currentUserProvider.notifier).set(null);
+      state = const AsyncValue.data(null);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
   Future<void> checkAuthStatus() async {
     try {
       final authRepo = ref.read(authRepositoryProvider);

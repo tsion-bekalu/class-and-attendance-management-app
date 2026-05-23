@@ -53,16 +53,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       widget.role,
     );
 
-    // Update global auth state
+    final currentAuthState = ref.read(authStateProvider);
+    if (currentAuthState.hasError || currentAuthState.value == null) {
+      return;
+    }
+
+    final authResponse = currentAuthState.value!;
+
     ref.read(isAuthenticatedProvider.notifier).set(true);
-    ref.read(userRoleProvider.notifier).set(widget.role);
+    ref.read(userRoleProvider.notifier).set(authResponse.role);
     ref.read(currentUserProvider.notifier).set({
-      'email': _emailController.text.trim(),
-      'role': widget.role,
+      'name': authResponse.name,
+      'email': authResponse.email,
+      'role': authResponse.role,
     });
 
     if (mounted) {
-      if (widget.role.toLowerCase() == 'instructor') {
+      if (authResponse.role.toLowerCase() == 'instructor') {
         context.go('/instructor/dashboard');
       } else {
         context.go('/student/home');

@@ -18,13 +18,14 @@ class _LogoutDialogState extends ConsumerState<LogoutDialog> {
     if (_isLoggingOut) return;
 
     setState(() => _isLoggingOut = true);
-    Navigator.pop(context);
 
     try {
       await ref.read(authStateProvider.notifier).logout();
-      if (mounted) {
-        context.go('/role_selection');
-      }
+
+      if (!mounted) return;
+
+      Navigator.of(context).pop();
+      context.go('/role_selection');
     } finally {
       if (mounted) {
         setState(() => _isLoggingOut = false);

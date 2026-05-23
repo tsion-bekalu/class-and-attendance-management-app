@@ -16,6 +16,9 @@ abstract class AuthRepository {
   /// Logout current user
   Future<void> logout();
 
+  /// Delete the current user's local account data
+  Future<void> deleteAccount();
+
   /// Get cached user session (if available)
   Future<AuthResponse?> getCachedSession();
 

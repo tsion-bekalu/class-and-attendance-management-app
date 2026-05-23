@@ -79,21 +79,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       widget.role,
     );
 
-    // Update global auth state
-    ref.read(isAuthenticatedProvider.notifier).set(true);
-    ref.read(userRoleProvider.notifier).set(widget.role);
-    ref.read(currentUserProvider.notifier).set({
-      'name': _nameController.text.trim(),
-      'email': _emailController.text.trim(),
-      'role': widget.role,
-    });
+    final currentAuthState = ref.read(authStateProvider);
+    if (currentAuthState.hasError) {
+      return;
+    }
+
+    ref.read(isAuthenticatedProvider.notifier).set(false);
+    ref.read(userRoleProvider.notifier).set(null);
+    ref.read(currentUserProvider.notifier).set(null);
 
     if (mounted) {
-      if (widget.role.toLowerCase() == 'instructor') {
-        context.go('/instructor/dashboard');
-      } else {
-        context.go('/student/home');
-      }
+      context.go('/login', extra: widget.role);
     }
   }
 

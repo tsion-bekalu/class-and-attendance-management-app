@@ -6,7 +6,16 @@ class AuthLocalDataSource {
 
   /// Cache user session after login/register
   Future<void> cacheAuthSession(AuthResponse authResponse) async {
-    await _databaseHelper.insert('auth_session', {
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final existingSession = await _databaseHelper.query(
+      'auth_session',
+      where: 'userId = ?',
+      whereArgs: [authResponse.userId],
+      limit: 1,
+    );
+
+    final sessionValues = {
       'userId': authResponse.userId,
       'email': authResponse.email,
       'name': authResponse.name,
@@ -14,26 +23,136 @@ class AuthLocalDataSource {
       'accessToken': authResponse.accessToken,
       'refreshToken': authResponse.refreshToken,
       'tokenExpiresAt': authResponse.tokenExpiresAt,
-      'createdAt': DateTime.now().millisecondsSinceEpoch,
-      'updatedAt': DateTime.now().millisecondsSinceEpoch,
-    });
+      'createdAt': existingSession.isEmpty ? now : existingSession.first['createdAt'],
+      'updatedAt': now,
+    };
 
-    // Also cache tokens separately
-    await _databaseHelper.insert('auth_tokens', {
+    if (existingSession.isEmpty) {
+      await _databaseHelper.insert('auth_session', sessionValues);
+    } else {
+      await _databaseHelper.update(
+        'auth_session',
+        sessionValues,
+        where: 'userId = ?',
+        whereArgs: [authResponse.userId],
+      );
+    }
+
+    final existingTokens = await _databaseHelper.query('auth_tokens', limit: 1);
+    final tokenValues = {
       'accessToken': authResponse.accessToken,
       'refreshToken': authResponse.refreshToken,
       'expiresAt': authResponse.tokenExpiresAt,
-      'createdAt': DateTime.now().millisecondsSinceEpoch,
-    });
+      'createdAt': existingTokens.isEmpty ? now : existingTokens.first['createdAt'],
+    };
 
-    // Cache user preferences
-    await _databaseHelper.insert('user_preferences', {
+    if (existingTokens.isEmpty) {
+      await _databaseHelper.insert('auth_tokens', tokenValues);
+    } else {
+      await _databaseHelper.update(
+        'auth_tokens',
+        tokenValues,
+        where: 'id = ?',
+        whereArgs: [existingTokens.first['id']],
+      );
+    }
+
+    final existingPreferences = await _databaseHelper.query(
+      'user_preferences',
+      where: 'userId = ?',
+      whereArgs: [authResponse.userId],
+      limit: 1,
+    );
+
+    final preferenceValues = {
       'userId': authResponse.userId,
       'selectedRole': authResponse.role,
       'rememberMe': 1,
       'theme': 'light',
+      'updatedAt': now,
+    };
+
+    if (existingPreferences.isEmpty) {
+      await _databaseHelper.insert('user_preferences', preferenceValues);
+    } else {
+      await _databaseHelper.update(
+        'user_preferences',
+        preferenceValues,
+        where: 'userId = ?',
+        whereArgs: [authResponse.userId],
+      );
+    }
+  }
+
+  /// Save a registered or fallback user account for persistent login validation.
+  Future<void> saveUserAccount({
+    required String userId,
+    required String name,
+    required String email,
+    required String password,
+    required String role,
+  }) async {
+    final existing = await getUserByEmail(email);
+
+    if (existing != null) {
+      await _databaseHelper.update(
+        'user_accounts',
+        {
+          'userId': userId,
+          'name': name,
+          'password': password,
+          'role': role,
+          'updatedAt': DateTime.now().millisecondsSinceEpoch,
+        },
+        where: 'email = ?',
+        whereArgs: [email],
+      );
+      return;
+    }
+
+    await _databaseHelper.insert('user_accounts', {
+      'userId': userId,
+      'name': name,
+      'email': email,
+      'password': password,
+      'role': role,
+      'createdAt': DateTime.now().millisecondsSinceEpoch,
       'updatedAt': DateTime.now().millisecondsSinceEpoch,
     });
+  }
+
+  /// Authenticate using the persisted user accounts table.
+  Future<AuthResponse?> authenticateUser(String email, String password) async {
+    final user = await getUserByEmail(email);
+
+    if (user == null || user['password'] != password) {
+      return null;
+    }
+
+    final userId = user['userId'] as String;
+    final name = user['name'] as String;
+    final role = user['role'] as String;
+
+    return AuthResponse(
+      userId: userId,
+      email: email,
+      name: name,
+      role: role,
+      accessToken: 'local_access_token_${DateTime.now().millisecondsSinceEpoch}',
+      refreshToken: 'local_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
+      tokenExpiresAt: DateTime.now().add(const Duration(days: 7)).millisecondsSinceEpoch,
+    );
+  }
+
+  Future<Map<String, dynamic>?> getUserByEmail(String email) async {
+    final result = await _databaseHelper.query(
+      'user_accounts',
+      where: 'email = ?',
+      whereArgs: [email],
+      limit: 1,
+    );
+
+    return result.isEmpty ? null : result.first;
   }
 
   /// Retrieve cached auth session
@@ -125,6 +244,14 @@ class AuthLocalDataSource {
       values,
       where: 'userId = ?',
       whereArgs: [userId],
+    );
+  }
+
+  Future<void> deleteUserByEmail(String email) async {
+    await _databaseHelper.delete(
+      'user_accounts',
+      where: 'email = ?',
+      whereArgs: [email],
     );
   }
 }

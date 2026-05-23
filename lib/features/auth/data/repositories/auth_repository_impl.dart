@@ -9,26 +9,29 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<AuthResponse> login(String email, String password, String role) async {
-    // Cache-first: Try to retrieve from local storage first
-    final cachedSession = await _localDataSource.getCachedAuthSession();
-    if (cachedSession != null && cachedSession.email == email) {
-      // Cache hit - return cached session
-      return cachedSession;
-    }
-    
-    // Cache miss - make network request
     try {
+      final localAuth = await _localDataSource.authenticateUser(email, password);
+      if (localAuth != null) {
+        await _localDataSource.cacheAuthSession(localAuth);
+        return localAuth;
+      }
+
       final request = LoginRequest(
         email: email,
         password: password,
         role: role,
       );
-      
+
       final authResponse = await _remoteDataSource.login(request);
-      
-      // Cache the successful response
+      await _localDataSource.saveUserAccount(
+        userId: authResponse.userId,
+        name: authResponse.name,
+        email: authResponse.email,
+        password: password,
+        role: authResponse.role,
+      );
       await _localDataSource.cacheAuthSession(authResponse);
-      
+
       return authResponse;
     } catch (e) {
       rethrow;
@@ -43,14 +46,6 @@ class AuthRepositoryImpl implements AuthRepository {
     String confirmPassword,
     String role,
   ) async {
-    // Cache-first: Try to retrieve from local storage first (unlikely for new registration)
-    final cachedSession = await _localDataSource.getCachedAuthSession();
-    if (cachedSession != null && cachedSession.email == email) {
-      // Cache hit - return cached session
-      return cachedSession;
-    }
-    
-    // Cache miss - make network request
     try {
       final request = RegisterRequest(
         name: name,
@@ -59,12 +54,17 @@ class AuthRepositoryImpl implements AuthRepository {
         confirmPassword: confirmPassword,
         role: role,
       );
-      
+
       final authResponse = await _remoteDataSource.register(request);
-      
-      // Cache the successful response
+      await _localDataSource.saveUserAccount(
+        userId: authResponse.userId,
+        name: authResponse.name,
+        email: authResponse.email,
+        password: password,
+        role: authResponse.role,
+      );
       await _localDataSource.cacheAuthSession(authResponse);
-      
+
       return authResponse;
     } catch (e) {
       rethrow;
@@ -86,6 +86,22 @@ class AuthRepositoryImpl implements AuthRepository {
     }
     
     // Clear all local cache
+    await _localDataSource.clearAuthCache();
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    final cachedSession = await _localDataSource.getCachedAuthSession();
+
+    try {
+      if (cachedSession?.email != null && cachedSession!.email.isNotEmpty) {
+        await _remoteDataSource.deleteAccount(cachedSession.email);
+        await _localDataSource.deleteUserByEmail(cachedSession.email);
+      }
+    } catch (e) {
+      // Continue with local cleanup even if remote delete fails
+    }
+
     await _localDataSource.clearAuthCache();
   }
 
