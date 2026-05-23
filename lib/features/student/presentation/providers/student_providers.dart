@@ -5,13 +5,12 @@ import 'package:app/features/student/data/student_api_service.dart';
 import 'package:app/features/student/domain/models/student_models.dart';
 import 'package:app/features/student/domain/repositories/student_repository.dart';
 import 'package:flutter_riverpod/legacy.dart';
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Infrastructure providers
 // ─────────────────────────────────────────────────────────────────────────────
 
 final studentDatabaseProvider = Provider<StudentDatabase>((ref) {
-  return StudentDatabase.instance;
+  return StudentDatabase();
 });
 
 final studentApiServiceProvider = Provider<StudentApiService>((ref) {

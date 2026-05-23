@@ -120,7 +120,7 @@ class StudentHomeScreen extends ConsumerWidget {
                   profileAsync.when(
                     loading: () => const Text('Welcome back,',
                         style: TextStyle(color: Colors.white, fontSize: 18)),
-                    error: (_, __) => const Text('Welcome back,',
+                    error: (_, _) => const Text('Welcome back,',
                         style: TextStyle(color: Colors.white, fontSize: 18)),
                     data: (profile) => RichText(
                       text: TextSpan(
@@ -157,7 +157,7 @@ class StudentHomeScreen extends ConsumerWidget {
               const SizedBox(height: 30),
               profileAsync.when(
                 loading: () => const _StatsRowSkeleton(),
-                error: (_, __) => const _StatsRowSkeleton(),
+                error: (_, _) => const _StatsRowSkeleton(),
                 data: (profile) => _buildStatsRow(
                   '${profile.overallAttendance.toStringAsFixed(0)}%',
                   '${profile.presentSessions}',

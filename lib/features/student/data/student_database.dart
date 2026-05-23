@@ -1,108 +1,11 @@
 // features/student/data/student_database.dart
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
+import '../../../core/database/database_helper.dart';
 
 class StudentDatabase {
-  static final StudentDatabase instance = StudentDatabase._init();
-  static Database? _db;
-
-  StudentDatabase._init();
-
   Future<Database> get database async {
-    if (_db != null) return _db!;
-    _db = await _initDB('student.db');
-    return _db!;
-  }
-
-  Future<Database> _initDB(String filePath) async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, filePath);
-    return await openDatabase(path, version: 1, onCreate: _createDB);
-  }
-
-  Future<void> _createDB(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE classes (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        courseCode TEXT NOT NULL,
-        instructorId TEXT NOT NULL,
-        instructorName TEXT NOT NULL,
-        schedule TEXT NOT NULL,
-        roomNumber TEXT NOT NULL,
-        attendancePercentage REAL NOT NULL DEFAULT 0,
-        presentSessions INTEGER NOT NULL DEFAULT 0,
-        totalSessions INTEGER NOT NULL DEFAULT 0,
-        cachedAt INTEGER NOT NULL
-      )
-    ''');
-
-    await db.execute('''
-      CREATE TABLE attendance_history (
-        id TEXT PRIMARY KEY,
-        classId TEXT NOT NULL,
-        topic TEXT NOT NULL,
-        date TEXT NOT NULL,
-        isPresent INTEGER NOT NULL DEFAULT 0,
-        sessionCode TEXT,
-        cachedAt INTEGER NOT NULL
-      )
-    ''');
-
-    await db.execute('''
-      CREATE TABLE notifications (
-        id TEXT PRIMARY KEY,
-        courseCode TEXT NOT NULL,
-        courseName TEXT NOT NULL,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL,
-        timeAgo TEXT NOT NULL,
-        type TEXT NOT NULL,
-        isUnread INTEGER NOT NULL DEFAULT 1,
-        cachedAt INTEGER NOT NULL
-      )
-    ''');
-
-    await db.execute('''
-      CREATE TABLE timetable (
-        id TEXT PRIMARY KEY,
-        classId TEXT NOT NULL,
-        day TEXT NOT NULL,
-        title TEXT NOT NULL,
-        courseCode TEXT NOT NULL,
-        time TEXT NOT NULL,
-        location TEXT NOT NULL,
-        duration TEXT NOT NULL,
-        accentColor INTEGER NOT NULL,
-        cachedAt INTEGER NOT NULL
-      )
-    ''');
-
-    await db.execute('''
-      CREATE TABLE student_profile (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL,
-        studentId TEXT NOT NULL,
-        overallAttendance REAL NOT NULL DEFAULT 0,
-        presentSessions INTEGER NOT NULL DEFAULT 0,
-        absentSessions INTEGER NOT NULL DEFAULT 0,
-        cachedAt INTEGER NOT NULL
-      )
-    ''');
-
-    await db.execute('''
-      CREATE TABLE announcements (
-        id TEXT PRIMARY KEY,
-        classId TEXT NOT NULL,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL,
-        dateTime TEXT NOT NULL,
-        cachedAt INTEGER NOT NULL
-      )
-    ''');
-  }
-
+  return await DatabaseHelper.instance.database;
+}
   // ── Classes ──────────────────────────────────────────────────────────────
 
   Future<void> upsertClasses(List<Map<String, dynamic>> classes) async {

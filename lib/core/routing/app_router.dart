@@ -42,12 +42,12 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/splash',
       name: 'splash',
-      builder: (_, __) => const SplashScreen(),
+      builder: (_, _) => const SplashScreen(),
     ),
     GoRoute(
       path: '/role_selection',
       name: 'role_selection',
-      builder: (_, __) => const RoleSelectionScreen(),
+      builder: (_, _) => const RoleSelectionScreen(),
     ),
     GoRoute(
       path: '/login',
@@ -64,12 +64,12 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/instructor/dashboard',
       name: 'instructor-dashboard',
-      builder: (_, __) => const InstructorDashboardScreen(),
+      builder: (_, _) => const InstructorDashboardScreen(),
     ),
     GoRoute(
       path: '/instructor/create-class',
       name: 'create-class',
-      builder: (_, __) => const CreateClassScreen(),
+      builder: (_, _) => const CreateClassScreen(),
     ),
     GoRoute(
       path: '/instructor/class-details/:classId',
@@ -82,7 +82,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/instructor/timetable',
       name: 'instructor-timetable',
-      builder: (_, __) => const TimetableScreen(),
+      builder: (_, _) => const TimetableScreen(),
     ),
     GoRoute(
       path: '/instructor/create-announcement',
@@ -141,12 +141,12 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/student/home',
       name: 'student-home',
-      builder: (_, __) => const StudentHomeScreen(),
+      builder: (_, _) => const StudentHomeScreen(),
     ),
     GoRoute(
       path: '/student/timetable',
       name: 'student-timetable',
-      builder: (_, __) => const TimetableScreen(),
+      builder: (_, _) => const TimetableScreen(),
     ),
     GoRoute(
       path: '/student/attendance',
@@ -175,7 +175,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/student/notifications',
       name: 'student-notifications',
-      builder: (_, __) => const NotificationsScreen(),
+      builder: (_, _) => const NotificationsScreen(),
     ),
     GoRoute(
       path: '/attendance-marked',

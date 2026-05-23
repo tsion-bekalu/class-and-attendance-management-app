@@ -2,7 +2,7 @@ import 'package:app/core/database/database_helper.dart';
 import 'package:app/features/auth/domain/models/auth_response.dart';
 
 class AuthLocalDataSource {
-  final DatabaseHelper _databaseHelper = DatabaseHelper();
+ final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
 
   String _normalizeEmail(String email) => email.trim().toLowerCase();
 

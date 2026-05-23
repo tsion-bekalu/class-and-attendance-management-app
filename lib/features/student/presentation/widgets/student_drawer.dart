@@ -32,7 +32,7 @@ class StudentDrawer extends ConsumerWidget {
             // Profile section
             profileAsync.when(
               loading: () => const CircularProgressIndicator(),
-              error: (_, __) => const _DefaultProfile(),
+              error: (_, _) => const _DefaultProfile(),
               data: (profile) => Row(
                 children: [
                   CircleAvatar(

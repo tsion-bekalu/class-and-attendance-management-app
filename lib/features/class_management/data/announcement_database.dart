@@ -1,16 +1,23 @@
 import 'package:sqflite/sqflite.dart';
-import '../../../core/database/app_database.dart';
+
+import '../../../core/database/database_helper.dart';
 import '../domain/entities/announcement.dart';
 
 class AnnouncementDatabase {
   Future<void> insertAnnouncement(
     Announcement announcement,
   ) async {
-    final db = await AppDatabase.database;
+
+    final db =
+        await DatabaseHelper.instance.database;
 
     await db.insert(
       'announcements',
       {
+        'id': DateTime.now()
+            .millisecondsSinceEpoch
+            .toString(),
+
         'classId': announcement.classId,
         'title': announcement.title,
         'message': announcement.message,
@@ -22,27 +29,33 @@ class AnnouncementDatabase {
   }
 
   Future<List<Announcement>>
-  getAnnouncements(
+      getAnnouncements(
     String classId,
   ) async {
-    final db = await AppDatabase.database;
+
+    final db =
+        await DatabaseHelper.instance.database;
 
     final result = await db.query(
       'announcements',
       where: 'classId = ?',
       whereArgs: [classId],
-      orderBy: 'id DESC',
+      orderBy: 'dateTime DESC',
     );
-
 
     return result.map((e) {
       return Announcement(
         classId:
             e['classId'] as String,
+
         title:
             e['title'] as String,
+
         message:
-            e['message'] as String,
+            (e['message'] ??
+                    e['description'])
+                as String,
+
         dateTime:
             e['dateTime'] as String,
       );
@@ -52,7 +65,9 @@ class AnnouncementDatabase {
   Future<void> deleteAnnouncement(
     String title,
   ) async {
-    final db = await AppDatabase.database;
+
+    final db =
+        await DatabaseHelper.instance.database;
 
     await db.delete(
       'announcements',
