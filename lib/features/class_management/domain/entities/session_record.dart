@@ -2,10 +2,15 @@ class SessionAttendee {
   final String name;
   final bool isPresent;
 
-  SessionAttendee({required this.name, required this.isPresent});
+  SessionAttendee({
+    required this.name,
+    required this.isPresent,
+  });
 }
 
 class AttendanceSession {
+  final int? id;
+  final String classId;
   final String date;
   final String time;
   final String attendanceCount;
@@ -13,6 +18,8 @@ class AttendanceSession {
   final List<SessionAttendee>? attendees;
 
   AttendanceSession({
+    this.id,
+    required this.classId,
     required this.date,
     required this.time,
     required this.attendanceCount,

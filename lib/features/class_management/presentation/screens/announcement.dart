@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/announcement.dart';
-import '../../data/mock_announcement_data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/announcement_provider.dart';
 
-class AnnouncementsScreen extends StatelessWidget {
-  const AnnouncementsScreen({super.key});
+class AnnouncementsScreen extends ConsumerWidget {
+  final String classId;
+  const AnnouncementsScreen({super.key, required this.classId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final announcementState = ref.watch(announcementProvider(classId));
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Column(
@@ -18,18 +22,20 @@ class AnnouncementsScreen extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              itemCount: mockAnnouncements.length,
+              itemCount: announcementState.length,
               itemBuilder: (context, index) {
-                return _buildAnnouncementCard(mockAnnouncements[index]);
+                return _buildAnnouncementCard(announcementState[index]);
               },
             ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async{
           // Navigate to new announcement screen
-          context.pushNamed('instructor-create-announcement');
+          await context.pushNamed('instructor-create-announcement', extra: classId);
+
+          ref.read(announcementProvider(classId).notifier).loadAnnouncements();
         },
         backgroundColor: AppTheme.primaryColor,
         child: const Icon(Icons.add, color: Colors.white),
