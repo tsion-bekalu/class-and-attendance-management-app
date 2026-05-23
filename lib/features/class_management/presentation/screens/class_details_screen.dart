@@ -1,54 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-// DOMAIN
-import 'package:app/features/class_management/domain/use_cases/delete_class.dart';
-
-// DATA
-import '../../../class_management/data/class_repository_impl.dart';
-
-// WIDGETS
+import '../providers/class_provider.dart';
 import '../widgets/top_info_card.dart';
 import '../widgets/menu_card.dart';
 
-class ClassDetailsScreen extends StatefulWidget {
+class ClassDetailsScreen extends ConsumerStatefulWidget {
   final String classId;
 
-  const ClassDetailsScreen({
-    super.key,
-    required this.classId,
-  });
+  const ClassDetailsScreen({super.key, required this.classId});
 
   @override
-  State<ClassDetailsScreen> createState() => _ClassDetailsScreenState();
+  ConsumerState<ClassDetailsScreen> createState() => _ClassDetailsScreenState();
 }
 
-class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
-  late final ClassRepositoryImpl repository;
-  late final DeleteClass deleteClassUseCase;
-
-  Map<String, dynamic>? classData;
-
-  @override
-  void initState() {
-    super.initState();
-    repository = ClassRepositoryImpl();
-    deleteClassUseCase = DeleteClass(repository);
-    loadClass();
-  }
-
-  Future<void> loadClass() async {
-    final data = await repository.getClassRawById(widget.classId);
-    if (!mounted) return;
-    setState(() => classData = data);
-  }
-
+class _ClassDetailsScreenState extends ConsumerState<ClassDetailsScreen> {
   @override
   Widget build(BuildContext context) {
-    if (classData == null) {
-      return const Scaffold(
-        body: Center(child: Text("Class not found")),
-      );
+    final classState = ref.watch(classProvider);
+
+    final classData = classState.classes.firstWhere(
+      (c) => c.id == widget.classId,
+      orElse: () => throw Exception("Class not found"),
+    );
+    if (classState.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -64,9 +40,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
               right: 20,
               bottom: 28,
             ),
-            decoration: const BoxDecoration(
-              color: Color(0xFF1E5BFF),
-            ),
+            decoration: const BoxDecoration(color: Color(0xFF1E5BFF)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -93,7 +67,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          classData!["name"],
+                          classData.name,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -102,7 +76,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "Code: ${classData!["id"]}",
+                          "Code: ${classData.id}",
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
@@ -118,14 +92,14 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                     Expanded(
                       child: TopInfoCard(
                         title: "Students",
-                        value: classData!["students"].toString(),
+                        value: classData.students.toString(),
                       ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
                       child: TopInfoCard(
                         title: "Status",
-                        value: classData!["status"],
+                        value: classData.status,
                       ),
                     ),
                   ],
@@ -166,7 +140,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                             ),
                             const SizedBox(width: 12),
                             Text(
-                              "${classData!["days"].join(", ")}  ${classData!["startTime"]} - ${classData!["endTime"]}",
+                              "${classData.days.join(", ")}  ${classData.startTime} - ${classData.endTime}",
                               style: const TextStyle(
                                 fontSize: 15,
                                 color: Colors.grey,
@@ -182,13 +156,13 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                   const SizedBox(height: 20),
 
                   // PENDING BANNER
-                  if (classData!["pending"] > 0)
+                  if (classData.pending > 0)
                     GestureDetector(
                       onTap: () async {
                         await context.push(
                           '/instructor/class-details/${widget.classId}/join-requests',
                         );
-                        await loadClass(); // ⭐ refresh after returning
+                        await ref.read(classProvider.notifier).getClasses(); 
                       },
                       child: Container(
                         width: double.infinity,
@@ -200,11 +174,14 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.error_outline, color: Color(0xFFFF6B00)),
+                            const Icon(
+                              Icons.error_outline,
+                              color: Color(0xFFFF6B00),
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                "${classData!["pending"]} students waiting for approval",
+                                "${classData.pending} students waiting for approval",
                                 style: const TextStyle(
                                   color: Color(0xFFD56A1B),
                                   fontWeight: FontWeight.w500,
@@ -212,7 +189,10 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                                 ),
                               ),
                             ),
-                            const Icon(Icons.arrow_forward, color: Color(0xFFFF6B00)),
+                            const Icon(
+                              Icons.arrow_forward,
+                              color: Color(0xFFFF6B00),
+                            ),
                           ],
                         ),
                       ),
@@ -234,7 +214,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                         iconColor: Colors.blue,
                         iconBg: const Color(0xFFDDE7FF),
                         title: 'Start Attendance',
-                        onTap: () => context.pushNamed('start-attendance'),
+                        onTap: () => context.pushNamed('start-attendance', extra: widget.classId),
                       ),
                       MenuCard(
                         icon: Icons.groups_2_outlined,
@@ -245,7 +225,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                           await context.push(
                             '/instructor/class-details/${widget.classId}/join-requests',
                           );
-                          await loadClass(); // ⭐ refresh after returning
+                          await ref.read(classProvider.notifier).getClasses(); 
                         },
                       ),
                       MenuCard(
@@ -253,14 +233,15 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                         iconColor: Colors.green,
                         iconBg: const Color(0x1F00FF00),
                         title: 'Attendance\nRecords',
-                        onTap: () => context.pushNamed('attendance-record'),
+                        onTap: () => context.pushNamed('attendance-record', extra: widget.classId),
                       ),
                       MenuCard(
                         icon: Icons.notifications_none,
                         iconColor: Colors.deepOrange,
                         iconBg: const Color(0x1FFF9800),
                         title: 'Announcements',
-                        onTap: () => context.pushNamed('instructor-announcements'),
+                        onTap: () =>
+                            context.pushNamed('instructor-announcements', extra: widget.classId),
                       ),
                     ],
                   ),
@@ -290,7 +271,9 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                               context: context,
                               builder: (ctx) => AlertDialog(
                                 title: const Text("Delete Class"),
-                                content: const Text("Are you sure you want to delete this class?"),
+                                content: const Text(
+                                  "Are you sure you want to delete this class?",
+                                ),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(ctx, false),
@@ -298,14 +281,19 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                                   ),
                                   TextButton(
                                     onPressed: () => Navigator.pop(ctx, true),
-                                    child: const Text("Delete", style: TextStyle(color: Colors.red)),
+                                    child: const Text(
+                                      "Delete",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
                                   ),
                                 ],
                               ),
                             );
-
                             if (confirm == true) {
-                              await deleteClassUseCase.call(widget.classId);
+                              await ref
+                                  .read(classProvider.notifier)
+                                  .deleteClass(widget.classId);
+
                               if (!context.mounted) return;
                               context.pop();
                             }

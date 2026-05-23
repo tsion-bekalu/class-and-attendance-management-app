@@ -1,15 +1,21 @@
+import 'package:app/features/class_management/domain/entities/announcement.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/announcement_provider.dart';
 
-class CreateAnnouncementScreen extends StatefulWidget {
-  const CreateAnnouncementScreen({super.key});
+class CreateAnnouncementScreen extends ConsumerStatefulWidget {
+  final String classId;
+  const CreateAnnouncementScreen({super.key, required this.classId});
 
   @override
-  State<CreateAnnouncementScreen> createState() => _CreateAnnouncementScreen();
+  ConsumerState<CreateAnnouncementScreen> createState() =>
+      _CreateAnnouncementScreen();
 }
 
-class _CreateAnnouncementScreen extends State<CreateAnnouncementScreen> {
+class _CreateAnnouncementScreen
+    extends ConsumerState<CreateAnnouncementScreen> {
   final _titleController = TextEditingController();
   final _messageController = TextEditingController();
   int _titleLength = 0;
@@ -102,7 +108,27 @@ class _CreateAnnouncementScreen extends State<CreateAnnouncementScreen> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          // TODO: Handle post logic
+                          if (_titleController.text.trim().isEmpty) {
+                            return;
+                          }
+
+                          if (_messageController.text.trim().isEmpty) {
+                            return;
+                          }
+
+                          ref
+                              .read(
+                                announcementProvider(widget.classId).notifier,
+                              )
+                              .addAnnouncement(
+                                Announcement(
+                                  classId: widget.classId,
+                                  title: _titleController.text.trim(),
+                                  message: _messageController.text.trim(),
+                                  dateTime: DateTime.now().toString(),
+                                ),
+                              );
+
                           context.pop();
                         },
                         style: ElevatedButton.styleFrom(
@@ -198,7 +224,9 @@ class _CreateAnnouncementScreen extends State<CreateAnnouncementScreen> {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: const TextStyle(color: Colors.black26),
-            prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Colors.black26) : null,
+            prefixIcon: prefixIcon != null
+                ? Icon(prefixIcon, color: Colors.black26)
+                : null,
             filled: true,
             fillColor: Colors.white,
             contentPadding: const EdgeInsets.all(16),
