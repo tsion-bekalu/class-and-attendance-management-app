@@ -1,69 +1,102 @@
+// features/student/presentation/screens/student_home_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../widgets/class_list.dart'; 
-import '../widgets/student_drawer.dart'; 
+import '../widgets/class_list.dart';
+import '../widgets/student_drawer.dart';
 import '../widgets/join_class_dialog.dart';
-import 'package:app/features/student/data/mock_classes.dart';
-import 'package:app/features/student/data/mock_notifications.dart';
+import '../providers/student_providers.dart';
 
-class StudentHomeScreen extends StatelessWidget {
+class StudentHomeScreen extends ConsumerWidget {
   const StudentHomeScreen({super.key});
 
-  // Mock Data
-  
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+    final profileAsync = ref.watch(studentProfileProvider);
+    final classesAsync = ref.watch(studentClassesProvider);
+    final hasUnread = ref.watch(hasUnreadNotificationsProvider);
 
     return Scaffold(
       key: scaffoldKey,
       endDrawer: const StudentDrawer(),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 420,
-              child: _buildBlueHeader(context, scaffoldKey),
-            ),
-            
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 60),
-                  const Text(
-                    "My Classes",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A1C1E)),
-                  ),
-                  const SizedBox(height: 20),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    padding: EdgeInsets.zero,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: mockClasses.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: ClassCard(
-                          classData: mockClasses[index],
-                          onTap: () { context.pushNamed('student-class');},
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 30),
-                ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(studentProfileProvider);
+          ref.invalidate(studentClassesProvider);
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 420,
+                child: _buildBlueHeader(
+                    context, ref, scaffoldKey, profileAsync, hasUnread),
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 60),
+                    const Text(
+                      'My Classes',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1A1C1E)),
+                    ),
+                    const SizedBox(height: 20),
+                    classesAsync.when(
+                      loading: () => const Center(
+                          child: Padding(
+                        padding: EdgeInsets.all(32),
+                        child: CircularProgressIndicator(),
+                      )),
+                      error: (e, _) => _ErrorCard(
+                          message: e.toString(),
+                          onRetry: () =>
+                              ref.invalidate(studentClassesProvider)),
+                      data: (classes) => ListView.builder(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: classes.length,
+                        itemBuilder: (context, index) {
+                          final c = classes[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: ClassCard(
+                              classData: c,
+                              onTap: () => context.pushNamed(
+                                'student-class',
+                                queryParameters: {'classId': c.id},
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildBlueHeader(BuildContext context, GlobalKey<ScaffoldState> key) {
+  Widget _buildBlueHeader(
+    BuildContext context,
+    WidgetRef ref,
+    GlobalKey<ScaffoldState> key,
+    AsyncValue profileAsync,
+    bool hasUnread,
+  ) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -84,25 +117,33 @@ class StudentHomeScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  RichText(
-                    text: const TextSpan(
-                      text: "Welcome back,\n",
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                      children: [
-                        TextSpan(
-                          text: "B",
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                  profileAsync.when(
+                    loading: () => const Text('Welcome back,',
+                        style: TextStyle(color: Colors.white, fontSize: 18)),
+                    error: (_, __) => const Text('Welcome back,',
+                        style: TextStyle(color: Colors.white, fontSize: 18)),
+                    data: (profile) => RichText(
+                      text: TextSpan(
+                        text: 'Welcome back,\n',
+                        style: const TextStyle(
+                            color: Colors.white, fontSize: 18),
+                        children: [
+                          TextSpan(
+                            text: profile.name,
+                            style: const TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   Row(
                     children: [
                       _headerIcon(
-                        Icons.notifications_none_outlined, 
-                        hasNotification: mockNotifications.any((n) => n.isUnread),
-                        onTap: ()  {
-                          context.pushNamed('student-notifications');}
+                        Icons.notifications_none_outlined,
+                        hasNotification: hasUnread,
+                        onTap: () =>
+                            context.pushNamed('student-notifications'),
                       ),
                       const SizedBox(width: 12),
                       _headerIcon(
@@ -114,7 +155,15 @@ class StudentHomeScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 30),
-              _buildStatsRow(),
+              profileAsync.when(
+                loading: () => const _StatsRowSkeleton(),
+                error: (_, __) => const _StatsRowSkeleton(),
+                data: (profile) => _buildStatsRow(
+                  '${profile.overallAttendance.toStringAsFixed(0)}%',
+                  '${profile.presentSessions}',
+                  '${profile.absentSessions}',
+                ),
+              ),
             ],
           ),
         ),
@@ -123,7 +172,8 @@ class StudentHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _headerIcon(IconData icon, {bool hasNotification = false, VoidCallback? onTap}) {
+  Widget _headerIcon(IconData icon,
+      {bool hasNotification = false, VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -156,57 +206,54 @@ class StudentHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow() {
+  Widget _buildStatsRow(
+      String attendance, String present, String absent) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(child: _statItem("Overall\nAttendance", "85%")),
-        const SizedBox(width: 10), 
-        Expanded(child: _statItem("Present\nSessions", "34")),
-        const SizedBox(width: 10), 
-        Expanded(child: _statItem("Absent\nSessions", "6")),
+        Expanded(child: _statItem('Overall\nAttendance', attendance)),
+        const SizedBox(width: 10),
+        Expanded(child: _statItem('Present\nSessions', present)),
+        const SizedBox(width: 10),
+        Expanded(child: _statItem('Absent\nSessions', absent)),
       ],
     );
   }
 
   Widget _statItem(String label, String value) {
-  return Container(
-    width: 105, 
-    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-    decoration: BoxDecoration(
-      color: Colors.white.withOpacity(0.1), 
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(
-        color: Colors.white.withOpacity(0.05),
-        width: 1,
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
-    ),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.7), 
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            height: 1.2,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              height: 1.2,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _buildQuickActionsCard(BuildContext context) {
     return Positioned(
@@ -221,20 +268,20 @@ class StudentHomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Quick Actions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const Text('Quick Actions',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
                     child: InkWell(
-                      onTap: () { showDialog(
+                      onTap: () => showDialog(
                         context: context,
                         builder: (_) => const JoinClassDialog(),
-                      );
-                      },
+                      ),
                       child: _rectangularActionButton(
                         icon: Icons.add,
-                        label: "Join Class",
+                        label: 'Join Class',
                         iconColor: AppTheme.primaryColor,
                         bgColor: const Color(0xFFE7EEFF),
                       ),
@@ -243,10 +290,11 @@ class StudentHomeScreen extends StatelessWidget {
                   const SizedBox(width: 16),
                   Expanded(
                     child: InkWell(
-                      onTap: () => context.pushNamed('student-timetable'),
+                      onTap: () =>
+                          context.pushNamed('student-timetable'),
                       child: _rectangularActionButton(
                         icon: Icons.calendar_month,
-                        label: "Timetable",
+                        label: 'Timetable',
                         iconColor: Colors.purple,
                         bgColor: const Color(0xFFF3EDF7),
                       ),
@@ -261,18 +309,75 @@ class StudentHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _rectangularActionButton({required IconData icon, required String label, required Color iconColor, required Color bgColor}) {
+  Widget _rectangularActionButton({
+    required IconData icon,
+    required String label,
+    required Color iconColor,
+    required Color bgColor,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 18),
-      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16)),
+      decoration:
+          BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
           Icon(icon, color: iconColor, size: 30),
           const SizedBox(height: 8),
-          Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          Text(label,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
         ],
       ),
     );
   }
 }
 
+// ── Helper widgets ────────────────────────────────────────────────────────────
+
+class _StatsRowSkeleton extends StatelessWidget {
+  const _StatsRowSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: List.generate(
+        3,
+        (_) => Expanded(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            height: 64,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ErrorCard extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _ErrorCard({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.errorColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Text(message, style: TextStyle(color: AppTheme.errorColor)),
+          const SizedBox(height: 8),
+          ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+        ],
+      ),
+    );
+  }
+}

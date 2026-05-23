@@ -12,6 +12,7 @@ import 'package:app/features/class_management/presentation/screens/attendance_re
 import 'package:app/features/class_management/presentation/screens/start_attendance_screen.dart';
 import 'package:app/features/class_management/presentation/screens/session_details_screen.dart';
 import 'package:app/features/class_management/data/class_local_storage.dart';
+
 // Auth
 import 'package:app/features/auth/presentation/screens/splash.dart';
 import 'package:app/features/auth/presentation/screens/role_selection.dart';
@@ -22,7 +23,7 @@ import 'package:app/features/auth/presentation/screens/register.dart';
 import 'package:app/features/student/presentation/screens/notification_screen.dart';
 import 'package:app/features/student/presentation/screens/student_home_screen.dart';
 import 'package:app/features/student/presentation/screens/timetable_screen.dart';
-import 'package:app/features/student/presentation/screens/attendace_history_screen.dart';
+import 'package:app/features/student/presentation/screens/attendance_history_screen.dart'; // Fixed: was 'attendace_history_screen.dart'
 import 'package:app/features/student/presentation/screens/class_detail_screen.dart';
 import 'package:app/features/student/presentation/screens/attendance_marked_screen.dart';
 import 'package:app/features/class_management/domain/entities/session_record.dart';
@@ -36,12 +37,12 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/splash',
       name: 'splash',
-      builder: (_, _) => const SplashScreen(),
+      builder: (_, __) => const SplashScreen(),
     ),
     GoRoute(
       path: '/role_selection',
       name: 'role_selection',
-      builder: (_, _) => const RoleSelectionScreen(),
+      builder: (_, __) => const RoleSelectionScreen(),
     ),
     GoRoute(
       path: '/login',
@@ -58,12 +59,12 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/instructor/dashboard',
       name: 'instructor-dashboard',
-      builder: (_, _) => const InstructorDashboardScreen(),
+      builder: (_, __) => const InstructorDashboardScreen(),
     ),
     GoRoute(
       path: '/instructor/create-class',
       name: 'create-class',
-      builder: (_, _) => const CreateClassScreen(),
+      builder: (_, __) => const CreateClassScreen(),
     ),
     GoRoute(
       path: '/instructor/class-details/:classId',
@@ -76,39 +77,36 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/instructor/timetable',
       name: 'instructor-timetable',
-      builder: (_, _) => const TimetableScreen(),
+      builder: (_, __) => const TimetableScreen(),
     ),
     GoRoute(
       path: '/instructor/create-announcement',
       name: 'instructor-create-announcement',
-      builder: (context, state) {
+      builder: (_, state) {
         final classId = state.extra as String;
         return CreateAnnouncementScreen(classId: classId);
       },
     ),
-
     GoRoute(
       path: '/instructor/attendance-record',
       name: 'attendance-record',
-      builder: (context, state) {
+      builder: (_, state) {
         final classId = state.extra as String;
-
         return AttendanceRecordScreen(classId: classId);
       },
     ),
     GoRoute(
       path: '/instructor/start-attendance',
       name: 'start-attendance',
-      builder: (context, state) {
+      builder: (_, state) {
         final classId = state.extra as String;
-
         return StartAttendanceScreen(classId: classId);
       },
     ),
     GoRoute(
       path: '/instructor/class-details/:id/join-requests',
       name: 'join-requests',
-      builder: (context, state) {
+      builder: (_, state) {
         final id = state.pathParameters['id']!;
         final classData = ClassLocalStorage.getClassById(id);
         return JoinRequestsScreen(
@@ -117,69 +115,92 @@ final GoRouter appRouter = GoRouter(
         );
       },
     ),
-
     GoRoute(
       path: '/instructor/announcements',
       name: 'instructor-announcements',
-      builder: (context, state) {
+      builder: (_, state) {
         final classId = state.extra as String;
         return AnnouncementsScreen(classId: classId);
       },
     ),
-
     GoRoute(
       path: '/instructor/session-details',
       name: 'session-details',
-      builder: (context, state) {
+      builder: (_, state) {
         final session = state.extra as AttendanceSession;
         return SessionDetailsScreen(session: session);
       },
     ),
-    // Student
+
+    // Student Routes
     GoRoute(
       path: '/student/home',
       name: 'student-home',
-      builder: (context, state) => const StudentHomeScreen(),
+      builder: (_, __) => const StudentHomeScreen(),
     ),
     GoRoute(
       path: '/student/timetable',
       name: 'student-timetable',
-      builder: (context, state) => const TimetableScreen(),
+      builder: (_, __) => const TimetableScreen(),
     ),
     GoRoute(
       path: '/student/attendance',
       name: 'student-attendance',
-      builder: (context, state) => const AttendanceScanScreen(),
+      builder: (_, state) {
+        final classId = state.uri.queryParameters['classId'] ?? '';
+        return AttendanceScanScreen(classId: classId);
+      },
     ),
     GoRoute(
       path: '/student/attendance-history',
       name: 'student-attendance-history',
-      builder: (context, state) => const AttendanceHistoryScreen(),
-    ),
-    GoRoute(
-      path: '/student/notifications',
-      name: 'student-notifications',
-      builder: (_, _) => const NotificationsScreen(),
+      builder: (_, state) {
+        final classId = state.uri.queryParameters['classId'] ?? '';
+        return AttendanceHistoryScreen(classId: classId);
+      },
     ),
     GoRoute(
       path: '/student/class',
       name: 'student-class',
-      builder: (context, state) => ClassDetailScreen(),
+      builder: (_, state) {
+        final classId = state.uri.queryParameters['classId'] ?? '';
+        return ClassDetailScreen(classId: classId);
+      },
+    ),
+    GoRoute(
+      path: '/student/notifications',
+      name: 'student-notifications',
+      builder: (_, __) => const NotificationsScreen(),
     ),
     GoRoute(
       path: '/attendance-marked',
       name: 'attendance-marked',
-      builder: (_, _) => const AttendanceMarkedScreen(),
+      builder: (_, state) {
+        final isPresent = state.uri.queryParameters['isPresent'] == 'true';
+        final className = state.uri.queryParameters['className'] ?? '';
+        final sessionTime = state.uri.queryParameters['sessionTime'] ?? '';
+        return AttendanceMarkedScreen(
+          isPresent: isPresent,
+          className: className,
+          sessionTime: sessionTime,
+        );
+      },
     ),
     GoRoute(
       path: '/attendance-manual-code-entry',
       name: 'manual-code-entry',
-      builder: (_, _) => const EnterCodeScreen(),
+      builder: (_, state) {
+        final classId = state.uri.queryParameters['classId'] ?? '';
+        return EnterCodeScreen(classId: classId);
+      },
     ),
     GoRoute(
       path: '/attendance-scanner-screen',
       name: 'scanner-screen',
-      builder: (_, _) => const AttendanceScannerScreen(),
+      builder: (_, state) {
+        final classId = state.uri.queryParameters['classId'] ?? '';
+        return AttendanceScannerScreen(classId: classId);
+      },
     ),
   ],
 );

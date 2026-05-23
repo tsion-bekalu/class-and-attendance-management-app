@@ -1,7 +1,7 @@
+// features/student/presentation/widgets/time_table_card.dart
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
-import 'package:app/core/models/time_table_entry.dart';
-
+import 'package:app/features/student/domain/models/student_models.dart';
 
 class TimetableCard extends StatelessWidget {
   final TimetableEntry entry;
@@ -19,10 +19,10 @@ class TimetableCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.surfaceColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.withValues(alpha:0.1)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -49,39 +49,46 @@ class TimetableCard extends StatelessWidget {
                       Text(
                         entry.title,
                         style: const TextStyle(
-                          fontWeight: FontWeight.bold, 
-                          fontSize: 16, 
-                          color: AppTheme.textPrimary,
-                        ),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: AppTheme.textPrimary),
                       ),
-                      // Duration Badge
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF1F3F4),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          entry.duration, 
-                          style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                          entry.duration,
+                          style: const TextStyle(
+                              fontSize: 11, color: AppTheme.textSecondary),
                         ),
                       ),
                     ],
                   ),
                   Text(
-                    entry.courseCode, 
-                    style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+                    entry.courseCode,
+                    style: const TextStyle(
+                        color: AppTheme.textSecondary, fontSize: 14),
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      const Icon(Icons.access_time_rounded, size: 14, color: AppTheme.textSecondary),
+                      const Icon(Icons.access_time_rounded,
+                          size: 14, color: AppTheme.textSecondary),
                       const SizedBox(width: 4),
-                      Text(entry.time, style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary)),
+                      Text(entry.time,
+                          style: const TextStyle(
+                              fontSize: 12, color: AppTheme.textPrimary)),
                       const SizedBox(width: 16),
-                      const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.textSecondary),
+                      const Icon(Icons.location_on_outlined,
+                          size: 14, color: AppTheme.textSecondary),
                       const SizedBox(width: 4),
-                      Text(entry.location, style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary)),
+                      Text(entry.location,
+                          style: const TextStyle(
+                              fontSize: 12, color: AppTheme.textPrimary)),
                     ],
                   ),
                 ],
