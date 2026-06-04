@@ -1,5 +1,3 @@
-import 'package:sqflite/sqflite.dart';
-
 import '../../../core/database/database_helper.dart';
 import '../domain/entities/session_record.dart';
 
@@ -13,19 +11,17 @@ class AttendanceDatabase {
         await DatabaseHelper.instance.database;
 
     await db.insert(
-      'attendance_sessions',
-      {
-        'classId': session.classId,
-        'date': session.date,
-        'time': session.time,
-        'attendanceCount':
-            session.attendanceCount,
-        'percentage':
-            session.percentage,
-      },
-      conflictAlgorithm:
-          ConflictAlgorithm.replace,
-    );
+  'attendance_sessions',
+  {
+    'classId': session.classId,
+    'sessionCode': session.sessionCode,
+    'date': session.date,
+    'time': session.time,
+    'attendanceCount': session.attendanceCount,
+    'percentage': session.percentage,
+    'isActive': 1,
+  },
+);
   }
 
   Future<List<AttendanceSession>>
@@ -46,25 +42,14 @@ class AttendanceDatabase {
     return result.map((e) {
 
       return AttendanceSession(
-        id: e['id'] as int,
-
-        classId:
-            e['classId'] as String,
-
-        date:
-            e['date'] as String,
-
-        time:
-            e['time'] as String,
-
-        attendanceCount:
-            e['attendanceCount']
-                as String,
-
-        percentage:
-            e['percentage']
-                as String,
-      );
+  id: e['id'] as int,
+  classId: e['classId'] as String,
+  sessionCode: e['sessionCode'] as String,
+  date: e['date'] as String,
+  time: e['time'] as String,
+  attendanceCount: e['attendanceCount'] as String,
+  percentage: e['percentage'] as String,
+);
 
     }).toList();
   }

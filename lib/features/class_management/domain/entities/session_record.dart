@@ -15,6 +15,7 @@ class AttendanceSession {
   final String time;
   final String attendanceCount;
   final String percentage;
+  final String sessionCode;
   final List<SessionAttendee>? attendees;
 
   AttendanceSession({
@@ -24,6 +25,7 @@ class AttendanceSession {
     required this.time,
     required this.attendanceCount,
     required this.percentage,
+    required this.sessionCode,
     this.attendees,
   });
 }

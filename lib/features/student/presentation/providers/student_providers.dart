@@ -5,6 +5,7 @@ import 'package:app/features/student/data/student_api_service.dart';
 import 'package:app/features/student/domain/models/student_models.dart';
 import 'package:app/features/student/domain/repositories/student_repository.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:app/core/providers/app_providers.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 // Infrastructure providers
 // ─────────────────────────────────────────────────────────────────────────────
@@ -101,28 +102,50 @@ final authProvider = NotifierProvider<AuthNotifier, AuthState>(
 // Student profile provider
 // ─────────────────────────────────────────────────────────────────────────────
 
-final studentProfileProvider = FutureProvider.autoDispose<StudentProfile>((
-  ref,
-) async {
-  final auth = ref.watch(authProvider);
-  if (!auth.isLoggedIn) throw Exception('Not authenticated');
+final studentProfileProvider = FutureProvider.autoDispose<StudentProfile>((ref) async {
+  final authStateAsync = ref.watch(authStateProvider);
+  
+  // This extracts the AuthResponse? from your global AsyncValue state
+  final authResponse = authStateAsync.value;
+
+  if (authResponse == null) {
+    throw Exception('Not authenticated: No active user session found.');
+  }
+
+  final studentId = authResponse.userId;
+  final token = authResponse.accessToken;
+
+  // Safeguard against empty data strings
+  if (studentId.isEmpty || token.isEmpty) {
+    throw Exception('Not authenticated: Missing valid session fields.');
+  }
+
   return ref
       .watch(studentProfileRepositoryProvider)
-      .getProfile(auth.studentId!, auth.token!);
+      .getProfile(studentId, token);
 });
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Classes provider
 // ─────────────────────────────────────────────────────────────────────────────
 
-final studentClassesProvider = FutureProvider.autoDispose<List<StudentClass>>((
-  ref,
-) async {
-  final auth = ref.watch(authProvider);
-  if (!auth.isLoggedIn) throw Exception('Not authenticated');
+final studentClassesProvider = FutureProvider.autoDispose<List<StudentClass>>((ref) async {
+  final authStateAsync = ref.watch(authStateProvider);
+  final authResponse = authStateAsync.value;
+
+  if (authResponse == null) {
+    throw Exception('Not authenticated: No active user session found.');
+  }
+
+  final studentId = authResponse.userId;
+  final token = authResponse.accessToken;
+
+  if (studentId.isEmpty || token.isEmpty) {
+    throw Exception('Not authenticated: Missing valid session fields.');
+  }
+
   return ref
       .watch(studentClassRepositoryProvider)
-      .getClasses(auth.studentId!, auth.token!);
+      .getClasses(studentId, token);
 });
 
 // Single class detail (takes classId as family parameter)
@@ -144,17 +167,17 @@ class JoinClassNotifier extends AsyncNotifier<void> {
   Future<void> build() async {}
 
   Future<void> joinClass(String classCode) async {
-    final auth = ref.read(authProvider);
-    if (!auth.isLoggedIn) throw Exception('Not authenticated');
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      await ref
-          .read(studentClassRepositoryProvider)
-          .joinClass(classCode, auth.studentId!, auth.token!);
-      // Invalidate the classes list so it refreshes.
-      ref.invalidate(studentClassesProvider);
-    });
-  }
+  final authState = ref.read(authStateProvider).value;
+  if (authState == null || authState.userId.isEmpty) throw Exception('Not authenticated');
+  
+  state = const AsyncLoading();
+  state = await AsyncValue.guard(() async {
+    await ref
+        .read(studentClassRepositoryProvider)
+        .joinClass(classCode, authState.userId, authState.accessToken);
+    ref.invalidate(studentClassesProvider);
+  });
+}
 }
 
 final joinClassProvider = AsyncNotifierProvider<JoinClassNotifier, void>(
@@ -177,7 +200,6 @@ final attendanceHistoryProvider = FutureProvider.autoDispose
 // ─────────────────────────────────────────────────────────────────────────────
 // Attendance submission notifier
 // ─────────────────────────────────────────────────────────────────────────────
-
 class AttendanceSubmissionNotifier extends AsyncNotifier<AttendanceResult?> {
   @override
   Future<AttendanceResult?> build() async => null;

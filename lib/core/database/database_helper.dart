@@ -33,10 +33,28 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
+
+  Future<void> _onUpgrade(
+  Database db,
+  int oldVersion,
+  int newVersion,
+) async {
+  if (oldVersion < 3) {
+    await db.execute(
+      'ALTER TABLE attendance_sessions ADD COLUMN sessionCode TEXT',
+    );
+
+    await db.execute(
+      'ALTER TABLE attendance_sessions ADD COLUMN isActive INTEGER DEFAULT 1',
+    );
+  }
+}
+
   Future<void> _onCreate(
     Database db,
     int version,
@@ -128,10 +146,12 @@ class DatabaseHelper {
       CREATE TABLE attendance_sessions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         classId TEXT,
+        sessionCode TEXT,
         date TEXT,
         time TEXT,
         attendanceCount TEXT,
         percentage TEXT
+        isActive INTEGER DEFAULT 1
       )
     ''');
 
