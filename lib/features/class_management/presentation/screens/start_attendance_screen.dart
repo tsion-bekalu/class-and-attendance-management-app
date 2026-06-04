@@ -4,6 +4,7 @@ import '../../domain/entities/attendance_entry.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app/features/class_management/presentation/providers/attendance_provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class StartAttendanceScreen extends ConsumerStatefulWidget {
   final String classId;
@@ -39,7 +40,7 @@ class _StartAttendanceScreenState extends ConsumerState<StartAttendanceScreen> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  _buildQRCodeCard(),
+                  _buildQRCodeCard(attendanceState),
                   const SizedBox(height: 20),
                   _buildLiveAttendanceList(attendanceState.liveAttendance),
                   const SizedBox(height: 30),
@@ -103,7 +104,7 @@ class _StartAttendanceScreenState extends ConsumerState<StartAttendanceScreen> {
     );
   }
 
-  Widget _buildQRCodeCard() {
+  Widget _buildQRCodeCard(AttendanceState attendanceState,) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -126,16 +127,11 @@ class _StartAttendanceScreenState extends ConsumerState<StartAttendanceScreen> {
               ), // Very light blue for QR background
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Image.asset(
-              'assets/qr.png', // Replace with your actual path
-              height: 200,
-              width: 200,
-              errorBuilder: (context, error, stackTrace) => const Icon(
-                Icons.qr_code_2,
-                size: 200,
-                color: AppTheme.primaryColor,
-              ),
-            ),
+            child: QrImageView(
+              data: attendanceState.currentSessionCode,
+              version: QrVersions.auto,
+              size: 200,
+            )  
           ),
           const SizedBox(height: 20),
           const Text(
@@ -143,13 +139,12 @@ class _StartAttendanceScreenState extends ConsumerState<StartAttendanceScreen> {
             style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
           ),
           const SizedBox(height: 4),
-          const Text(
-            "1NMQQCB4",
-            style: TextStyle(
+          Text(
+            attendanceState.currentSessionCode,
+            style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
               letterSpacing: 2,
-              color: AppTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 16),
