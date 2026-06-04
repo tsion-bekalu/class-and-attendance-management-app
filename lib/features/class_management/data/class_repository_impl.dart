@@ -9,8 +9,6 @@ class ClassRepositoryImpl implements ClassRepository {
   @override
   Future<void> createClass(ClassEntity newClass) async {
     await _database.insertClass(newClass);
-
-    await _database.getClasses();
   }
 
   @override
@@ -39,8 +37,8 @@ class ClassRepositoryImpl implements ClassRepository {
   }
 
   @override
-  Future<List<ClassEntity>> getClasses() async {
-    return await _database.getClasses();
+  Future<List<ClassEntity>> getClasses(String instructorId) async {
+    return await _database.getClasses(instructorId);
   }
 
   // RAW ACCESS FOR DASHBOARD
@@ -63,6 +61,8 @@ class ClassRepositoryImpl implements ClassRepository {
       "students": classEntity.students,
       "pending": classEntity.pending,
       "status": classEntity.status,
+      "instructorId": classEntity.instructorId,
+      "instructorName": classEntity.instructorName,
     };
   }
 }

@@ -22,7 +22,7 @@ import 'package:app/features/auth/presentation/screens/splash.dart';
 import 'package:app/features/auth/presentation/screens/role_selection.dart';
 import 'package:app/features/auth/presentation/screens/login.dart';
 import 'package:app/features/auth/presentation/screens/register.dart';
-
+import 'package:app/features/class_management/presentation/screens/instructor_timetable_screen.dart';
 // Student Screens
 import 'package:app/features/student/presentation/screens/notification_screen.dart';
 import 'package:app/features/student/presentation/screens/student_home_screen.dart';
@@ -82,7 +82,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/instructor/timetable',
       name: 'instructor-timetable',
-      builder: (_, _) => const TimetableScreen(),
+      builder: (_, _) => const InstructorTimetableScreen(),
     ),
     GoRoute(
       path: '/instructor/create-announcement',

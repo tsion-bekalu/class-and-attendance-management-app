@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:app/core/providers/app_providers.dart';
 import 'package:flutter_riverpod/legacy.dart';
-
 import '../../domain/entities/class_entity.dart';
 import 'class_state.dart';
 
@@ -12,21 +11,46 @@ class ClassNotifier extends StateNotifier<ClassState> {
   ClassNotifier(this.ref) : super(const ClassState()) {
     getClasses();
   }
+Future<void> getClasses() async {
+  try {
+    state = state.copyWith(
+      isLoading: true,
+    );
 
-  Future<void> getClasses() async {
-    try {
-      state = state.copyWith(isLoading: true);
+    final repository =
+        ref.read(classRepositoryProvider);
 
-      final repository = ref.read(classRepositoryProvider);
+    final authRepository =
+        ref.read(authRepositoryProvider);
 
-      final classes = await repository.getClasses();
+    final session =
+        await authRepository
+            .getCachedSession();
 
-      state = state.copyWith(classes: classes, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    if (session == null) {
+      state = state.copyWith(
+        classes: [],
+        isLoading: false,
+      );
+      return;
     }
-  }
 
+    final classes =
+        await repository.getClasses(
+      session.userId,
+    );
+
+    state = state.copyWith(
+      classes: classes,
+      isLoading: false,
+    );
+  } catch (e) {
+    state = state.copyWith(
+      isLoading: false,
+      error: e.toString(),
+    );
+  }
+}
   Future<void> createClass(ClassEntity newClass) async {
     try {
       state = state.copyWith(isLoading: true);

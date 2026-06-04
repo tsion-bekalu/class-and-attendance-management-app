@@ -8,6 +8,8 @@ class ClassEntity {
   final int students;
   final int pending;
   final String status;
+  final String instructorId;
+  final String instructorName;
 
   const ClassEntity({
     required this.id,
@@ -19,29 +21,23 @@ class ClassEntity {
     required this.students,
     required this.pending,
     required this.status,
+    required this.instructorId,
+    required this.instructorName,
   });
 
-  factory ClassEntity.fromMap(
-    Map<String, dynamic> map,
-  ) {
+  factory ClassEntity.fromMap(Map<String, dynamic> map) {
     return ClassEntity(
       id: map['id'],
       name: map['name'],
-      description:
-          map['description'] ?? '',
-      days: List<String>.from(
-        map['days'] ?? [],
-      ),
-      startTime:
-          map['startTime'] ?? '',
-      endTime:
-          map['endTime'] ?? '',
-      students:
-          map['students'] ?? 0,
-      pending:
-          map['pending'] ?? 0,
-      status:
-          map['status'] ?? 'Active',
+      description: map['description'] ?? '',
+      days: List<String>.from(map['days'] ?? []),
+      startTime: map['startTime'] ?? '',
+      endTime: map['endTime'] ?? '',
+      students: map['students'] ?? 0,
+      pending: map['pending'] ?? 0,
+      status: map['status'] ?? 'Active',
+      instructorId: map['instructorId'] ?? '',
+      instructorName: map['instructorName'] ?? '',
     );
   }
 
@@ -56,6 +52,8 @@ class ClassEntity {
       'students': students,
       'pending': pending,
       'status': status,
+      'instructorId': instructorId,
+      'instructorName': instructorName,
     };
   }
 
@@ -69,24 +67,21 @@ class ClassEntity {
     int? students,
     int? pending,
     String? status,
+    String? instructorId,
+    String? instructorName,
   }) {
     return ClassEntity(
       id: id ?? this.id,
       name: name ?? this.name,
-      description:
-          description ??
-          this.description,
+      description: description ?? this.description,
       days: days ?? this.days,
-      startTime:
-          startTime ?? this.startTime,
-      endTime:
-          endTime ?? this.endTime,
-      students:
-          students ?? this.students,
-      pending:
-          pending ?? this.pending,
-      status:
-          status ?? this.status,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      students: students ?? this.students,
+      pending: pending ?? this.pending,
+      status: status ?? this.status,
+      instructorId: instructorId ?? this.instructorId,
+      instructorName: instructorName ?? this.instructorName,
     );
   }
 }

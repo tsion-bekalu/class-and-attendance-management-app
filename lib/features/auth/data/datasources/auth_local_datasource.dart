@@ -2,7 +2,7 @@ import 'package:app/core/database/database_helper.dart';
 import 'package:app/features/auth/domain/models/auth_response.dart';
 
 class AuthLocalDataSource {
- final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
+  final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
 
   String _normalizeEmail(String email) => email.trim().toLowerCase();
 
@@ -25,7 +25,9 @@ class AuthLocalDataSource {
       'accessToken': authResponse.accessToken,
       'refreshToken': authResponse.refreshToken,
       'tokenExpiresAt': authResponse.tokenExpiresAt,
-      'createdAt': existingSession.isEmpty ? now : existingSession.first['createdAt'],
+      'createdAt': existingSession.isEmpty
+          ? now
+          : existingSession.first['createdAt'],
       'updatedAt': now,
     };
 
@@ -45,7 +47,9 @@ class AuthLocalDataSource {
       'accessToken': authResponse.accessToken,
       'refreshToken': authResponse.refreshToken,
       'expiresAt': authResponse.tokenExpiresAt,
-      'createdAt': existingTokens.isEmpty ? now : existingTokens.first['createdAt'],
+      'createdAt': existingTokens.isEmpty
+          ? now
+          : existingTokens.first['createdAt'],
     };
 
     if (existingTokens.isEmpty) {
@@ -146,9 +150,13 @@ class AuthLocalDataSource {
       email: email,
       name: name,
       role: role,
-      accessToken: 'local_access_token_${DateTime.now().millisecondsSinceEpoch}',
-      refreshToken: 'local_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
-      tokenExpiresAt: DateTime.now().add(const Duration(days: 7)).millisecondsSinceEpoch,
+      accessToken:
+          'local_access_token_${DateTime.now().millisecondsSinceEpoch}',
+      refreshToken:
+          'local_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
+      tokenExpiresAt: DateTime.now()
+          .add(const Duration(days: 7))
+          .millisecondsSinceEpoch,
     );
   }
 
@@ -178,16 +186,20 @@ class AuthLocalDataSource {
   /// Retrieve cached auth session
   Future<AuthResponse?> getCachedAuthSession() async {
     final result = await _databaseHelper.query('auth_session', limit: 1);
-    if (result.isEmpty) return null;
+
+    if (result.isEmpty) {
+      return null;
+    }
 
     final session = result.first;
+
     return AuthResponse(
-      userId: session['userId'] as String,
-      email: session['email'] as String,
-      name: session['name'] as String,
-      role: session['role'] as String,
-      accessToken: session['accessToken'] as String,
-      refreshToken: session['refreshToken'] as String?,
+      userId: session['userId']?.toString() ?? '',
+      email: session['email']?.toString() ?? '',
+      name: session['name']?.toString() ?? '',
+      role: session['role']?.toString() ?? '',
+      accessToken: session['accessToken']?.toString() ?? '',
+      refreshToken: session['refreshToken']?.toString(),
       tokenExpiresAt: session['tokenExpiresAt'] as int?,
     );
   }
@@ -196,14 +208,14 @@ class AuthLocalDataSource {
   Future<String?> getCachedAccessToken() async {
     final result = await _databaseHelper.query('auth_tokens', limit: 1);
     if (result.isEmpty) return null;
-    return result.first['accessToken'] as String?;
+    return result.first['accessToken']?.toString();
   }
 
   /// Get cached user role
   Future<String?> getCachedUserRole() async {
     final result = await _databaseHelper.query('auth_session', limit: 1);
     if (result.isEmpty) return null;
-    return result.first['role'] as String?;
+    return result.first['role']?.toString();
   }
 
   /// Check if user is authenticated (has valid session)
@@ -273,5 +285,59 @@ class AuthLocalDataSource {
       where: 'LOWER(email) = ?',
       whereArgs: [_normalizeEmail(email)],
     );
+  }
+
+  Future<void> cleanupStudentData(String userId) async {
+    await _databaseHelper.delete(
+      'attendance_history',
+      where: 'classId = ?',
+      whereArgs: [userId],
+    );
+
+    await _databaseHelper.delete(
+      'notifications',
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+
+    await _databaseHelper.delete(
+      'timetable',
+      where: 'classId = ?',
+      whereArgs: [userId],
+    );
+
+    await _databaseHelper.delete(
+      'student_profile',
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  Future<void> cleanupInstructorData(String userId) async {
+    final db = await _databaseHelper.database;
+
+    final classes = await db.query(
+      'classes',
+      where: 'instructorId = ?',
+      whereArgs: [userId],
+    );
+
+    for (final c in classes) {
+      final classId = c['id'];
+
+      await db.delete(
+        'attendance_sessions',
+        where: 'classId = ?',
+        whereArgs: [classId],
+      );
+
+      await db.delete(
+        'announcements',
+        where: 'classId = ?',
+        whereArgs: [classId],
+      );
+    }
+
+    await db.delete('classes', where: 'instructorId = ?', whereArgs: [userId]);
   }
 }

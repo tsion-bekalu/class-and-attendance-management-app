@@ -8,6 +8,7 @@ import '../../../../features/student/presentation/widgets/delete_dialog.dart';
 import 'package:app/features/class_management/domain/entities/class_entity.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/class_provider.dart';
+import 'package:app/core/providers/app_providers.dart';
 
 class InstructorDashboardScreen extends ConsumerStatefulWidget {
   const InstructorDashboardScreen({super.key});
@@ -20,16 +21,34 @@ class InstructorDashboardScreen extends ConsumerStatefulWidget {
 class _InstructorDashboardScreenState
     extends ConsumerState<InstructorDashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String instructorName = "Instructor";
+  String instructorRole = "";
   List<ClassEntity> get classes {
     return ref.watch(classProvider).classes;
+  }
+
+  Future<void> loadInstructorData() async {
+    final authRepository = ref.read(authRepositoryProvider);
+
+    final session = await authRepository.getCachedSession();
+
+    if (session != null) {
+      setState(() {
+        instructorName = session.name;
+
+        instructorRole = session.role;
+      });
+    }
   }
 
   @override
   void initState() {
     super.initState();
 
-    Future.microtask(() {
-      ref.read(classProvider.notifier).getClasses();
+    Future.microtask(() async {
+      await loadInstructorData();
+
+      await ref.read(classProvider.notifier).getClasses();
     });
   }
 
@@ -60,10 +79,10 @@ class _InstructorDashboardScreenState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     "Welcome back,",
                     style: TextStyle(
                       color: Colors.white,
@@ -71,13 +90,16 @@ class _InstructorDashboardScreenState
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  SizedBox(height: 6),
+
+                  const SizedBox(height: 6),
+
                   Text(
-                    "Mr.Tilahun",
-                    style: TextStyle(color: Colors.white70, fontSize: 18),
+                    instructorName,
+                    style: const TextStyle(color: Colors.white70, fontSize: 18),
                   ),
                 ],
               ),
+
               GestureDetector(
                 onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
                 child: Container(
@@ -163,10 +185,12 @@ class _InstructorDashboardScreenState
                       color: Color(0xFF1E5EFF),
                       shape: BoxShape.circle,
                     ),
-                    child: const Center(
+                    child:  Center(
                       child: Text(
-                        "H",
-                        style: TextStyle(
+                        instructorName.isNotEmpty
+                            ? instructorName[0].toUpperCase()
+                            : "I",
+                        style:  TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
@@ -175,18 +199,21 @@ class _InstructorDashboardScreenState
                     ),
                   ),
                   const SizedBox(width: 14),
-                  const Column(
+                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Mr.Tilahun",
-                        style: TextStyle(
+                        instructorName,
+                        style:  TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       SizedBox(height: 4),
-                      Text("Instructor", style: TextStyle(color: Colors.grey)),
+                      Text(
+                        instructorRole,
+                        style:  TextStyle(color: Colors.grey),
+                      ),
                     ],
                   ),
                 ],
@@ -197,7 +224,7 @@ class _InstructorDashboardScreenState
                 title: const Text("Timetable"),
                 onTap: () {
                   Navigator.pop(context);
-                  context.push('/student/timetable');
+                  context.push('/instructor/timetable');
                 },
               ),
               ListTile(
@@ -283,7 +310,7 @@ class _InstructorDashboardScreenState
                   iconColor: const Color(0xFF9C27FF),
                   icon: Icons.calendar_month_outlined,
                   title: "Timetable",
-                  onTap: () => context.push('/student/timetable'),
+                  onTap: () => context.push('/instructor/timetable'),
                 ),
               ),
             ],

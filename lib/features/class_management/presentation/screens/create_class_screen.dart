@@ -7,6 +7,7 @@ import '../widgets/form_card.dart';
 import '../widgets/day_chip.dart';
 import '../widgets/time_input.dart';
 import '../widgets/info_box.dart';
+import 'package:app/features/auth/data/datasources/auth_local_datasource.dart';
 
 class CreateClassScreen extends ConsumerStatefulWidget {
   const CreateClassScreen({super.key});
@@ -224,7 +225,14 @@ class _CreateClassScreenState extends ConsumerState<CreateClassScreen> {
 
                           final id =
                               "${classNameController.text.replaceAll(" ", "").substring(0, 3).toUpperCase()}${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}";
+                          final authLocal = AuthLocalDataSource();
 
+                          final currentUser = await authLocal
+                              .getCachedAuthSession();
+
+                          if (currentUser == null) {
+                            return;
+                          }
                           final newClass = ClassEntity(
                             id: id,
                             name: classNameController.text,
@@ -232,9 +240,11 @@ class _CreateClassScreenState extends ConsumerState<CreateClassScreen> {
                             days: selectedDays,
                             startTime: startTimeController.text,
                             endTime: endTimeController.text,
-                            students: 0,
+                            students: 45,
                             pending: 0,
                             status: "Active",
+                            instructorId: currentUser.userId,
+                            instructorName: currentUser.name,
                           );
 
                           await ref

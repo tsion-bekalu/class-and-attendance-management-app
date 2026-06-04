@@ -10,7 +10,10 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<AuthResponse> login(String email, String password, String role) async {
     try {
-      final localAuth = await _localDataSource.authenticateUser(email, password);
+      final localAuth = await _localDataSource.authenticateUser(
+        email,
+        password,
+      );
       if (localAuth != null) {
         await _localDataSource.cacheAuthSession(localAuth);
         return localAuth;
@@ -73,36 +76,45 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() async {
-    // Get cached token to notify server
-    final token = await _localDataSource.getCachedAccessToken();
-    
     try {
-      // Try to notify server
-      if (token != null) {
-        await _remoteDataSource.logout(token);
+      final token = await _localDataSource.getCachedAccessToken();
+
+      if (token != null && token.isNotEmpty) {
+        try {
+          await _remoteDataSource.logout(token);
+        } catch (_) {}
       }
-    } catch (e) {
-      // Continue with local logout even if server fails
-    }
-    
-    // Clear all local cache
+    } catch (_) {}
+
     await _localDataSource.clearAuthCache();
   }
 
   @override
+  @override
   Future<void> deleteAccount() async {
-    final cachedSession = await _localDataSource.getCachedAuthSession();
+    final session = await _localDataSource.getCachedAuthSession();
 
-    try {
-      if (cachedSession?.email != null && cachedSession!.email.isNotEmpty) {
-        await _remoteDataSource.deleteAccount(cachedSession.email);
-        await _localDataSource.deleteUserByEmail(cachedSession.email);
-      }
-    } catch (e) {
-      // Continue with local cleanup even if remote delete fails
+    if (session == null) {
+      return;
     }
 
-    await _localDataSource.clearAuthCache();
+    try {
+      try {
+        await _remoteDataSource.deleteAccount(session.email);
+      } catch (_) {}
+
+      if (session.role.toLowerCase() == 'instructor') {
+        await _localDataSource.cleanupInstructorData(session.userId);
+      } else {
+        await _localDataSource.cleanupStudentData(session.userId);
+      }
+
+      await _localDataSource.deleteUserByEmail(session.email);
+
+      await _localDataSource.clearAuthCache();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   @override
@@ -115,7 +127,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<bool> isAuthenticated() async {
     // First check local cache
     final isAuthenticated = await _localDataSource.isUserAuthenticated();
-    
+
     if (isAuthenticated) {
       // Optionally verify with server (cache miss - optional)
       try {
@@ -128,7 +140,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return true;
       }
     }
-    
+
     return isAuthenticated;
   }
 
@@ -142,19 +154,19 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<AuthResponse> refreshAccessToken() async {
     try {
       final cachedSession = await _localDataSource.getCachedAuthSession();
-      
+
       if (cachedSession?.refreshToken == null) {
         throw Exception('No refresh token available');
       }
-      
+
       // Make network request to refresh
       final newAuthResponse = await _remoteDataSource.refreshToken(
         cachedSession!.refreshToken!,
       );
-      
+
       // Update cache with new tokens
       await _localDataSource.updateAuthSession(newAuthResponse);
-      
+
       return newAuthResponse;
     } catch (e) {
       // If refresh fails, logout user
@@ -167,11 +179,11 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<bool> verifyToken() async {
     try {
       final token = await _localDataSource.getCachedAccessToken();
-      
+
       if (token == null) {
         return false;
       }
-      
+
       // Verify with server (cache miss scenario)
       return await _remoteDataSource.verifyToken(token);
     } catch (e) {
