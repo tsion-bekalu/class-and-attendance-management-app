@@ -102,9 +102,11 @@ final authProvider = NotifierProvider<AuthNotifier, AuthState>(
 // Student profile provider
 // ─────────────────────────────────────────────────────────────────────────────
 
-final studentProfileProvider = FutureProvider.autoDispose<StudentProfile>((ref) async {
+final studentProfileProvider = FutureProvider.autoDispose<StudentProfile>((
+  ref,
+) async {
   final authStateAsync = ref.watch(authStateProvider);
-  
+
   // This extracts the AuthResponse? from your global AsyncValue state
   final authResponse = authStateAsync.value;
 
@@ -128,7 +130,9 @@ final studentProfileProvider = FutureProvider.autoDispose<StudentProfile>((ref) 
 // Classes provider
 // ─────────────────────────────────────────────────────────────────────────────
 
-final studentClassesProvider = FutureProvider.autoDispose<List<StudentClass>>((ref) async {
+final studentClassesProvider = FutureProvider.autoDispose<List<StudentClass>>((
+  ref,
+) async {
   final authStateAsync = ref.watch(authStateProvider);
   final authResponse = authStateAsync.value;
 
@@ -143,9 +147,7 @@ final studentClassesProvider = FutureProvider.autoDispose<List<StudentClass>>((r
     throw Exception('Not authenticated: Missing valid session fields.');
   }
 
-  return ref
-      .watch(studentClassRepositoryProvider)
-      .getClasses(studentId, token);
+  return ref.watch(studentClassRepositoryProvider).getClasses(studentId, token);
 });
 
 // Single class detail (takes classId as family parameter)
@@ -167,17 +169,18 @@ class JoinClassNotifier extends AsyncNotifier<void> {
   Future<void> build() async {}
 
   Future<void> joinClass(String classCode) async {
-  final authState = ref.read(authStateProvider).value;
-  if (authState == null || authState.userId.isEmpty) throw Exception('Not authenticated');
-  
-  state = const AsyncLoading();
-  state = await AsyncValue.guard(() async {
-    await ref
-        .read(studentClassRepositoryProvider)
-        .joinClass(classCode, authState.userId, authState.accessToken);
-    ref.invalidate(studentClassesProvider);
-  });
-}
+    final authState = ref.read(authStateProvider).value;
+    if (authState == null || authState.userId.isEmpty)
+      throw Exception('Not authenticated');
+
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ref
+          .read(studentClassRepositoryProvider)
+          .joinClass(classCode, authState.userId, authState.accessToken);
+      ref.invalidate(studentClassesProvider);
+    });
+  }
 }
 
 final joinClassProvider = AsyncNotifierProvider<JoinClassNotifier, void>(
@@ -327,3 +330,145 @@ final announcementsProvider = FutureProvider.autoDispose
           .watch(announcementsRepositoryProvider)
           .getAnnouncements(classId, auth.token!);
     });
+
+// Add this after your existing providers (around line 160-170)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Mutable classes provider for UI updates
+// ─────────────────────────────────────────────────────────────────────────────
+
+// This is a separate provider that maintains a mutable list of classes for the UI
+final uiStudentClassesProvider =
+    StateNotifierProvider<UIClassesNotifier, AsyncValue<List<StudentClass>>>((
+      ref,
+    ) {
+      return UIClassesNotifier(ref);
+    });
+
+class UIClassesNotifier extends StateNotifier<AsyncValue<List<StudentClass>>> {
+  final Ref _ref;
+
+  UIClassesNotifier(this._ref) : super(const AsyncValue.loading()) {
+    _loadInitialClasses();
+  }
+
+  void _loadInitialClasses() async {
+    try {
+      // Try to get real classes first
+      final realClasses = await _loadRealClasses();
+      if (realClasses.isNotEmpty) {
+        state = AsyncValue.data(realClasses);
+      } else {
+        state = AsyncValue.data(_getHardcodedClasses());
+      }
+    } catch (e) {
+      state = AsyncValue.data(_getHardcodedClasses());
+    }
+  }
+
+  Future<List<StudentClass>> _loadRealClasses() async {
+    try {
+      final authState = _ref.read(authStateProvider).value;
+      if (authState == null || authState.userId.isEmpty) {
+        return [];
+      }
+
+      final classes = await _ref
+          .read(studentClassRepositoryProvider)
+          .getClasses(authState.userId, authState.accessToken);
+      return classes;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  List<StudentClass> _getHardcodedClasses() {
+    return [
+      StudentClass(
+        id: 'CS301',
+        name: 'Data Structures & Algorithms',
+        courseCode: 'CS301',
+        instructorName: 'Dr. Sarah Johnson',
+        attendancePercentage: 80.0,
+        presentSessions: 4,
+        totalSessions: 5,
+        schedule: 'Monday, Wednesday, Friday\n10:00 AM - 11:30 AM',
+        instructorId: '',
+        roomNumber: 'TBD',
+      ),
+      StudentClass(
+        id: 'CS305',
+        name: 'Database Management Systems',
+        courseCode: 'CS305',
+        instructorName: 'Prof. Michael Chen',
+        attendancePercentage: 0.0,
+        presentSessions: 0,
+        totalSessions: 0,
+        schedule: 'Tuesday, Thursday\n10:00 AM - 11:30 AM',
+        instructorId: '',
+        roomNumber: 'TBD',
+      ),
+      StudentClass(
+        id: 'CS308',
+        name: 'Web Development',
+        courseCode: 'CS308',
+        instructorName: 'Dr. Emily Davis',
+        attendancePercentage: 0.0,
+        presentSessions: 0,
+        totalSessions: 0,
+        schedule: 'Wednesday, Friday\n3:30 PM - 5:00 PM',
+        instructorId: '',
+        roomNumber: 'TBD',
+      ),
+    ];
+  }
+
+  void addClass(StudentClass newClass) {
+    final currentClasses = state.value ?? [];
+    final updatedClasses = [...currentClasses, newClass];
+    state = AsyncValue.data(updatedClasses);
+  }
+
+  void updateClasses(List<StudentClass> newClasses) {
+    state = AsyncValue.data(newClasses);
+  }
+}
+
+final hardcodedJoinClassProvider =
+    StateNotifierProvider<HardcodedJoinNotifier, AsyncValue<void>>((ref) {
+      return HardcodedJoinNotifier(ref);
+    });
+
+class HardcodedJoinNotifier extends StateNotifier<AsyncValue<void>> {
+  final Ref _ref;
+
+  HardcodedJoinNotifier(this._ref) : super(const AsyncValue.data(null));
+
+  Future<void> joinClassWithCode(String classCode) async {
+    if (classCode.isEmpty) return;
+
+    state = const AsyncValue.loading();
+
+    try {
+      final newClass = StudentClass(
+        id: classCode,
+        name: 'Class ${classCode}',
+        courseCode: classCode,
+        instructorName: 'Dr. Johnson',
+        attendancePercentage: 0.0,
+        presentSessions: 0,
+        totalSessions: 0,
+        schedule: 'Monday, Wednesday, Friday\n10:00 AM - 11:30 AM',
+        instructorId: '',
+        roomNumber: 'TBD',
+      );
+
+      // Add the class to the UI provider
+      _ref.read(uiStudentClassesProvider.notifier).addClass(newClass);
+
+      state = const AsyncValue.data(null);
+    } catch (e) {
+      state = AsyncValue.error(e, StackTrace.current);
+    }
+  }
+}

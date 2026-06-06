@@ -10,12 +10,14 @@ class AttendanceMarkedScreen extends ConsumerWidget {
   final bool isPresent;
   final String className;
   final String sessionTime;
+  final String classId;
 
   const AttendanceMarkedScreen({
     super.key,
     required this.isPresent,
     required this.className,
     required this.sessionTime,
+    required this.classId,
   });
 
   @override
@@ -89,9 +91,11 @@ class AttendanceMarkedScreen extends ConsumerWidget {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Reset submission state then go home.
-                    ref.read(attendanceSubmissionProvider.notifier).reset();
-                    context.pushNamed('student-home');
+                    // Navigate back to class detail screen
+                    context.pushNamed(
+                      'student-class',
+                      queryParameters: {'classId': classId},
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryColor,

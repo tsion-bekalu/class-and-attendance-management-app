@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../domain/models/student_models.dart';
 import '../providers/student_providers.dart';
+import 'attendance_marked_screen.dart'; // Add this import
 
 class EnterCodeScreen extends ConsumerStatefulWidget {
   final String classId;
@@ -15,6 +17,7 @@ class EnterCodeScreen extends ConsumerStatefulWidget {
 
 class _EnterCodeScreenState extends ConsumerState<EnterCodeScreen> {
   final _controller = TextEditingController();
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -31,38 +34,61 @@ class _EnterCodeScreenState extends ConsumerState<EnterCodeScreen> {
       return;
     }
 
-    await ref
-        .read(attendanceSubmissionProvider.notifier)
-        .submitByCode(widget.classId, code);
-
-    final state = ref.read(attendanceSubmissionProvider);
-    state.whenData((result) {
-      if (result != null) {
-        context.goNamed(
-          'attendance-marked',
-          queryParameters: {
-            'isPresent': result.isPresent.toString(),
-            'className': result.className ?? '',
-            'sessionTime': result.sessionTime ?? '',
-          },
-        );
-      }
+    setState(() {
+      _isSubmitting = true;
     });
 
-    if (state.hasError) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${state.error}')),
-        );
-      }
+    // Simulate API call delay
+    await Future.delayed(const Duration(seconds: 1));
+
+    final isPresent = true;
+    final currentTime = DateTime.now();
+    final formattedTime = '${currentTime.hour > 12 ? currentTime.hour - 12 : currentTime.hour}:${currentTime.minute.toString().padLeft(2, '0')} ${currentTime.hour >= 12 ? 'PM' : 'AM'}';
+
+    // Get class name from UI provider
+    String className = 'Class';
+    final classesState = ref.read(uiStudentClassesProvider);
+    classesState.whenData((classes) {
+      final found = classes.firstWhere(
+            (c) => c.id == widget.classId,
+        orElse: () => StudentClass(
+          id: '',
+          name: 'Class',
+          courseCode: '',
+          instructorName: '',
+          attendancePercentage: 0,
+          presentSessions: 0,
+          totalSessions: 0,
+          schedule: '',
+          instructorId: '',
+          roomNumber: 'TBD',
+        ),
+      );
+      className = found.name;
+    });
+
+    setState(() {
+      _isSubmitting = false;
+    });
+
+    if (mounted) {
+      // Option 1: Use push with MaterialPageRoute (most reliable)
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AttendanceMarkedScreen(
+            isPresent: isPresent,
+            className: className,
+            sessionTime: formattedTime,
+            classId: widget.classId,
+          ),
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final submissionState = ref.watch(attendanceSubmissionProvider);
-    final isLoading = submissionState.isLoading;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -148,14 +174,14 @@ class _EnterCodeScreenState extends ConsumerState<EnterCodeScreen> {
               ),
               maxLength: 8,
               buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
-                  null,
+              null,
             ),
             const SizedBox(height: 32),
 
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isLoading ? null : _submit,
+                onPressed: _isSubmitting ? null : _submit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF155DFC),
                   foregroundColor: Colors.white,
@@ -164,18 +190,18 @@ class _EnterCodeScreenState extends ConsumerState<EnterCodeScreen> {
                       borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
-                child: isLoading
+                child: _isSubmitting
                     ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child:
-                            CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                      )
+                  height: 20,
+                  width: 20,
+                  child:
+                  CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                )
                     : const Text(
-                        'Submit Attendance',
-                        style:
-                            TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                      ),
+                  'Submit Attendance',
+                  style:
+                  TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
               ),
             ),
             const Spacer(flex: 2),

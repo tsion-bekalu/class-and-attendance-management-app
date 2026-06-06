@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../domain/models/student_models.dart';
 import '../widgets/class_list.dart';
 import '../widgets/student_drawer.dart';
 import '../widgets/join_class_dialog.dart';
@@ -15,7 +16,7 @@ class StudentHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
     final profileAsync = ref.watch(studentProfileProvider);
-    final classesAsync = ref.watch(studentClassesProvider);
+    final classesAsync = ref.watch(uiStudentClassesProvider);
     final hasUnread = ref.watch(hasUnreadNotificationsProvider);
 
     return Scaffold(
@@ -24,7 +25,7 @@ class StudentHomeScreen extends ConsumerWidget {
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(studentProfileProvider);
-          ref.invalidate(studentClassesProvider);
+          ref.invalidate(uiStudentClassesProvider);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -33,7 +34,7 @@ class StudentHomeScreen extends ConsumerWidget {
               SizedBox(
                 height: 420,
                 child: _buildBlueHeader(
-                    context, ref, scaffoldKey, profileAsync, hasUnread),
+                    context, ref, scaffoldKey, profileAsync, classesAsync, hasUnread),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -52,13 +53,13 @@ class StudentHomeScreen extends ConsumerWidget {
                     classesAsync.when(
                       loading: () => const Center(
                           child: Padding(
-                        padding: EdgeInsets.all(32),
-                        child: CircularProgressIndicator(),
-                      )),
+                            padding: EdgeInsets.all(32),
+                            child: CircularProgressIndicator(),
+                          )),
                       error: (e, _) => _ErrorCard(
                           message: e.toString(),
                           onRetry: () =>
-                              ref.invalidate(studentClassesProvider)),
+                              ref.invalidate(uiStudentClassesProvider)),
                       data: (classes) => ListView.builder(
                         shrinkWrap: true,
                         padding: EdgeInsets.zero,
@@ -91,12 +92,13 @@ class StudentHomeScreen extends ConsumerWidget {
   }
 
   Widget _buildBlueHeader(
-    BuildContext context,
-    WidgetRef ref,
-    GlobalKey<ScaffoldState> key,
-    AsyncValue profileAsync,
-    bool hasUnread,
-  ) {
+      BuildContext context,
+      WidgetRef ref,
+      GlobalKey<ScaffoldState> key,
+      AsyncValue profileAsync,
+      AsyncValue<List<StudentClass>> classesAsync,
+      bool hasUnread,
+      ) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -155,20 +157,42 @@ class StudentHomeScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 30),
-              profileAsync.when(
+              // Calculate stats from classes
+              classesAsync.when(
                 loading: () => const _StatsRowSkeleton(),
-                error: (_, _) => const _StatsRowSkeleton(),
-                data: (profile) => _buildStatsRow(
-                  '${profile.overallAttendance.toStringAsFixed(0)}%',
-                  '${profile.presentSessions}',
-                  '${profile.absentSessions}',
-                ),
+                error: (_, __) => const _StatsRowSkeleton(),
+                data: (classes) => _buildStatsFromClasses(classes),
               ),
             ],
           ),
         ),
         _buildQuickActionsCard(context),
       ],
+    );
+  }
+
+  // Calculate overall attendance from all classes
+  Widget _buildStatsFromClasses(List<StudentClass> classes) {
+    if (classes.isEmpty) {
+      return _buildStatsRow('0%', '0', '0');
+    }
+
+    int totalPresent = 0;
+    int totalSessions = 0;
+
+    for (var classData in classes) {
+      totalPresent += classData.presentSessions;
+      totalSessions += classData.totalSessions;
+    }
+
+    double overallAttendance = totalSessions > 0
+        ? (totalPresent / totalSessions) * 100
+        : 0.0;
+
+    return _buildStatsRow(
+      '${overallAttendance.toStringAsFixed(0)}%',
+      totalPresent.toString(),
+      (totalSessions - totalPresent).toString(),
     );
   }
 
@@ -318,7 +342,7 @@ class StudentHomeScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 18),
       decoration:
-          BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16)),
+      BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
           Icon(icon, color: iconColor, size: 30),
@@ -342,7 +366,7 @@ class _StatsRowSkeleton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: List.generate(
         3,
-        (_) => Expanded(
+            (_) => Expanded(
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 4),
             height: 64,

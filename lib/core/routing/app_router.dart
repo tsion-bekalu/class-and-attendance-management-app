@@ -178,17 +178,11 @@ final GoRouter appRouter = GoRouter(
       builder: (_, _) => const NotificationsScreen(),
     ),
     GoRoute(
-      path: '/attendance-marked',
-      name: 'attendance-marked',
+      path: '/attendance-scanner-screen',
+      name: 'scanner-screen',
       builder: (_, state) {
-        final isPresent = state.uri.queryParameters['isPresent'] == 'true';
-        final className = state.uri.queryParameters['className'] ?? '';
-        final sessionTime = state.uri.queryParameters['sessionTime'] ?? '';
-        return AttendanceMarkedScreen(
-          isPresent: isPresent,
-          className: className,
-          sessionTime: sessionTime,
-        );
+        final classId = state.uri.queryParameters['classId'] ?? '';
+        return AttendanceScannerScreen(classId: classId);
       },
     ),
     GoRoute(
@@ -199,12 +193,23 @@ final GoRouter appRouter = GoRouter(
         return EnterCodeScreen(classId: classId);
       },
     ),
+
+    // Make sure you also have the attendance-marked route
     GoRoute(
-      path: '/attendance-scanner-screen',
-      name: 'scanner-screen',
+      path: '/attendance-marked',
+      name: 'attendance-marked',
       builder: (_, state) {
+        final isPresent = state.uri.queryParameters['isPresent'] == 'true';
+        final className = state.uri.queryParameters['className'] ?? '';
+        final sessionTime = state.uri.queryParameters['sessionTime'] ?? '';
         final classId = state.uri.queryParameters['classId'] ?? '';
-        return AttendanceScannerScreen(classId: classId);
+
+        return AttendanceMarkedScreen(
+          isPresent: isPresent,
+          className: className,
+          sessionTime: sessionTime,
+          classId: classId,
+        );
       },
     ),
   ],
