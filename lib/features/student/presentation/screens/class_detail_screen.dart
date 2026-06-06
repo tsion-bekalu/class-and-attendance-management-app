@@ -10,65 +10,78 @@ import 'package:app/features/student/domain/models/student_models.dart';
 class ClassDetailScreen extends ConsumerWidget {
   final String classId;
 
-  ClassDetailScreen({super.key, required this.classId});
+   ClassDetailScreen({super.key, required this.classId});
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final classAsync = ref.watch(classDetailProvider(classId));
-    final announcementsAsync = ref.watch(announcementsProvider(classId));
+
+    final uiClasses = ref.watch(uiStudentClassesProvider);
 
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: const StudentDrawer(),
       backgroundColor: AppTheme.backgroundColor,
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(classDetailProvider(classId));
-          ref.invalidate(announcementsProvider(classId));
-        },
-        child: classAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => _buildError(context, ref, e.toString()),
-          data: (classData) => SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              children: [
-                _buildHeader(context, classData),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 24),
-                      _buildScheduleSection(classData),
-                      const SizedBox(height: 24),
-                      _buildActionButtons(context, classId),
-                      const SizedBox(height: 32),
-                      const Text(
-                        'Recent Announcements',
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary),
-                      ),
-                      const SizedBox(height: 16),
-                      announcementsAsync.when(
-                        loading: () =>
-                            const Center(child: CircularProgressIndicator()),
-                        error: (e, _) => Text('Failed to load announcements: $e'),
-                        data: (announcements) =>
-                            _buildAnnouncementList(announcements),
-                      ),
-                      const SizedBox(height: 40),
-                    ],
+      body: uiClasses.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => _buildError(context, ref, e.toString()),
+        data: (classes) {
+          // Find the class in the UI list
+          final classData = classes.firstWhere(
+                (c) => c.id == classId,
+            orElse: () => throw Exception('Class not found'),
+          );
+
+          final announcementsAsync = ref.watch(announcementsProvider(classId));
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(announcementsProvider(classId));
+              ref.invalidate(uiStudentClassesProvider);
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                children: [
+                  _buildHeader(context, classData),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 24),
+                        _buildScheduleSection(classData),
+                        const SizedBox(height: 24),
+                        _buildActionButtons(context, classId),
+                        const SizedBox(height: 32),
+                        const Text(
+                          'Recent Announcements',
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textPrimary),
+                        ),
+                        const SizedBox(height: 16),
+                        announcementsAsync.when(
+                          loading: () => const Center(child: CircularProgressIndicator()),
+                          error: (e, _) => _buildHardcodedAnnouncements(),
+                          data: (announcements) {
+                            if (announcements.isEmpty) {
+                              return _buildHardcodedAnnouncements();
+                            }
+                            return _buildAnnouncementList(announcements);
+                          },
+                        ),
+                        const SizedBox(height: 40),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -78,11 +91,13 @@ class ClassDetailScreen extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(message),
+          const Icon(Icons.error_outline, size: 64, color: Colors.red),
+          const SizedBox(height: 16),
+          Text('Class not found: $message'),
           const SizedBox(height: 12),
           ElevatedButton(
-            onPressed: () => ref.invalidate(classDetailProvider(classId)),
-            child: const Text('Retry'),
+            onPressed: () => context.pushReplacementNamed('student-home'),
+            child: const Text('Go Back Home'),
           ),
         ],
       ),
@@ -154,8 +169,7 @@ class ClassDetailScreen extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.2), shape: BoxShape.circle),
-      child:
-          IconButton(icon: Icon(icon, color: Colors.white, size: 20), onPressed: onTap),
+      child: IconButton(icon: Icon(icon, color: Colors.white, size: 20), onPressed: onTap),
     );
   }
 
@@ -231,7 +245,7 @@ class ClassDetailScreen extends ConsumerWidget {
           child: _actionCard(
             Icons.qr_code_scanner,
             'Start Attendance',
-            () => context.pushNamed('student-attendance',
+                () => context.pushNamed('student-attendance',
                 queryParameters: {'classId': classId}),
           ),
         ),
@@ -240,7 +254,7 @@ class ClassDetailScreen extends ConsumerWidget {
           child: _actionCard(
             Icons.bar_chart_rounded,
             'Attendance History',
-            () => context.pushNamed('student-attendance-history',
+                () => context.pushNamed('student-attendance-history',
                 queryParameters: {'classId': classId}),
           ),
         ),
@@ -281,50 +295,117 @@ class ClassDetailScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildHardcodedAnnouncements() {
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+              color: AppTheme.surfaceColor,
+              borderRadius: BorderRadius.circular(20)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Class Cancelled - Monday',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 8),
+              const Text(
+                  'Please note that Monday\'s class has been cancelled due to a faculty meeting. We will resume on Wednesday.',
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      color: AppTheme.textSecondary, height: 1.4)),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Icon(Icons.access_time,
+                      size: 14, color: AppTheme.textSecondary),
+                  const SizedBox(width: 6),
+                  const Text('2026-04-10 2:30 PM',
+                      style: TextStyle(
+                          color: AppTheme.textSecondary, fontSize: 12)),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+              color: AppTheme.surfaceColor,
+              borderRadius: BorderRadius.circular(20)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Assignment Due Date Extended',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 8),
+              const Text(
+                  'The deadline for Assignment 3 has been extended to April 20th. Please submit your work by then.',
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      color: AppTheme.textSecondary, height: 1.4)),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Icon(Icons.access_time,
+                      size: 14, color: AppTheme.textSecondary),
+                  const SizedBox(width: 6),
+                  const Text('2026-04-10 10:30 AM',
+                      style: TextStyle(
+                          color: AppTheme.textSecondary, fontSize: 12)),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildAnnouncementList(List<Announcement> announcements) {
     if (announcements.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: Text('No announcements yet.',
-              style: TextStyle(color: AppTheme.textSecondary)),
-        ),
-      );
+      return _buildHardcodedAnnouncements();
     }
     return Column(
       children: announcements
           .map((a) => Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                    color: AppTheme.surfaceColor,
-                    borderRadius: BorderRadius.circular(20)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(a.title,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
-                    const SizedBox(height: 8),
-                    Text(a.description,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            color: AppTheme.textSecondary, height: 1.4)),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        const Icon(Icons.access_time,
-                            size: 14, color: AppTheme.textSecondary),
-                        const SizedBox(width: 6),
-                        Text(a.dateTime,
-                            style: const TextStyle(
-                                color: AppTheme.textSecondary, fontSize: 12)),
-                      ],
-                    ),
-                  ],
-                ),
-              ))
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+            color: AppTheme.surfaceColor,
+            borderRadius: BorderRadius.circular(20)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(a.title,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 8),
+            Text(a.description,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    color: AppTheme.textSecondary, height: 1.4)),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Icon(Icons.access_time,
+                    size: 14, color: AppTheme.textSecondary),
+                const SizedBox(width: 6),
+                Text(a.dateTime,
+                    style: const TextStyle(
+                        color: AppTheme.textSecondary, fontSize: 12)),
+              ],
+            ),
+          ],
+        ),
+      ))
           .toList(),
     );
   }

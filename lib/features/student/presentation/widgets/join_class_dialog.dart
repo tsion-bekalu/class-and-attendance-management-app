@@ -1,6 +1,7 @@
 // features/student/presentation/widgets/join_class_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/student_providers.dart';
 
 class JoinClassDialog extends ConsumerStatefulWidget {
@@ -23,20 +24,31 @@ class _JoinClassDialogState extends ConsumerState<JoinClassDialog> {
     final code = _controller.text.trim().toUpperCase();
     if (code.isEmpty) return;
 
-    await ref.read(joinClassProvider.notifier).joinClass(code);
+    // Use the hardcoded join provider
+    final joinNotifier = ref.read(hardcodedJoinClassProvider.notifier);
+    await joinNotifier.joinClassWithCode(code);
 
-    final state = ref.read(joinClassProvider);
+    final joinState = ref.read(hardcodedJoinClassProvider);
+
     if (!mounted) return;
 
-    if (state.hasError) {
+    if (joinState.hasError) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Could not join class: ${state.error}'),
+          content: Text('Could not join class: ${joinState.error}'),
           backgroundColor: Colors.red,
         ),
       );
-    } else if (!state.isLoading) {
+    } else {
+      // Close dialog
       Navigator.pop(context);
+
+      // Navigate to the class detail screen
+      context.pushNamed(
+        'student-class',
+        queryParameters: {'classId': code},
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Successfully joined class!'),
@@ -48,7 +60,7 @@ class _JoinClassDialogState extends ConsumerState<JoinClassDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final joinState = ref.watch(joinClassProvider);
+    final joinState = ref.watch(hardcodedJoinClassProvider);
     final isLoading = joinState.isLoading;
 
     return Dialog(
@@ -90,7 +102,7 @@ class _JoinClassDialogState extends ConsumerState<JoinClassDialog> {
                       color: Color(0xFF8E9199), fontWeight: FontWeight.w500),
                   border: InputBorder.none,
                   contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
                 style: const TextStyle(
                     fontSize: 16,
@@ -130,14 +142,14 @@ class _JoinClassDialogState extends ConsumerState<JoinClassDialog> {
                   ),
                   child: isLoading
                       ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2),
-                        )
+                    height: 18,
+                    width: 18,
+                    child: CircularProgressIndicator(
+                        color: Colors.white, strokeWidth: 2),
+                  )
                       : const Text('Join',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold)),
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
