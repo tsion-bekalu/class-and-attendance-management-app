@@ -147,6 +147,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
+                  key: const Key('loginEmailField'),
                   controller: _emailController,
                   validator: _validateEmail,
                   keyboardType: TextInputType.emailAddress,
@@ -182,6 +183,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
+                  key: const Key('loginPasswordField'),
                   controller: _passwordController,
                   validator: _validatePassword,
                   obscureText: _obscurePassword,
@@ -257,6 +259,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
+                    key: const Key('loginSubmitButton'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1A60FF),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
