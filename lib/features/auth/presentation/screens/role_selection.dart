@@ -76,6 +76,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
 
                   // INSTRUCTOR TILE
                   _RoleTile(
+                    key: const Key('roleSelectionInstructorTile'),
                     icon: Icons.school_outlined,
                     title: 'Instructor',
                     subtitle: 'Manage classes &\nattendance',
@@ -89,6 +90,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
 
                   // STUDENT TILE
                   _RoleTile(
+                    key: const Key('roleSelectionStudentTile'),
                     icon: Icons.groups_outlined,
                     title: 'Student',
                     subtitle: 'Join classes & mark\nattendance',
@@ -105,6 +107,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
+                      key: const Key('roleSelectionContinueButton'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,
                         elevation: 4,
@@ -156,6 +159,7 @@ class _RoleTile extends StatelessWidget {
   final VoidCallback onTap;
 
   const _RoleTile({
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,

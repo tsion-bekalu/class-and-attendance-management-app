@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter/foundation.dart';
@@ -8,6 +10,8 @@ class DatabaseHelper {
   static final DatabaseHelper instance =
       DatabaseHelper._internal();
 
+  static String databaseName = 'attendance_app.db';
+  static String? databasePath;
   static Database? _database;
 
   Future<Database> get database async {
@@ -25,10 +29,15 @@ class DatabaseHelper {
     String path;
 
     if (kIsWeb) {
-      path = 'attendance_app.db';
+      path = databaseName;
     } else {
-      final dbPath = await getDatabasesPath();
-      path = join(dbPath, 'attendance_app.db');
+      if (databasePath != null) {
+        path = databasePath!;
+      } else {
+        final dbPath = await getDatabasesPath();
+        path = join(dbPath, databaseName);
+      }
+      await Directory(dirname(path)).create(recursive: true);
     }
 
     return await openDatabase(
@@ -316,8 +325,10 @@ class DatabaseHelper {
   }
 
   Future<void> close() async {
-    final db = await database;
-    await db.close();
+    if (_database != null) {
+      await _database!.close();
+      _database = null;
+    }
   }
 }
 
