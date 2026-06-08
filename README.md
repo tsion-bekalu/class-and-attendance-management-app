@@ -11,3 +11,18 @@ This project is a mobile-based class attendance system designed for campus use. 
 | Nardos Abebe | UGR/7377/16 |
 | Tadesse Kahisu | UGR/5853/16 |
 | Tsion Bekalu | UGR/9277/16 |
+
+## Demo Video
+
+A muted demo video is included in the repository under the `assets` folder.
+
+📹 **Local Video File:**
+`assets/demo.mp4`
+
+> Note: The local video in the repository is provided without audio for easier viewing and reduced file size.
+
+🔊 **Video with Audio (Google Drive):**
+
+https://drive.google.com/file/d/1xX0Z0lwhq9uuqkpfZtQMpyXcFr8NgVgr/view?usp=drive_link
+
+This video demonstrates the application's features, navigation flow, and core functionality.
